@@ -1,0 +1,472 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>公文详情</title>
+    	<!--<link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">-->
+    	<link rel="stylesheet" type="text/css" href="../css/iview.css"/>
+		<script src="../js/vue.min.js"></script>
+		<!--<script src="js/jquery.js"></script>-->
+		<script src="../lib/jquery/1.9.1/jquery.min.js"></script>
+    	<script src="../lib/layer/2.4/layer.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/axios.min.js"></script>
+		<!--<script src="/js/axiosConfig.js"></script>-->
+		<script src="../js/iview.min.js"></script>
+		
+	</head>
+	<style>
+		ul{
+			list-style: none;
+		}
+		.tables{
+			border-collapse:collapse;
+			border: 1px solid #C5C8CE;
+			font-size: 14px;
+		}
+		.tables tr td:first-child{
+			width: 15%;
+			text-align: center;
+			padding: 5px;
+		}
+		.tables tr td:last-child{
+			width: 85%;
+		}
+		.hide{
+			display: none;
+		}
+		.doclist{
+			border: 1px solid #C3C3C3;
+			border-collapse: collapse;
+			border-radius: 5px;
+		}
+		.doclist li{
+			width: 100%;
+			margin: 10px;
+			border-bottom: 1px solid #C3C3C3;
+			border-collapse: collapse;
+		}
+		.tables tr td input{
+			width:98%;
+			margin: 0px;
+			padding: 5px 5px;
+			border: none;
+		}
+		.doclist li{
+			width: auto;
+		}
+		.ivu-date-picker{
+			width: 100%;
+		}
+	</style>
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<b>信息编辑</b>
+			<ul class="doclist">
+				<li class="one" v-for="item in successData"><a style="cursor:default" href="javascript:void(0);">{{item.title}}</a><button @click="btnDelete(item.id)" style="position: absolute; width: 50px;height: 25px; right: 4%;background: red;color: white;border-radius: 5px;">删除</button>
+					<ul class="listdetail">
+						<li>
+							<table width="100%" border="1" cellspacing="0" cellpadding="0" class="tables" >
+								<tbody>
+									<tr>
+										<td>公文名称</td>
+										<td><input type="" value="item.title" v-model="item.title" /></td>
+									</tr>
+									<tr>
+										<td>收件人</td>
+										<td><input type="" value="item.currecv" v-model="item.currecv"/></td>
+									</tr>
+									<tr>
+										<td>办件人</td>
+										<td>
+											<i-col span='24'>
+												<i-select label-in-value="true" filterable multiple v-model="item.bjr">
+													<i-option v-for='opt in peopleList' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>	
+												</i-select>
+											</i-col>
+										</td>
+									</tr>
+									<tr>
+										<td>是否超期</td>
+										<td>
+											<!--<input type="" :value="exceedFormat(item.exceed)" v-model="item.exceed"/>-->										
+											<i-select label-in-value="true" v-model="item.exceed">
+												<i-option :value="0" >未超期</i-option>
+												<i-option :value="1" >已超期</i-option>
+											</i-select>													
+										</td>
+									</tr>
+									<tr>
+										<td>主送人</td>
+										<td>
+											<input type="" value="item.sender.name" v-model="item.sender.name"/>
+											<!--<i-col span='24'>
+												<i-select label-in-value="true" v-model="item.sender.name">
+													<i-option v-for='opt in peopleList' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>	
+												</i-select>
+											</i-col>-->
+										</td>
+									</tr>
+									<tr>
+										<td>分送人</td>
+										<td>
+											<i-col span='24'>
+												<i-select label-in-value="true" filterable multiple v-model="item.fsr">
+													<i-option v-for='opt in peopleList' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>	
+												</i-select>
+											</i-col>
+										</td>
+									</tr>
+									<tr>
+										<td>来文时间</td>
+										<td>
+											<!--<input type="" :value="item.assignTime" />-->
+											<i-col span="24">
+												<Date-Picker v-model="item.assignTime" value='0' type="date" :options="startTimeOptions" @on-change="endTimeChange"></Date-Picker>
+											</i-col>
+										</td>
+									</tr>
+									<tr>
+										<td>完结时间</td>
+										<td>
+											<!--<input type="" :value="item.endTime" />-->
+											<i-col span="24">
+												<Date-Picker v-model="item.endTime" value='0' type="date" :options="startTimeOptions" @on-change="endTimeChange"></Date-Picker>
+											</i-col>
+										</td>
+									</tr>
+									<tr  >
+										<td>公文问题</td>
+										<td >
+											<i-col span='24'>
+												<i-select label-in-value="true" filterable multiple v-model="item.proUnit">
+													<i-option v-for="pro in questionList" :value="pro.id" :key="pro.itemdesc">{{pro.itemdesc}}</i-option>
+												</i-select>
+											</i-col>
+										</td>
+									</tr>									
+									<tr>
+										<td>归档状态</td>
+										<td>
+											<!--<input style="color: red;" type="" :value="statusFormat(item.status)"/>-->
+											<i-col span='24'>
+												<i-select label-in-value="true" v-model="item.status">
+													<i-option :value="0">未归档</i-option>
+													<i-option :value="1">已归档</i-option>
+												</i-select>
+											</i-col>
+										</td>
+									</tr>
+									<tr>
+										<td>领导批示</td>
+										<td><input type="" value="item.closememo" v-model="item.instructions"/></td>
+									</tr>
+									<tr>
+										<td>办公室意见</td>
+										<td><input type="" value="item.closememo" v-model="item.suggestion"/></td>
+									</tr>
+									<tr>
+										<td>拟办意见</td>
+										<td><input type="" value="item.closememo" v-model="item.opinion"/></td>
+									</tr>
+									<tr>
+										<td>说明</td>
+										<td><input type="" value="item.closememo" v-model="item.closememo"/></td>
+									</tr>
+									<tr>
+										<td colspan="2" style="border: none;">
+											<button @click="CheckDetail(item)">查看附件</button>										
+											<button style="margin-left: 20px;" @click="fnsave(item)">保存提交</button>
+										</td>
+									</tr>								
+								</tbody>
+							</table>																																			
+						</li>
+					</ul>
+				</li>
+				<!--<li class="one"><a href="">公文列表2</a>
+					<ul class="listdetail">
+						<li>
+							<table width="100%" border="1" cellspacing="0" cellpadding="0" class="tables" >
+								<tbody>
+									<tr>
+										<td>公文名称</td>
+										<td>哈哈哈会刚看到了打开了fghdsfghdfg点燃烽火东方红东方红给和反对共和的风头过后发给太后发给风格和地方规划福建会馆客房价格肯德基吧</td>
+									</tr>
+									<tr>
+										<td>接收人</td>
+										<td>张三</td>
+									</tr>
+									<tr>
+										<td>公文问题</td>
+										<td>错别字、未上报</td>
+									</tr>
+									<tr>
+										<td>来文时间</td>
+										<td>2019.01.22</td>
+									</tr>
+									<tr>
+										<td>完结时间</td>
+										<td>2019.03.23</td>
+									</tr>
+									<tr>
+										<td>问题单位</td>
+										<td>区委办</td>
+									</tr>
+									<tr>
+										<td>完成状态</td>
+										<td style="color: red;">已完成</td>
+									</tr>
+									<tr>
+										<td>说明</td>
+										<td>郭德纲和克林顿访华给</td>
+									</tr>
+								</tbody>
+							</table>
+						</li>
+					</ul>
+				</li>-->
+			</ul>	
+		</div>			
+	</body>
+</html>
+<script>
+	var unitid = request("unitid");
+	var mid = request("id");
+	new Vue({
+		el: '#app',
+		data: {
+			startTimeOptions: {},
+			successData:'',
+			proUnit:[],
+			bjr:[],
+			fsr:[],        
+			peopleList:[],
+			questionList:[]
+		},
+		mounted: function() {
+			var parmDate = new Date();
+			this.endtime = parmDate;
+//			this.inputform.mtime = parmDate;
+//			this.inputform.overtime = parmDate;
+			this.endTimeChange(parmDate);
+			this.getData();
+			//设置问题默认值
+			this.proUnit;
+			//公文问题
+			this.docQuestion();
+			this.getPeopleList();
+		},
+		methods: {
+			getItemName (val) {
+		        this.formSend.name = val.label
+		        // 这里直接获取显示的值就可以了，绑定的值可以通过select上面绑定的值取得
+		    },
+		    choosedata(option) {
+//				console.log(option);
+				this.chooseDeptList = option;
+				if(this.ishidden == false) {
+					this.ishidden = true;
+				}
+			},
+			getPeopleList() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiOverseePeopleList,
+					method: "GET",
+					async: false,
+					headers: {
+						"Authorization": "Bearer " + token
+					}
+				}).then(function(ret) {
+					vm.peopleList = [];
+//					console.log(JSON.stringify(ret))
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.name;
+						tempitem.value = item.id;
+						vm.peopleList.push(tempitem);
+					});
+				});
+			},
+			//获取查看详情列表
+	    	getData(){
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.Apidoclist,
+					method: "post",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data:{
+//						afterTime: "2019-04-25",
+//						beforeTime: "2019-04-1",
+						companyIds: [unitid]
+					}
+				}).then(function(ret) {
+//					console.log(ret.data.data.records)
+					vm.successData=ret.data.data.records;
+					
+					vm.successData.forEach(function(item,index){
+						item.proUnit=[];
+						item.fsr=[];
+						item.bjr=[];
+						item.docRecs.forEach(function(items,index){
+							item.proUnit.push(items.checkitemid);
+						});
+						item.doPersonuser.forEach(function(items,index){
+							item.fsr.push(items.id);
+//							console.log(item.fsr);
+						});
+						item.copySender.forEach(function(items,index){
+							item.bjr.push(items.id);
+//							console.log(item.bjr);
+						});
+					})
+					
+				});	
+			},
+			//获取公文问题
+			docQuestion(){
+				var vm = this;
+				var token = localStorage.getItem("wccToken");
+				axios({
+					url: apiUrl.ApiCheckItemList + '?itemclass=3',
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: '',
+				}).then(function(ret){
+//					console.log("公文问题:"+JSON.stringify(ret.data.data));
+					vm.questionList=ret.data.data
+				})
+			},
+			//编辑提交
+			fnsave(dataform) {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				var data=dataform;
+				data.doPersonIds=data.bjr.join(','),//办件人id
+				data.copySenderId=data.fsr.join(',');//分送人id	
+				
+				data.resc=[];
+				data.docRecs.forEach(function(item,index){
+					data.proUnit.forEach(function(items,index){
+						if(items===item.checkitemid){
+							delete item.checkitem;
+							delete item.createtime;
+							data.resc.push(item);
+							data.proUnit.splice(data.proUnit.indexOf(items),1);
+						}
+					});
+				});
+				data.proUnit.forEach(function(items,index){
+				var tmpobj = {};
+					tmpobj.unitid = data.unitid;
+					tmpobj.checkitemid = items;
+					tmpobj.checkvalue = 1;
+					tmpobj.docassignid=data.id;
+					data.resc.push(tmpobj);
+				});												
+//				console.log(data.resc);				
+				delete data.copySender;
+				delete data.createuser;
+				delete data.doPersonuser;
+				delete data.docRecs;
+				delete data.eventStep;
+				delete data.sender;
+				delete data.proUnit;
+				delete data.bjr;
+				delete data.fsr;
+
+				axios({
+					url: apiUrl.Apidocupdate,
+					method: "POST",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: data,
+				}).then(function(ret) {
+					if(ret.data.success) {
+						alert('保存提交成功！');
+						vm.getData();
+					} else {
+						vm.$Message.warning(ret.data.message);
+					}
+				});
+				return;
+			},
+			//删除
+			btnDelete(id){
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.Apidocdelete + '/'+id,
+					method: "get",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+				}).then(function(ret) {
+//					console.log(JSON.stringify(ret.data));
+					if(ret.data.success) {
+						vm.getData();
+					} else {
+						vm.$Message.warning(ret.data.message);
+					}
+				});
+				return;
+			},
+			//判断显示状态
+//			statusFormat(status){
+//				if(status==1){
+//					return "已归档";
+//				}else{
+//					return "未归档";
+//				}
+//			},
+			//设置结束时间
+			endTimeChange: function(e) {
+				//debugger
+				this.endtime = e;
+				let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+				this.startTimeOptions = {
+					disabledDate(date) {
+						return date && date.valueOf() > Date.now() && endTime != '';
+					}
+				}
+			},
+			CheckDetail(item) {
+		        layerindex = layer.open({
+					type: 2,
+					title: "附件详情",
+					maxmin: true,
+					area: ['886px', '460px'], //弹出层页面比例
+		            content: "attach.html?pictures=" + item.pictures+"&files="+item.files
+				});
+			}
+//			showLi(){
+//				$('.listdetail').hasClass('hide') ? $('.listdetail').removeClass('hide') : $('.listdetail').addClass('hide');
+//				console.log($('.listdetail').hasClass('hide'));
+//			}
+		}
+	});
+</script>
+<script>
+//	$(function(){
+//		
+//		$('.doclist').find('.one').click(function(e){
+//			e.preventDefault();
+//			var $ul = $(this).find('ul');
+//			$ul.hasClass('hide') ? $ul.removeClass('hide') : $ul.addClass('hide');
+//		})
+//	})
+
+//	$('.tabas').find(td).change(function(){
+//	  $(this).css("background-color","#FFFFCC");
+//	});
+</script>
+

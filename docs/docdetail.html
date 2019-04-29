@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>公文详情</title>
+		<script src="../js/vue.min.js"></script>
+		<!--<script src="js/jquery.js"></script>-->
+    	<script src="../lib/jquery/1.9.1/jquery.min.js"></script>
+    	<script src="../lib/layer/2.4/layer.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/axios.min.js"></script>
+		<!--<script src="/js/axiosConfig.js"></script>-->
+	</head>
+	<style>
+		ul{
+			list-style: none;
+		}
+		.tables{
+			border-collapse:collapse;
+			border: 1px solid #C5C8CE;
+			font-size: 14px;
+		}
+		.tables th{
+			padding: 5px;
+		}
+		.tables tr td:first-child{
+			width: 15%;
+			text-align: center;
+			padding: 5px;
+		}
+		.tables tr td:last-child{
+			padding: 5px;
+			width: 85%;
+		}
+		.hide{
+			display: none;
+		}
+		.doclist{
+			border: 1px solid #C3C3C3;
+			border-collapse: collapse;
+			border-radius: 5px;
+		}
+		.doclist li{
+			width: 100%;
+			margin: 10px;
+			border-bottom: 1px solid #C3C3C3;
+			border-collapse: collapse;
+			margin-left: -20px;
+		}
+		.layui-layer{
+			top: 0px;
+		}
+	</style>
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<b>单位公文详情</b>
+			<ul class="doclist">
+				<li class="one" v-for="item in successData"><a style="cursor:default; text-decoration:none" href="javascript:void(0);">{{item.title}}</a>
+					<ul class="listdetail">
+						<li>
+							<table width="100%" border="1" cellspacing="0" cellpadding="0" class="tables" >
+								<tbody>
+									<tr>
+										<td>收件人</td>
+										<td>{{item.currecv}}</td>
+									</tr>
+									<tr>
+										<td>办件人</td>
+										<td>{{item.bjr.join(' , ')}}</td>
+									</tr>
+									<tr>
+										<td>是否超期</td>
+										<td style="color: red;" v-text='exceedFormat(item.exceed)'></td>
+									</tr>
+									<tr>
+										<td>主送人</td>
+										<td>{{item.sender.name}}</td>
+									</tr>
+									<tr>
+										<td >分送人</td>
+										<td>{{item.fsr.join(' , ')}}</td>
+									</tr>
+									<tr>
+										<td>公文问题</td>
+										<td v-text="item.proUnit.join(' , ')"></td>
+									</tr>
+									<tr>
+										<td>来文时间</td>
+										<td>{{item.assignTime}}</td>
+									</tr>
+									<tr>
+										<td>完结时间</td>
+										<td>{{item.endTime}}</td>
+									</tr>
+									<tr>
+										<td>完成状态</td>
+										<td style="color: red;" v-text="statusFormat(item.status)"></td>
+									</tr>
+									<tr>
+										<td>部门单位</td>
+										<td>区总共会</td>
+									</tr>
+									<tr>
+										<td>领导批示</td>
+										<td>{{item.instructions}}</td>
+									</tr>
+									<tr>
+										<td>办公室意见</td>
+										<td>{{item.suggestion}}</td>
+									</tr>
+									<tr>
+										<td>拟办意见</td>
+										<td>{{item.opinion}}</td>
+									</tr>
+									<tr>
+										<td>说明</td>
+										<td>{{item.closememo}}</td>
+									</tr>
+									<tr>
+										<td colspan="2" style="border: none;"><button @click="CheckDetail(item)">查看附件</button></td>										
+									</tr>
+								</tbody>
+							</table>
+						</li>
+					</ul>
+				</li>
+				<!--<li class="one"><a href="">公文列表2</a>
+					<ul class="listdetail">
+						<li>
+							<table width="100%" border="1" cellspacing="0" cellpadding="0" class="tables" >
+								<tbody>
+									<tr>
+										<td>公文名称</td>
+										<td>哈哈哈会刚看到了打开了fghdsfghdfg点燃烽火东方红东方红给和反对共和的风头过后发给太后发给风格和地方规划福建会馆客房价格肯德基吧</td>
+									</tr>
+									<tr>
+										<td>接收人</td>
+										<td>张三</td>
+									</tr>
+									<tr>
+										<td>公文问题</td>
+										<td>错别字、未上报</td>
+									</tr>
+									<tr>
+										<td>来文时间</td>
+										<td>2019.01.22</td>
+									</tr>
+									<tr>
+										<td>完结时间</td>
+										<td>2019.03.23</td>
+									</tr>
+									<tr>
+										<td>完成状态</td>
+										<td style="color: red;">已完成</td>
+									</tr>
+									<tr>
+										<td>说明</td>
+										<td>郭德纲和克林顿访华给</td>
+									</tr>
+								</tbody>
+							</table>
+						</li>
+					</ul>
+				</li>-->
+			</ul>	
+		</div>			
+	</body>
+</html>
+<script>
+	var unitid = request("unitid");
+	// console.log(unitid);
+	var mid = request("id");
+	new Vue({
+		el: '#app',
+		data: {
+			successData:'',
+			proUnit:'',
+			bjr:'',
+			fsr:''
+		},
+		mounted: function() {
+			this.getData();
+		},
+		methods: {
+			//获取查看详情列表
+	    	getData(){
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.Apidoclist,
+					method: "post",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data:{
+//						afterTime: "2019-04-25",
+//						beforeTime: "2019-04-1",
+						companyIds: [unitid]
+					}
+				}).then(function(ret) {
+					// console.log(ret.data.data.records)
+					vm.successData=ret.data.data.records;
+					vm.successData.forEach(function(item,index){
+						item.proUnit=[];
+						item.fsr=[];
+						item.bjr=[];
+						item.docRecs.forEach(function(items,index){
+							item.proUnit.push(items.checkitem.itemdesc);
+							// console.log(item.proUnit);
+						});
+						item.doPersonuser.forEach(function(items,index){
+							item.fsr.push(items.name);
+							// console.log(item.fsr);
+						});
+						item.copySender.forEach(function(items,index){
+							item.bjr.push(items.name);
+							// console.log(item.bjr);
+						});
+					})
+				});	
+			},
+			//判断是否超期显示
+			exceedFormat(status){
+				if(status==1){
+					return "是";
+				}else{
+					return "否";
+				}
+			},
+			statusFormat(status){
+				if (status == 1) {
+					return "已完成"
+				} else{
+					return "未完成"
+				}
+			},
+			CheckDetail(item) {
+		        layerindex = layer.open({
+					type: 2,
+					title: "附件详情",
+					maxmin: true,
+					area: ['886px', '460px'], //弹出层页面比例
+		            content: "attach.html?pictures=" + item.pictures+"&files="+item.files
+				});
+			}
+//			showLi(){
+//				$('.listdetail').hasClass('hide') ? $('.listdetail').removeClass('hide') : $('.listdetail').addClass('hide');
+//				console.log($('.listdetail').hasClass('hide'));
+//			}
+		}
+	});
+</script>
+
+<script>
+	
+	
+	
+	
+	$(function(){
+		$('.doclist').find('.one').click(function(e){
+			e.preventDefault();
+			var $ul = $(this).find('ul');
+			$ul.hasClass('hide') ? $ul.removeClass('hide') : $ul.addClass('hide');
+		})
+	})
+</script>

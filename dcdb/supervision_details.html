@@ -1,0 +1,484 @@
+﻿
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>顺庆区区委办督查督办管理系统</title>
+    <link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <script src="../js/vue.min.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/url.js"></script>
+    <script src="../js/axios.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/axiosConfig.js"></script>
+    <script src="../js/iview.min.js"></script>
+    <script src="../js/rykjpub.js"></script>
+    <style>
+        .left {
+            width: 28%;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            float: left;
+        }
+
+            .left table tbody tr td {
+                border-bottom: 1px solid #C7C7C7;
+                line-height: 33px;
+                padding: 0px 10px;
+            }
+
+        .TheLog, .nuit {
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            background-color: #efeef0;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .right {
+            width: 70%;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            float: left;
+            margin-left: 10px;
+        }
+            .right table tr td {
+                border-bottom: 1px solid #C7C7C7;
+                line-height: 23px;
+                padding: 0px 10px;
+            }
+        .nuit {
+            margin-bottom: 0px;
+        }
+
+        .ivu-col-span-11 {
+            width: 100%;
+            background: lightgoldenrodyellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="margin:15px 10px 10px 10px;">
+        <div class="left">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <thead style="background:#EFEEF0;line-height: 40px; width:30%;text-align: center;">
+                    <tr>
+                        <td>事项信息</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span style="color:blue;font-size:16px;" id="tasktitle"></span>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <span class="bold">交办时间：</span><span class="xx-mca" id="createdTime"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">责任单位：</span><span class="xx-mca" id="companyname"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">督办责任人：</span><span class="xx-mca" id="createusername"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">交办要求：</span><span class="xx-mca" id="assignmemo"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">办结时限：</span><span class="xx-mca" id="endtime"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">目前状态：</span><span class="xx-mca" id="eventStepstep" style="color: red;"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">是否超期：</span><span class="xx-mca" id="is_exceed"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">总共用时：</span><span class="xx-mca" id="usetime"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">归档时间：</span><span class="xx-mca" id="ArchiveTime"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="bold">归档总结：</span><span class="xx-mca" id="ArchiveSummary"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="TheLog"><span>事项日志</span></div>
+            <div class="steps">
+                <div id="list">
+                    <steps :current="taskassign.length" direction="vertical">
+                        <step :title="item.createtime" :content="item.logcontent" v-for='item in taskassign'></step>
+                    </steps>
+                </div>
+            </div>
+        </div>
+        <div class="right">
+            <div class="nuit"><span>责任单位</span></div>
+            <i-col span="11">
+                <Card style="font-size:12px;">
+                    <Row>
+                        <i-col span="24">
+                            <div id="myassignunitboxs">
+
+                            </div>
+
+                        </i-col>
+
+                    </Row>
+                </Card>
+            </i-col>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    var paramid = this.request('id');
+    //alert("dkfghkfgh=" + paramid);
+    new Vue({
+        el: '#app',
+        data: {
+            atatus: '',
+            detail: {},
+            dataTaskAssignUnitList: [],
+            taskassign: ''
+        },
+        created: function () {
+            var vm = this;
+            var token = localStorage.getItem("wccToken"); //获取
+            axios({
+                method: "GET",
+                content: "获取数据中，请稍等...",
+                async: false,
+                url: apiUrl.ApitaskassignLoglist + "?id=" + paramid,//事项日志
+                headers: { "Authorization": "Bearer " + token },
+                data: {
+                    id: paramid
+                }
+            }).then((response) => {
+                    console.log(response.data);
+                    if (response.data.code == 200) {
+                        vm.taskassign = response.data.data;
+                    }
+
+                })
+                .catch((error) => {
+
+                });
+        },
+        methods: {
+            //得到用户基础信息
+            getUserData() {
+                var vm = this;
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    url: apiUrl.User,
+                    method: "GET",
+                    content: "获取数据中，请稍等...",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    data: ''
+                }).then(function (ret) {
+                    //                        console.log(ret.data);
+                    if (ret.data.success) {
+                        $(ret.data.data).each(function (index, item) {
+                            vm.pubuserid = item.id;
+                        });
+                    }
+                    else {
+                        //vm.$Message.warning(ret.data.message);
+                        alert("已有最新发布，重新登陆处理！");
+                        window.parent.parent.location.href = 'login.html';
+                    }
+
+                });
+            },
+             
+            //获取事项信息
+            details() {
+                var vm = this;
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    method: "GET",
+                    content: "获取数据中，请稍等...",
+                    async: false,
+                    url: apiUrl.ApiTaskassignDetail + "/" + paramid,
+                    headers: { "Authorization": "Bearer " + token },
+                    data: {
+                        id: paramid
+                    }
+                }).then(function (ret) {
+                    // console.log("交办事项基本信息：" + JSON.stringify(ret.data));
+                    //						console.log(ret.data.data.taskassignUnits[0].taskassignUnits)
+                    if (ret.data.success) {
+                        //console.log(ret.data);
+
+                        var rtobj = ret.data.data;
+
+                        $('#createdTime').text(rtobj.createtime.substring(0, 11))//交办时间
+                        $('#tasktitle').text(rtobj.task.title)//交办事项
+                        $('#assignmemo').text(rtobj.assignmemo);//交办要求
+                        $('#endtime').text(rtobj.endtime);//办结时限
+
+                        $('#eventStepstep').text(rtobj.eventStep.step);//目前状态
+                        $('#is_exceed').text(rtobj.is_exceed);//是否超期
+                        $('#usetime').text(rtobj.useTime);//总共用时
+                        $('#ArchiveTime').text(rtobj.endtime.substring(0, 11));//归档时间
+						$('#ArchiveSummary').text(rtobj.closememo);//归档总结
+
+                        $('#companyname').text(companyname);//责任单位
+                        $('#createusername').text(rtobj.createuser.name);//督办负责人
+
+
+                        var aa_unit = [];
+                        var aa_person = [];
+                        var snn = 0;
+
+                        $(rtobj.taskassignUnits).each(function (index, item) {
+                            var row = item;
+                              console.log(row);
+                            snn++;
+
+                            var unit_title = row.company.title;
+                            var person_name = row.person.name;
+                            var unit_endtime = row.endtime;
+                            var unit_requirements = row.requirements;
+
+                            aa_unit.push(unit_title);
+                            aa_person.push(person_name);
+
+                            var ss = '<div style="margin:10px 10px 10px 10px;" id=id'+snn+'>';
+                            ss += '<div class="c' + snn +'" style="font-size:16px;color:blue;"><span>' + snn + '，' + unit_title + '（' + person_name + '）</span>';
+                            ss += '<span style="font-size:16px;color:#333;margin-left: 50px;"> <label> <input class="' + snn + '" name="Fruit" type="checkbox" value="+row.istimely+" /> 未及时上报信息  </label>  </span>';
+                            ss += '<span style="font-size:14px;color:#333;margin-left: 50px; float: right;"><button id="btn' + snn + '"  type="button" style=" padding: 0px 10px; " onclick="queding(' + snn +','+row.id+ ')">确定</button></span></div>';
+                            ss += '<div class="c' + snn +'" style="color:blue;margin-top:10px;">反馈情况</div>';
+                            ss += '<div style="line-height:20px;">';
+                            ss += '<p id="sdd" style="line-height:20px;">办结时限：' + unit_endtime.substring(0, 11) + '</p>';
+                            ss += '<p style="line-height:20px;">反馈信息：' + unit_requirements + '</p>';
+                            ss += '</div>';
+                            ss += '<div class="c' + snn +'" style="color:blue;margin-top:10px;">督办情况</div>';
+
+                            ss += '<table width="100%">';
+                            ss += '<tr>';
+                            ss += '<td width="10%" style="text-align:left;">督办时间</td>';
+                            ss += '<td width="40%">督办描述</td>';
+                            ss += '<td width="10%">完成状态</td>';
+                            ss += '<td width="10%">完成时间</td>';
+                            ss += '<td width="10%">是否延期</td>';
+                            ss += '<td width="10%">延期时间</td>';
+                            ss += '<td width="20%">操作</td>';
+                            ss += '</tr>';
+
+                            if (row.taskassignUnitdeals.length > 0) {
+                                $(row.taskassignUnitdeals).each(function (indexmx, itemmx) {
+                                    console.log(itemmx)
+                                    var createtime = itemmx.createtime;
+                                    var dealdesc = itemmx.dealdesc;
+                                    var status = itemmx.status;
+                                    var statusshow = '未完成';
+                                    if (status == '1') {
+                                        statusshow = '已完成';
+                                    }
+                                    var delaytime = itemmx.delaytime;
+
+                                    var finishtime = itemmx.finishtime;
+                                    var isdelay = itemmx.isdelay;
+                                    var isdelayshow = '';
+                                    if (isdelay == '1') {
+                                        isdelayshow = '是';
+                                    }
+                                    var delaytime = itemmx.delaytime;
+
+                                    ss += '<tr>';
+                                    ss += '<td><span class="xqnr">' + createtime.substring(0, 11) + '</span></td>';
+                                    ss += '<td><span class="xqnr">' + dealdesc + '</span></td>';
+                                    ss += '<td><span class="xqnr">' + statusshow + '</span></td>';
+                                    ss += '<td><span class="xqnr">' + finishtime.substring(0, 11) + '</span></td>';
+                                    ss += '<td><span class="xqnr">' + isdelayshow + '</span></td>';
+                                    ss += '<td><span class="xqnr">' + delaytime.substring(0, 11) + '</span></td>';
+                                    ss += '<td class="c' + snn + '"  style=" padding: 0px 10px; font-size:12px;color:blue; cursor: pointer; " onclick="cka('+itemmx.id+')">查看详情</td>';
+                                    ss += '</tr>';
+                                });
+                            }
+                            else {
+                                ss += '<tr>';
+                                ss += '<td colspan="7"><span class="xqbt">目前无督办情况信息！</span></td>';
+                                ss += '</tr>';
+                            }
+
+                            ss += '</table>'; 
+                            ss += '</div>';
+                            $("#myassignunitboxs").append(ss);
+                        });
+						
+                        var ss_workarrunit = aa_unit.join(",");
+                        $("#companyname").html(ss_workarrunit);
+                        var ss_workarrperson = aa_person.join(",");
+                        $("#createusername").html(ss_workarrperson);
+
+                        /* 渲染结束======= */
+
+                        //vm.detail.title = rtobj.task.title;
+
+                        //vm.detail.assigntime = rtobj.assigntime;
+
+                        //vm.detail.assignmemo = rtobj.assignmemo;
+                        ////                              console.log(rtobj.data);
+                        //var curuserid = vm.pubuserid;
+
+                        //var unitobj = rtobj.taskassignUnits;
+                        ////console.log(unitobj);
+
+                        //$(unitobj).each(function (index, item) {
+                        //    var tmp_id = item.id;
+                        //    var tassignid = item.tassignid;
+                        //    var unitid = item.unitid;
+                        //    var personid = item.personid;
+                        //    var unitname = item.company.title;
+
+                        //    var endtime = item.endtime;
+                        //    var requirements = item.requirements;
+
+                        //    //if (personid == curuserid) {
+                        //    var tmpobj = {};
+                        //    tmpobj.id = tmp_id;
+                        //    tmpobj.tassignid = tassignid;
+                        //    tmpobj.unitid = unitid;
+                        //    tmpobj.unitname = unitname;
+
+                        //    tmpobj.endtime = endtime;
+                        //    tmpobj.requirements = requirements;
+
+                        //    vm.dataTaskAssignUnitList.push(tmpobj);
+                        //    //}
+                        //});
+                   
+
+                    }
+                    else {
+                        vm.$Message.warning(ret.data.message);
+                    }
+
+                });
+            },
+            
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                this.getUserData();
+                this.details();
+            });
+        }
+            
+    })
+
+
+
+    queding = function (e,id) {
+        console.log('-----id='+id)
+        var ss = $('.' + e)[0].checked;
+        if (ss == true) {
+            $("#btn" + e).attr('disabled', true);
+         //   $("#id" + e).css("background-color", "#DCDCDC");
+            $('.c' + e).each(function () {
+                $(this).css("color", "#515A6E");
+                $("."+e).attr("disabled", "disabled");
+            })
+            var token = localStorage.getItem("wccToken"); //获取
+            $.ajax({
+            	url: apiUrl.Apilook +'/'+ id +"/"+1,
+//              url: "http://do.scncry.com:8081/admin/api/taskassignUnit/updateIsTimeLy/"+id+"/"+1,
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                success: function (data) {
+                    console.log(data)
+                }
+            })
+        }else{
+            var token = localStorage.getItem("wccToken"); //获取
+            $.ajax({
+            	url: apiUrl.Apilook +'/'+ id +"/"+0,
+//              url: "http://do.scncry.com:8081/admin/api/taskassignUnit/updateIsTimeLy/"+id+"/"+0,
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                success: function (data) {
+                    console.log(data)
+                }
+            })
+        }
+
+
+        //请求
+        //$.ajax({
+        //    url: address,//请求的地址
+        //    data: { aa: aa },//参数：，不用参数的话就删除本行
+        //    success: function (data) {//成功执行的函数，data是请求回来的数据
+        //        //这边写拿到数据后要做的事
+        //    }
+        //})
+
+    }
+
+
+</script>
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+<script>
+	function cka(id) {
+                    var ss_url = 'look.html?id='+id;
+                    var ss_title = "详情";
+                    myselfinfo(ss_url, ss_title);
+				};
+    var layerindex = 0;
+	function myselfinfo(ss_url, ss_title) {
+		//ss_url = 'doc/example/myrenmqpie3_dcdbzb.html';
+		//ss_title = 'tile';
+        layerindex = layer.open({
+			type: 2,
+			title: ss_title,
+			maxmin: true,
+			area: ['900px', '400px'], //弹出层页面比例
+			content: ss_url
+		});
+        //layer.full(layerindex);
+    }
+    function LoadTable() {
+        layer.close(layerindex);
+        myVue.queryDataCreate();
+        myVue.queryDataUndeal();
+    }
+</script>
+
+
+

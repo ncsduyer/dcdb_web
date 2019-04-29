@@ -1,0 +1,885 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>顺庆区区委办督查督办管理系统</title>
+    <!-- 引入样式 -->
+
+    <link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <!--
+    <link rel="stylesheet" href="css/iview.css">
+        -->
+    <!-- import Vue before Element -->
+    <!--
+    <script src="http://vuejs.org/js/vue.min.js"></script>
+     -->
+    <script src="../js/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <!--
+    <script src="http://unpkg.com/iview/dist/iview.min.js"></script>
+    -->
+    <script src="../js/jquery.js"></script>
+    <script src="../js/url.js"></script>
+    <script src="../js/axios.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/axiosConfig.js"></script>
+    <script src="../js/iview.min.js"></script>
+    <script src="../js/rykjpub.js"></script>
+    <style>
+    	.ivu-tabs .ivu-tabs-tabpane{
+    		min-height:500px;
+    	}
+        .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-content {
+            height: 120px;
+            margin-top: -16px;
+        }
+
+            .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-content > .ivu-tabs-tabpane {
+                background: #fff;
+                padding: 16px;
+            }
+
+        .demo-tabs-style1 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+            border-color: transparent;
+        }
+
+        .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+            border-color: #fff;
+        }
+
+        .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+            border-top: 1px solid #3399ff;
+        }
+
+            .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active:before {
+                content: '';
+                display: block;
+                width: 100%;
+                height: 1px;
+                background: #3399ff;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+        .ivu-auto-complete,
+        ivu-select-dropdown {
+            max-height: 80px;
+        }
+
+        .tabas tr td {
+            padding: 6px;
+        }
+    </style>
+</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<Tabs value="name1" type="card" :animated="false" @on-click="tabclick">
+                <Tab-Pane label="我创建的事项" name="name1">
+                    <Row v-show="condition1">
+                        <i-col span="2" v-if="isshowaddbtn">
+                            <i-button type="primary" icon="icon-plus" size="mini" @click="fnaddnew">新建</i-button>
+                        </i-col>
+                        <i-col span="4">
+                            <Radio-Group v-model="closestatus" onchange="fn_jsquerydata(1)">
+                                <Radio label="待归档"></Radio>
+                                <Radio label="已归档"></Radio>
+                            </Radio-Group>
+                        </i-col>
+                        <i-col span="4">
+                            <i-input v-model="conditionparm.inputkeycreate" size="mini" placeholder="关键字查询"></i-input>
+                        </i-col>
+                        <i-col span="2">
+                            <i-button type="text" icon="icon-plus" size="mini" onclick="fn_jsquerydata(1)">查询</i-button>
+                        </i-col>
+                    </Row>
+
+                    <br />
+                    <i-table border :columns="columns" :data="taskListCreate"></i-table>
+					<br />
+                    <Page :total="pageTotalCreate" :current="pageNumCreate" :page-size="pageSizeCreate" show-elevator show-sizer show-total placement="top"
+                          @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
+                </Tab-Pane>
+                <Tab-Pane label="待我办理事项" name="name2">
+                    <Row v-show="condition2">
+                        <i-col span="4">
+                            <Radio-Group v-model="choicestatus" onchange="fn_jsquerydata(2)">
+                                <Radio label="待事项反馈"></Radio>
+                                <Radio label="待督办登记"></Radio>
+                            </Radio-Group>
+                        </i-col>
+                        <i-col span="4">
+                            <i-input v-model="conditionparm.inputkeyundeal" size="mini" placeholder="关键字查询"></i-input>
+                        </i-col>
+                        <i-col span="2">
+                            <i-button type="text" icon="icon-plus" size="mini" onclick="fn_jsquerydata(2)">查询</i-button>
+                        </i-col>
+                    </Row>
+
+                    <br />
+                    <i-table border :columns="columns" :data="taskListUndeal"></i-table>
+					<br />
+                    <Page :total="pageTotalUndeal" :current="pageNumUndeal" :page-size="pageSizeUndeal" show-elevator show-sizer show-total placement="top"
+                          @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
+
+                </Tab-Pane>
+                <Tab-Pane label="督办事项查询" name="name3">
+
+                    <Row v-show="condition3">
+                        <i-col span="4">
+                            <i-select v-model="modeldepartment" filterable clearable style="padding-right:5px;" placeholder="按责任单位查询">
+                                <i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                            </i-select>
+                        </i-col>
+                        <i-col span="2">
+                            <i-select v-model="modeloverseepeople" filterable clearable style="padding-right:5px;" placeholder="按督办责任人查询">
+                                <i-option v-for="item in modelOverseePeopleList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                            </i-select>
+                        </i-col>
+                        <i-col span="4">
+                            <Date-Picker v-model="modelsearchdaterange" type="daterange" format="yyyy-MM-dd" placement="bottom-end" placeholder="按交办时间范围查询" @on-change="endTimeChange" style="width: 200px"></Date-Picker>
+                        </i-col>
+                        <i-col span="4">
+                            <i-input v-model="conditionparm.inputkeyquery" size="mini" placeholder="关键字搜索"></i-input>
+                        </i-col>
+
+                        <i-col span="4">
+
+                        </i-col>
+
+                        <i-col span="2">
+                            <i-button type="text" icon="icon-plus" size="mini" onclick="fn_jsquerydata(3)">查询</i-button>
+                        </i-col>
+                    </Row>
+
+
+                    <br />
+                    <i-table border :columns="columns" :data="taskListQuery"></i-table>
+					<br />
+                    <Page :total="pageTotalQuery" :current="pageNumQuery" :page-size="pageSizeQuery" show-elevator show-sizer show-total placement="top"
+                          @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
+
+                </Tab-Pane>
+			</Tabs>
+
+
+
+
+			<!--<br />-->
+			<!--<modal v-model="modala" fullscreen footer-hide title="事项统计图">-->
+				<!--<div class="Hui-article">-->
+					<!--<iframe scrolling="auto" allowtransparency="true" id="layui-report" name="layui-report" onload="this.className='';" class="" frameborder="0" src="supervise_Img.html" style="height: 771px; width: 100%;"></iframe>-->
+				<!--</div>-->
+			<!--</modal>-->
+		</div>
+		<!--<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>-->
+		<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+		<!--<script src="js/url.js"></script>-->
+		<script>
+            //
+            function fn_jsquerydata(sn) {
+                if (sn == 1) {
+                    myVue.pageNumCreate = 1;
+                    myVue.queryDataCreate();
+                }
+                if (sn == 2) {
+                    myVue.pageNumUndeal = 1;
+                    myVue.queryDataUndeal();
+                }
+                if (sn == 3) {
+                    myVue.pageNumQuery = 1;
+                    myVue.queryDataQuery();
+                }
+            }
+        </script>
+        
+        <script>
+            var myVue = new Vue({
+                el: '#app',
+                data: {
+                    isshowaddbtn: false,
+                    pubuserid: '',//用户信息ID
+                    wh_parmdata: [],
+                    wh_sn: 1,//当前选择tableindex
+                    userobj: {
+                        id: '',
+                        name: ''
+                    },
+                    conditionparm: {
+                        inputkeycreate: '',
+                        inputkeyundeal: '',
+                        inputkeyquery: '',
+                    },
+                    cityList:[],
+
+                    modala: false,
+
+                    startTimeOptions: {},
+                    //结束日期设置
+                    endTimeOptions: {},
+                    //开始日期model
+                    starttime: '',
+                    //结束日期model
+                    endtime: '',
+                    taskListCreate: [],
+                    taskListUndeal: [],
+                    taskListQuery: [],
+
+
+                    pageNumCreate: 1,
+                    pageNumUndeal: 1,
+                    pageNumQuery: 1,
+
+                    pageSizeCreate: 20,
+                    pageSizeUndeal: 20,
+                    pageSizeQuery: 20,
+
+
+                    pageTotalCreate: 0,
+                    pageTotalUndeal: 0,
+                    pageTotalQuery: 0,
+
+                    condition1: true,
+                    condition2: false,
+                    condition3: false,
+                    condition4: false,
+                    isfullmodal: false,
+                    isfullmodal: false,
+                    departmentList: [],
+                    modelOverseePeopleList: [],
+                    modeldepartment: 'all',
+                    modeloverseepeople: 'all',
+                    modelsearchdaterange: '',
+                    model13: [],
+
+                    dataContdition: [],
+
+                    ishidden: false,
+                    visible: false,
+                    self: this,
+                    choicestatus: '待事项反馈',
+                    closestatus: '待归档',
+                    value3: '',
+                    data3: ['滨江路整治', '石油大学校外整治', '华立广场招商项目1', '华立广场招商项目2', '华立广场招商项目3', '华立广场招商项目4', '华立广场招商项目5'],
+                    columns: [{
+                        title: '交办事项',
+                        key: 'title',
+                        sortable: true,
+                        render: (h, params) => {
+                            let s_title = params.row.title;
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {
+                                }
+                            }, s_title);
+                        }
+                    },
+                    {
+                        title: '交办时间',
+                        key: 'assigntime',
+                        width: 110,
+                        sortable: true
+                    },
+                    {
+                        title: '交办类型',
+                        key: 'workType',
+                        width: 120,
+                        sortable: true
+                    },
+                    {
+                        title: '责任单位',
+                        key: 'campany',
+                        width: 120,
+                        sortable: true,
+                        render: (h, params) => {
+                            let s_campany = params.row.campany;
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {
+                                }
+                            }, s_campany);
+                        }
+                    },
+                    {
+                        title: '督办责任人',
+                        key: "agent",
+                        width: 120,
+                        sortable: true
+                    },
+                    {
+                        title: '督办要求',
+                        key: 'assignmemo'
+                    },
+                    {
+                        title: '办结时间',
+                        key: 'endtime',
+                        width: 110,
+                        sortable: true
+                    },
+                    {
+                        title: '目前状态',
+                        key: 'step',
+                        width: 110,
+                        sortable: true
+                    },
+                    {
+                        title: '是否超期',
+                        key: 'is_exceed',
+                        width: 110,
+                        sortable: true,
+                        render: (h, params) => {
+                            let s_is_exceed = params.row.is_exceed;
+                            if (s_is_exceed == '已超期') {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        color: 'red'
+                                    },
+                                    on: {
+                                    }
+                                }, s_is_exceed);
+                            }
+                            else {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                    },
+                                    on: {
+                                    }
+                                }, '未超期');
+                            }
+                        }
+
+                    },
+                    {
+                        title: '总共用时',
+                        key: 'usetime'
+                    },
+                    {
+                        title: '操作',
+                        key: 'operation',
+                        width: 140,
+                        render: (h, params) => {
+                            //console.log(params.row.status)
+                            let myself = this;//获取window
+                            var s_pubuserid = myself.myVue.pubuserid;
+                            var s_wh_sn = myself.myVue.wh_sn;
+
+                            var tmparr = [];
+                            tmparr.push(
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            CheckDetail(params.row.taid);   
+                                        }
+                                    }
+                                }, '查看'));
+
+
+                            if (params.row.status == '2' || params.row.status == '3' || params.row.status == '4' || params.row.status == '1') {
+                                if (params.row.createrId == s_pubuserid && s_wh_sn == 1) {
+                                    tmparr.push(
+                                        h('Button', {
+                                            props: {
+                                                type: 'success',
+                                                size: 'small'
+                                            },
+                                            style: {
+                                                marginRight: '5px'
+                                            },
+                                            on: {
+                                                click: () => {
+                                                    CloseTask(params.row.id,params.row.taid);
+
+
+                                                }
+                                            }
+                                        }, '归档')
+                                    );
+                                }
+                                if (params.row.agentId == s_pubuserid && params.row.status == '1' && s_wh_sn == 2) {
+                                    tmparr.push(h('Button', {
+                                        props: {
+                                            type: 'error',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                feedback(params.row.taid);
+                                            }
+                                        }
+                                    }, '反馈'));
+                                }
+                                if (params.row.agentId == s_pubuserid && (params.row.status == '2' || params.row.status == '3' || params.row.status == '4') && s_wh_sn == 2) {
+                                    tmparr.push(h('Button', {
+                                        props: {
+                                            type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                UpdateTask(params.row.taid);
+                                            }
+                                        }
+                                    }, '登记'));
+                                }
+                            }
+
+                            return h('div', tmparr);
+                        }
+                    }
+                    ]
+                },
+
+                mounted: function () {
+                    this.getUserData();//获取用户信息
+                },
+                methods: {
+                    //设置结束时间
+                    endTimeChange: function (e) {
+                        //debugger
+                        this.endtime = e;
+                        let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+                        this.startTimeOptions = {
+                            disabledDate(date) {
+                                return date && date.valueOf() > Date.now() && endTime != '';
+                            }
+                        }
+                    },
+                    //得到用户基础信息
+                    getUserData() {
+                        var vm = this;
+                        var token = localStorage.getItem("wccToken"); //获取
+                        axios({
+                            url: apiUrl.User,
+                            method: "GET",
+                            content: "获取数据中，请稍等...",
+                            headers: {
+                                "Authorization": "Bearer " + token
+                            },
+                            data: ''
+                        }).then(function (ret) {
+                            //console.log(ret.data);
+                            if (ret.data.success) {
+                                $(ret.data.data).each(function (index, item) {
+                                    vm.userobj.id = item.id;
+                                });
+
+                                vm.pubuserid = vm.userobj.id;
+
+//                                console.log("获取成功：" + JSON.stringify(ret.data.data.records))
+                                vm.getUserPermission();
+                                vm.queryDataCreate();
+                                vm.queryDataUndeal();
+                                vm.queryDataQuery();
+
+                                vm.getUnit();
+                                vm.getOverseePeopleList();
+
+                            }
+                            else {
+                                //vm.$Message.warning(ret.data.message);
+                                alert("已有最新发布，重新登陆处理！");
+                                window.parent.location.href = 'login.html';
+                            }
+
+                        });
+                    },
+                    //得到用户新增权限信息
+                    getUserPermission() {
+                        var vm = this;
+                        var token = localStorage.getItem("wccToken"); //获取
+                        axios({
+                            url: apiUrl.Permissions + "?menutype=3",
+                            method: "GET",
+                            content: "获取数据中，请稍等...",
+                            headers: {
+                                "Authorization": "Bearer " + token
+                            },
+                            data: ''
+                        }).then(function (ret) {
+                            //console.log(ret.data);
+                            if (ret.data.success) {
+                                $(ret.data.data).each(function (index, item) {
+                                    var Permission = item.id;
+                                    if (Permission == '1065491422498635787') {
+                                        vm.isshowaddbtn = true;
+                                        return;
+                                    }
+                                });
+                            }
+                            else {
+                                vm.$Message.warning(ret.data.message);
+                            }
+
+                        });
+                    },
+                    getData(sn, parmdata) {
+                        var vm = this;
+                        vm.wh_parmdata = parmdata;
+                        var token = localStorage.getItem("wccToken"); //获取
+                        axios({
+                            url: apiUrl.ApiTaskNameList,
+                            method: "POST",
+                            content: "提交数据中，请稍等...",
+                            headers: {
+                                "Authorization": "Bearer " + token
+                            },
+                            data: parmdata
+                        }).then(function (ret) {
+
+                            //console.log(ret.data.data.records);
+
+                            if (ret.data.success) {
+                                if (sn == 1) {
+                                    vm.taskListCreate = ret.data.data.records;
+                                    vm.pageTotalCreate = ret.data.data.total;
+                                }
+                                if (sn == 2) {
+                                    vm.taskListUndeal = ret.data.data.records;
+                                    vm.pageTotalUndeal = ret.data.data.total;
+                                }
+                                if (sn == 3) {
+                                    vm.taskListQuery = ret.data.data.records;
+                                    vm.pageTotalQuery = ret.data.data.total;
+                                }
+                            }
+                            else {
+                                vm.$Message.warning(ret.data.message);
+                            }
+
+                        });
+                    },
+                    //获取责任单位列表
+                    getUnit() {
+                        var vm = this;
+                        var token = localStorage.getItem("wccToken"); //获取
+                        axios({
+                            url: apiUrl.ApiNuitList,
+                            method: "GET",
+                            content: "获取数据中，请稍等...",
+                            headers: { "Authorization": "Bearer " + token }
+                        }).then(function (ret) {
+                            //console.log("责任单位获取成功：" + JSON.stringify(ret.data));
+                            //console.log(ret.data.data);
+                            if (ret.data.success) {
+
+                                vm.departmentList = [];
+                                var tempitem = {};
+                                tempitem.label = "全部";
+                                tempitem.value = "all";
+                                vm.departmentList.push(tempitem);
+
+                                $(ret.data.data).each(function (index, item) {
+                                    var tempitem = {};
+                                    tempitem.label = item.title;
+                                    tempitem.value = item.id;
+                                    vm.departmentList.push(tempitem);
+                                });
+                            }
+                            else {
+                                vm.$Message.warning(ret.data.message);
+                            }
+                        });
+                    
+                    },
+                    //获取督办人员列表
+                    getOverseePeopleList() {
+                        var vm = this;
+                        var token = localStorage.getItem("wccToken"); //获取
+                        axios({
+                            url: apiUrl.ApiOverseePeopleList,
+                            method: "GET",
+                            content: "获取数据中，请稍等...",
+                            async: false,
+                            headers: { "Authorization": "Bearer " + token }
+                        }).then(function (ret) {
+                            if (ret.data.success) {
+                                vm.modelOverseePeopleList = [];
+                                var tempitem = {};
+                                tempitem.label = "全部";
+                                tempitem.value = "all";
+                                vm.modelOverseePeopleList.push(tempitem);
+                                $(ret.data.data).each(function (index, item) {
+                                    var tempitem = {};
+                                    tempitem.label = item.name;
+                                    tempitem.value = item.id;
+                                    vm.modelOverseePeopleList.push(tempitem);
+
+                                });
+                            }
+                            else {
+                                vm.$Message.warning(ret.data.message);
+                            }
+                        });
+                    },
+
+					filterMethod(value, option) {
+						return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+                    },
+
+					fnaddnew() {
+						var ss_url = 'task_add.html';
+						var ss_title = "督办事项-新建";
+						myselfinfo(ss_url, ss_title);
+					},
+					asyncOK() {
+						//alert("OK");
+						this.isfullmodal = false;
+					},
+					choicedata() {
+						if(this.ishidden == false) {
+							this.ishidden = true;
+						}
+					},
+                    tabclick(value) {
+                        var vm = this;
+
+                        vm.condition1 = false;
+                        vm.condition2 = false;
+                        vm.condition3 = false;
+                        vm.condition4 = false;
+
+						if(value == 'name1') {
+                            vm.condition1 = true;
+                            vm.wh_sn = 1;
+						}
+						if(value == 'name2') {
+                            vm.condition2 = true;
+                            vm.wh_sn = 2;
+						}
+						if(value == 'name3') {
+                            vm.condition3 = true;
+                            vm.wh_sn = 3;
+						}
+					},
+					fdbsx(ss, title) {
+						var ss_url = 'supervise_Img' + ss + '.html';
+						var ss_title = title;
+						myselfinfo(ss_url, ss_title);
+                    },
+                    queryDataCreate: function () {
+                        var vm = this;
+                        var conditCreate = {};
+                        conditCreate.creatorid = vm.userobj.id;
+                        conditCreate.title = vm.conditionparm.inputkeycreate;
+                        conditCreate.limit = vm.pageSizeCreate;
+                        conditCreate.page = vm.pageNumCreate;
+
+                        var closestatus = vm.closestatus;
+
+                        if (closestatus == "待归档") {
+                            conditCreate.status = [1, 2, 3, 4];
+                        }
+                        else {
+                            conditCreate.status = [5,6];
+                        }
+
+                        vm.getData(1, conditCreate);
+                    },
+                    queryDataUndeal: function () {
+                        var vm = this;
+                        var conditUndeal = {};
+                        conditUndeal.title = vm.conditionparm.inputkeyundeal;
+                        conditUndeal.agent = [vm.userobj.id];
+                        conditUndeal.limit = vm.pageSizeUndeal;
+                        conditUndeal.page = vm.pageNumUndeal;
+
+                        var choicestatus = vm.choicestatus;                       
+
+                        if (choicestatus == "待事项反馈") {
+                            conditUndeal.status = [1];
+                        }
+                        else {
+                            conditUndeal.status = [2,3];
+                        }
+
+                        //console.log(conditUndeal);
+
+                        vm.getData(2, conditUndeal);
+                    },
+                    queryDataQuery: function () {
+                        var vm = this;
+                        var conditQuery = {};
+
+                        conditQuery.title = vm.conditionparm.inputkeyquery;
+                        var oo_daterangvalue = vm.modelsearchdaterange;
+                        if (oo_daterangvalue != '') {
+                            var beforeTime = oo_daterangvalue[0];
+                            var afterTime = oo_daterangvalue[1];
+
+                            if (beforeTime != '') {
+                                conditQuery.beforeTime = beforeTime.Format("yyyy-MM-dd");
+                            }
+                            if (afterTime != '') {
+                                conditQuery.afterTime = afterTime.Format("yyyy-MM-dd");
+                            }
+                        }
+
+                        //alert(vm.modeldepartment);
+
+                        if (vm.modeldepartment != 'all') {
+                            var aa = [];
+                            aa.push(vm.modeldepartment);
+                            conditQuery.companyIds = aa;
+                        }
+
+
+                        //alert(vm.modeloverseepeople);
+
+                        if (vm.modeloverseepeople != 'all') {
+                            var aa = [];
+                            aa.push(vm.modeloverseepeople);
+                            conditQuery.agent = aa;
+                        }
+                        conditQuery.limit = vm.pageSizeQuery;
+                        conditQuery.page = vm.pageNumQuery;
+
+                        //console.log(conditQuery);
+                        vm.getData(3, conditQuery);
+                    },
+                    handlePage(value) {
+                        var vm = this;
+                        var sn = vm.wh_sn;
+                        //alert(sn);
+                        //alert(value);
+                        if (sn == 1) {
+                            vm.pageNumCreate = value;
+                            vm.queryDataCreate();
+                        }
+                        if (sn == 2) {
+                            vm.pageNumUndeal = value;
+                            vm.queryDataUndeal();
+                        }
+                        if (sn == 3) {
+                            vm.pageNumQuery = value;
+                            vm.queryDataQuery();
+                        }
+                    },
+                    handlePageSize(value) {
+                        var vm = this;
+                        var sn = vm.wh_sn;
+                        if (sn == 1) {
+                            vm.pageSizeCreate = value;
+                            vm.queryDataCreate();
+                        }
+                        if (sn == 2) {
+                            vm.pageSizeUndeal = value;
+                            vm.queryDataUndeal();
+                        }
+                        if (sn == 3) {
+                            vm.pageSizeQuery = value;
+                            vm.queryDataQuery();
+                        }
+                    }
+				}
+			});
+
+			function CheckDetail(id) {
+
+                layerindex = layer.open({
+					type: 2,
+					title: "事项查看",
+					maxmin: true,
+					area: ['600px', '400px'], //弹出层页面比例
+                    content: "supervision_details.html?id=" + id
+				});
+                layer.full(layerindex);
+			}
+
+			function feedback(id) {
+                layerindex = layer.open({
+					type: 2,
+					title: "事项反馈",
+					maxmin: true,
+					area: ['900px', '400px'], //弹出层页面比例
+                    content: "supervise_feedback.html?id=" + id
+				});
+			}
+
+			function CloseTask(id,taid) {
+                layerindex = layer.open({
+					type: 2,
+					title: "事项归档",
+					maxmin: true,
+					area: ['900px', '400px'], //弹出层页面比例
+					content: "supervise_File.html?keyvalue=" + id+"&taid="+taid
+				});
+			}
+
+			function UpdateTask(id) {
+
+                layerindex = layer.open({
+					type: 2,
+					title: "事项登记",
+					maxmin: true,
+					area: ['1100px', '400px'], //弹出层页面比例
+                    content: "supervise_register.html?id=" + id
+				});
+			}
+		</script>
+	</body>
+
+</html>
+
+<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+<script>
+    var layerindex = 0;
+	function myselfinfo(ss_url, ss_title) {
+		//ss_url = 'doc/example/myrenmqpie3_dcdbzb.html';
+		//ss_title = 'tile';
+        layerindex = layer.open({
+			type: 2,
+			title: ss_title,
+			maxmin: true,
+			area: ['900px', '400px'], //弹出层页面比例
+			content: ss_url
+		});
+        //layer.full(layerindex);
+    }
+    function LoadTable() {
+        layer.close(layerindex);
+        myVue.queryDataCreate();
+        myVue.queryDataUndeal();
+    }
+</script>

@@ -1,0 +1,227 @@
+<!DOCTYPE HTML>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>顺庆区区委办督查督办管理系统</title>
+		<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+		<link rel="stylesheet" href="../css/iview.css">
+		<link rel="stylesheet" href="../css/load.css">
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/axios.min.js"></script>
+		<script src="/js/axiosConfig.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/iview.min.js"></script>
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<div>
+				<i-table border :columns="columns" :data="problemList"></i-table>
+			</div>
+			<div>
+				<li v-for="item in filesList">{{item.name}}</li>
+			</div>
+		</div>
+	</body>
+	<script>
+		function getQueryVariable(variable) {
+			var query = window.location.search.substring(1);
+			var vars = query.split("&");
+
+			for(var i = 0; i < vars.length; i++) {
+				var pair = vars[i].split("=");
+				if(pair[0] == variable) {
+					return pair[1];
+				}
+			}
+			return(false);
+		}
+		var type = request('type');
+		new Vue({
+			el: '#app',
+			data: {
+				columns: [],
+				problemList:[],
+				filesList:[],
+				type:type
+			},
+			mounted: function() {
+				var vm = this;
+				this.checkitem();
+				this.problemUser();
+			},
+			methods: {
+				// 获取问题类型title
+				checkitem() {
+					var vm = this;
+					vm.columns=[
+						{
+							title: '问题部门',
+							key: 'ctitle',
+							sortable: true,
+						},{
+							title: '问题人员',
+							key: 'name',
+							sortable: true
+						},{
+							title: '存在问题',
+							key: 'itemdesc',
+							sortable: true
+						}
+					];
+					var optitem =
+					{
+						title: '操作',
+								key: 'action',
+							render: (h, params) => {
+						return h('div', [
+							h('Button', {
+								props: {
+									type: 'danger',
+									size: 'small'
+								},
+								style: {
+									marginRight: '5px'
+								},
+								on: {
+									click: () => {
+										viewFiles(params.row.pictures,params.row.files);
+									}
+								}
+							}, '查看附件'),h('Button', {
+								props: {
+									type: 'danger',
+									size: 'small'
+								},
+								style: {
+									marginRight: '5px'
+								},
+								on: {
+									click: () => {
+										EditDetail(params.row.id);
+									}
+								}
+							}, '编辑'),h('Button', {
+								props: {
+									type: 'danger',
+									size: 'small'
+								},
+								style: {
+									marginRight: '5px'
+								},
+								on: {
+									click: () => {
+										layer.confirm(
+												'确认删除吗', {
+													icon: 3,
+													title: '提示'
+												},
+												function(index) {
+													layer.close(index);
+													$.Apiaxios({
+														url: apiUrl.MeetingUserDelete + '/' + params.row.id,
+														method: "GET",
+														content: "获取数据中，请稍等...",
+														success: function(ret) {
+															if (ret.success == true) {
+																layer.msg(ret.message);
+																$('#mainlist .ivu-table-row').eq(params.index).remove();
+															} else {
+																vm.$Message.warning(ret.message);
+															}
+														}
+													})
+												},
+//										function(index) {
+//											layer.close(index);
+//										}
+										);
+									}
+								}
+							}, '删除')
+						]);
+					}
+					};
+					var optitem1 =
+					{
+						title: '操作',
+								key: 'action',
+							render: (h, params) => {
+						return h('div', [
+							h('Button', {
+								props: {
+									type: 'danger',
+									size: 'small'
+								},
+								style: {
+									marginRight: '5px'
+								},
+								on: {
+									click: () => {
+										viewFiles(params.row.pictures,params.row.files);
+									}
+								}
+							}, '查看附件')
+						]);
+					}
+					};
+							if(vm.type == "2") {
+								vm.columns.push(optitem1);
+							}else if (vm.type == "1") {
+								vm.columns.push(optitem);
+
+							}
+							// vm.getInfo();
+
+				},
+				problemUser() {
+					var vm = this;
+					var unitid = getQueryVariable('unitid');
+					var id = getQueryVariable('id');
+					$.Apiaxios({
+						url: apiUrl.MeetingDetailList,
+						method: "POST",
+						data:{
+							"meetingid":id,
+							"unitid":unitid
+						},
+						content: "获取数据中，请稍等...",
+						success: function(res) {
+							vm.problemList = res.data;
+						}
+					})
+				}
+			}
+		});
+	</script>
+	<script>
+		function html_cancel() {
+			var index = parent.layer.getFrameIndex(window.name);
+			parent.myvue.MeetingPerson();
+			parent.layer.close(index);
+		}
+		function viewFiles(pictures,files) {
+			layerindex = layer.open({
+				type: 2,
+				title: "查看附件",
+				maxmin: true,
+				area: ['600px', '400px'], //弹出层页面比例
+				content: "meet_details_files.html?pictures=" + pictures+"&files="+files
+			});
+		}
+		function EditDetail(pid) {
+			layerindex = layer.open({
+				type: 2,
+				title: "编辑",
+				maxmin: true,
+				area: ['400px', '400px'], //弹出层页面比例
+				content: "meet_edit.html?id=" + pid+"&type="+type
+			});
+		}
+	</script>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="ECharts">
+		<title>ECharts · Example</title>
+		<link rel="stylesheet" href="../css/iview.css">
+		<link rel="stylesheet" href="../css/load.css">
+		<script src="../js/echarts-all.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/iview.min.js"></script>
+
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+			<div style=" border-bottom: solid 1px #eff0f0; padding-bottom: 30px; padding-top: 20px; padding-left: 20px;display:none;">
+				<row>
+					<i-col span="3">
+						<date-picker type="year" placeholder="请选择年" style="width: 200px" @on-change="selectYear" @on-clear="clearYear"></date-picker>
+					</i-col>
+					<i-col span="2">
+						<i-button type="primary" icon="icon-plus" size="mini" @click="GetData()">查询</i-button>
+					</i-col>
+				</row>
+			</div>
+			<div id="main" style="width: 100%;height:500px;  margin-top: 10px; float: left;"></div>
+		</div>
+		<script type="text/javascript">
+			$(function(){
+				// 获取父页面年份
+                var year = parent.myVue.QueryYear;
+				var status=parent.myVue.SelectStatus;
+				if(year){
+					myvue.QueryYear=year;
+					myvue.GetData();
+					if(status=="yes"){
+						status=[4];
+					}else if(status=="no"){
+						status=[1,2,3]
+					}else{
+						status=[1,2,3,4]
+					}
+				}
+				
+			});
+			var myvue=new Vue({
+				el: '#app',
+				data: {
+					QueryYear: "",
+				},
+				methods: {
+					GetData() {
+						var vm = this;
+						var stats
+						var paramdata = {
+							"beforeTime": vm.QueryYear+'-01-01',
+							"queryType": 4,
+							"status":status
+						}
+						$.Apiaxios({
+							url: apiUrl.ApireportChart,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+							success: function(ret) {
+								if (ret.data.length > 0) {
+									var subtext = '（'+vm.QueryYear+' 年 ）'; // 查詢時間段
+									 vm.LoadChart(ret.data, subtext); //在加图表
+								}
+							},
+							error: function(eret) {
+							}
+						})
+
+					},
+					selectYear(event) {
+						this.QueryYear = event;
+					},
+					clearYear() {
+						this.QueryYear = "";
+					},
+					LoadChart(data, subtext) {
+						var myChart = echarts.init(document.getElementById('main'));
+						var Dbsx=data[0].num.split(",");//督办事项数据源
+						var Qwhy=data[1].num.split(",");//区委会议数据源
+						var Qwgw=data[2].num.split(",");//区委公文数据源
+						var Qwxx=data[3].num.split(",");//区委信息数据源
+						var option = {
+							title: {
+								text: '区委办事务-统计数据图',
+                                subtext: subtext,
+                                sublink: '#',
+                                textStyle: {
+                                    fontSize: 16,
+                                    fontWeight: 'normal',
+                                    color: '#111'          // 主标题文字颜色
+                                },
+                                subtextStyle: {
+                                    fontWeight: 'bolder',
+                                    color: '#333'          // 副标题文字颜色
+                                }
+							},
+							tooltip: {
+								trigger: 'axis'
+							},
+							legend: {
+								data: ['督办事项', '区委会议', '区委公文', '区委信息']
+							},
+							toolbox: {
+								show: true,
+								feature: {
+									mark: {
+										show: true
+									},
+									dataView: {
+										show: true,
+										readOnly: false
+									},
+									magicType: {
+										show: true,
+										type: ['line', 'bar']
+									},
+									restore: {
+										show: true
+									},
+									saveAsImage: {
+										show: true
+									}
+								}
+							},
+							calculable: true,
+							xAxis: [{
+								type: 'category',
+								data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+							}],
+							yAxis: [{
+								type: 'value'
+							}],
+							series: [{
+									name: '督办事项',
+									type: 'bar',
+									data:Dbsx,
+									markPoint: {
+										data: [{
+												type: 'max',
+												name: '最大值'
+											},
+											{
+												type: 'min',
+												name: '最小值'
+											}
+										]
+									},
+									markLine: {
+										data: [{
+											type: 'average',
+											name: '平均值'
+										}]
+									}
+								},
+								{
+									name: '区委会议',
+									type: 'bar',
+									data: Qwhy,
+									markPoint: {
+										data: [{
+												type: 'max',
+												name: '最大值'
+											},
+											{
+												type: 'min',
+												name: '最小值'
+											}
+										]
+									},
+									markLine: {
+										data: [{
+											type: 'average',
+											name: '平均值'
+										}]
+									}
+								},
+								{
+									name: '区委公文',
+									type: 'bar',
+									data: Qwgw,
+									markPoint: {
+										data: [{
+												type: 'max',
+												name: '最大值'
+											},
+											{
+												type: 'min',
+												name: '最小值'
+											}
+										]
+									},
+									markLine: {
+										data: [{
+											type: 'average',
+											name: '平均值'
+										}]
+									}
+								},
+								{
+									name: '区委信息',
+									type: 'bar',
+									data: Qwxx,
+									markPoint: {
+										data: [{
+												type: 'max',
+												name: '最大值'
+											},
+											{
+												type: 'min',
+												name: '最小值'
+											}
+										]
+									},
+									markLine: {
+										data: [{
+											type: 'average',
+											name: '平均值'
+										}]
+									}
+								}
+							]
+						};
+						myChart.setOption(option);
+					}
+				}
+
+			});
+		</script>
+
+	</body>
+</html>

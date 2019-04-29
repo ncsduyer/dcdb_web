@@ -1,0 +1,562 @@
+﻿<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>顺庆区区委办督查督办管理系统</title>
+		<!-- 引入样式 -->
+
+		<link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+		<!--
+    <link rel="stylesheet" href="css/iview.css">
+        -->
+		<!-- import Vue before Element -->
+		<!--
+    <script src="http://vuejs.org/js/vue.min.js"></script>
+     -->
+		<script src="../js/vue.min.js"></script>
+		<!-- 引入组件库 -->
+		<!--
+    <script src="http://unpkg.com/iview/dist/iview.min.js"></script>
+    -->
+		<script src="../js/jquery.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/axios.min.js"></script>
+		<script src="/js/axiosConfig.js"></script>
+		<script src="../js/iview.min.js"></script>
+		<style>
+			.ivu-auto-complete,
+			ivu-select-dropdown {
+				max-height: 80px;
+			}
+			
+			.tabas tr td {
+				padding: 2px;
+			}
+			
+			.deleteBtn {
+				position: absolute;
+				left: 101%;
+				top: 0px;
+			}
+		</style>
+		<style>
+			.demo-upload-list {
+				display: inline-block;
+				width: 60px;
+				height: 60px;
+				text-align: center;
+				line-height: 60px;
+				border: 1px solid transparent;
+				border-radius: 4px;
+				overflow: hidden;
+				background: #fff;
+				position: relative;
+				box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+				margin-right: 4px;
+			}
+			
+			.demo-upload-list img {
+				width: 100%;
+				height: 100%;
+			}
+			
+			.demo-upload-list-cover {
+				display: none;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: rgba(0, 0, 0, .6);
+			}
+			
+			.demo-upload-list:hover .demo-upload-list-cover {
+				display: block;
+			}
+			
+			.demo-upload-list-cover i {
+				color: #fff;
+				font-size: 20px;
+				cursor: pointer;
+				margin: 0 2px;
+			}
+			
+			.ivu-upload {
+				width: 62px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+
+			<div>
+				<i-form :label-width="120" >
+					<Form-Item label="会议时间">
+						<Row span="24">
+							<i-col span="4">
+								<Date-Picker v-model="inputform.mtime" value='0' type="date" placeholder="请选择会议时间" :options="startTimeOptions" @on-change="endTimeChange"></Date-Picker>
+							</i-col>
+						</Row>
+					</Form-Item>
+					<Form-Item label="会议名称">
+						<Row>
+							<i-col span="24">
+								<i-input v-model="inputform.title" value='0' placeholder="请输入区委会议名称" style="width:80%;"></i-input>
+							</i-col>
+						</Row>
+					</Form-Item>
+					<Form-Item label="会风会纪督查人">
+						<Row span="24">
+							<i-col span="12">
+								<Form-Item >
+									<i-select v-model="inputform.creatorid" filterable style="padding-right:5px;width:200px;" placeholder="请选择会议责任人">
+										<i-option v-for="item in modelOverseePeopleList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</Form-Item>
+							</i-col>
+						</Row>
+					</Form-Item>
+					<Form-Item label="会议责任人">
+						<Row span="24">
+							<i-col span="12">
+								<Form-Item>
+									<i-select v-model="inputform.hostid" filterable style="padding-right:5px;width:200px;" placeholder="请选择会议责任人">
+										<i-option v-for="item in modelOverseePeopleList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+									</i-select>
+								</Form-Item>
+							</i-col>
+						</Row>
+					</Form-Item>
+					<Form-Item label="问题部门">
+						<Row>
+							<i-col span="24" style="padding-right:10px; width: 100%;">
+								<i-select label-in-value="true" filterable multiple @on-change="choosedata">
+									<i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+								</i-select>
+							</i-col>
+						</Row>
+					</Form-Item>
+					<script src="https://unpkg.com/ionicons@4.5.5/dist/ionicons.js"></script>
+					<template v-if="ishidden==true">
+
+					<Form-Item label="">
+							<Row>
+								<i-col span="24">
+									<table width="100%" border="0" cellspacing="0" cellpadding="0" class="tabas">
+										<thead>
+											<tr>
+												<td>已选部门 </td>
+												<td style="line-height:18px;width: 110px;"></td>
+											</tr>
+										</thead>
+										<tbody id="mytbodychoosedept" v-for='(item,key) in chooseDeptList'>
+											<tr>
+												<td style="color: #2d8cf0;">{{ item.label }}</td>
+												<td style="font-size: 28px; float: left; color: #dcdee2;">
+													<i-button type="dashed" long @click="handleAdd(key)" icon="md-add">添加问题人员</i-button>
+													<!--<ion-icon name="add-circle-outline" @click="handleAdd"></ion-icon>-->
+												</td>
+
+											</tr>
+											<tr>
+												<td>
+													<Form-Item v-for="(item, index) in item.items" v-if="item.status" :key="index" :label="'问题人员'" :prop="'items.' + index + '.value'" :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}" style="padding-bottom: 15px;">
+														<Row span="24">
+															<i-col span="4">
+																<i-input data-type="name" type="text" v-model="item.sender" placeholder="填写问题人员姓名" style="width:190px"></i-input>
+															</i-col>
+																<i-col span="6">
+																	<i-input type="text" v-model="item.tel" placeholder="填写问题人员电话" style="width:190px; margin-left: 10px;"></i-input></i-col>
+															<i-col span="6">
+																<i-select style="width:190px; margin-left: 10px;" v-model="item.content">
+																	<i-option v-for='opt in modelCheckItem' :value="opt" :key="">{{ opt.label }}</i-option>
+																</i-select>
+
+															</i-col>
+
+															<i-button @click="handleRemove(key,index)" class="deleteBtn">删除</i-button>
+
+														</Row>
+															<Row span="24">
+															<i-col span="20" offset="4">
+																<Form-Item>
+																	<Upload
+																			ref="uploadFile+'-'+item.value"
+																			:action="apiUrl.Upload"
+																			:show-upload-list="true"
+																			:on-success="infoAttrSuccess"
+																			:max-size="81920"
+																			:on-format-error="handleFormatError"
+																			:on-exceeded-size="handleMaxSize"
+																			:on-remove="handleUnitFileRemove"
+																			multiple
+																			name="files"
+																			:headers="header"
+																			type="drag"
+																			style="display: inline-block;width:auto;">
+																		<div style="padding: 0px 0;width:58px;">
+																			<!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+																			<p @click="setInfoUnitAttr(item)">上传附件</p>
+																		</div>
+																	</Upload>
+																</Form-Item>
+															</i-col>
+														</Row>
+													</Form-Item>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</i-col>
+							</Row>
+						</template>
+					</Form-Item>
+
+					<Form-Item label="会议备注">
+						<i-input v-model="inputform.memo" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写会议备注"></i-input>
+					</Form-Item>
+					<Form-Item label="文件上传">
+						<Upload
+								ref="upload"
+								:action="apiUrl.Upload"
+								:show-upload-list="true"
+								:on-success="infoSuccess"
+								:max-size="81920"
+								:on-format-error="handleFormatError"
+								:on-exceeded-size="handleMaxSize"
+								:on-remove="handleFileRemove"
+								multiple
+								name="files"
+								:headers="header"
+								type="drag"
+								style="display: inline-block;width:auto;">
+							<div style="padding: 0px 0;width:58px;">
+								<!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+								<p>上传附件</p>
+							</div>
+						</Upload>
+					</Form-Item>
+					<Form-Item label="">
+						<i-button type="primary" icon="icon-plus" @click="fnsave">保存提交</i-button>
+					</Form-Item>
+				</i-form>
+			</div>
+		</div>
+
+	</body>
+
+</html>
+
+<script>
+	var header = {
+		'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
+	};
+	new Vue({
+		el: '#app',
+		data: {
+			ishidden: false,
+			startTimeOptions: {},
+			//结束日期设置
+			endTimeOptions: {},
+			//开始日期model
+			starttime: '',
+			//结束日期model
+			inputform: {
+				creatorid: '',
+				mtime: '',
+				title: '',
+				status: 0,
+				memo: '',
+				hostid: '',
+				files: [],
+				pictures:[],
+				resc: [
+				]
+			},
+			modelCheckItem: [],
+			departmentList: [],
+			chooseDeptList: [],
+			modelOverseePeopleList: [],
+			index: 1,
+			formDynamic: [],
+			nowItem:{},
+			chooseMap: {}
+		},
+		mounted: function() {
+
+			var parmDate = new Date();
+			this.endTimeChange(parmDate);
+			this.unit();
+			this.checkitem();
+			this.getOverseePeopleList();
+		},
+		methods: {
+			handleReset(name) {
+				this.$refs[name].resetFields();
+			},
+			handleAdd(index) {
+				this.index++;
+				this.chooseDeptList[index].items.push({
+					//value: '',
+					tel: '',
+					sender: '',
+					index: this.index,
+					status: 1
+				});
+				// console.log(this.chooseDeptList[index].items);
+			},
+			handleRemove(key, index) {
+				this.chooseDeptList[key].items.splice(index, 1)
+			},
+			//设置结束时间
+			endTimeChange: function(e) {
+				//debugger
+				this.inputform.mtime = e;
+				let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+				this.startTimeOptions = {
+					disabledDate(date) {
+						return date && date.valueOf() > Date.now() && endTime != '';
+					}
+				}
+			},
+			//获取责任单位列表
+			unit() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiNuitList,
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: '',
+				}).then(function(ret) {
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.title;
+						tempitem.value = item.id;
+						vm.departmentList.push(tempitem);
+					});
+				})
+			},
+			//获取会议监督项目列表
+			checkitem() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiCheckItemList + '?itemclass=2',
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: '',
+				}).then(function(ret) {
+					vm.modelCheckItem = [];
+
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.itemdesc;
+						tempitem.value = item.id;
+						vm.modelCheckItem.push(tempitem);
+
+					});
+				})
+			},
+			filterMethod(value, option) {
+				return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+			},
+			choosedata(option) {
+				var chooseDeptList = []
+				var me = this
+				option.map(function(item) {
+					var value = item.value
+					var exDep = me.chooseDeptList.find(function(depItem) {
+						return depItem.value == value
+					})
+					if(exDep) {
+						chooseDeptList.push(exDep)
+						return
+					}
+					chooseDeptList.push({
+						label: item.label,
+						value: item.value,
+						items: []
+					})
+				})
+
+				//
+				this.chooseDeptList = chooseDeptList;
+				if(this.ishidden == false) {
+					this.ishidden = true;
+				}
+
+			},
+			// 区委会议提交
+			fnsave() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				if(vm.inputform.creatorid == '') {
+					vm.$Message.warning('请选择会议责任人');
+					return false;
+				}
+				if(vm.inputform.mtime == '') {
+					vm.$Message.warning('请选择会议上报时间！');
+					return false;
+				}
+				if(vm.inputform.title == '') {
+					vm.$Message.warning('请填写会议名称！');
+					return true;
+				}
+				// 获取会议下的文件ids
+				var choosedptarray = [];
+				var copyRecordNotices = []
+				this.chooseDeptList.map(function(item) {
+					item.items.map(function(mitem) {
+						choosedptarray.push({
+							"checkitemid": mitem.content.value,
+							"checkvalue": 1,
+							"name": mitem.sender,
+							"unitid": item.value,
+						    "pictures": mitem.pictures.join(","),
+						    "files": mitem.files.join(",")
+						})
+						copyRecordNotices.push({
+							"content": mitem.content.label,
+							"sender": mitem.sender,
+							"tel": mitem.tel,
+						})
+					})
+				});
+				vm.inputform.resc=choosedptarray;
+				vm.inputform.copyRecordNotices= copyRecordNotices;
+				vm.inputform.pictures=vm.inputform.pictures.join(",");
+				vm.inputform.files=vm.inputform.files.join(",");
+				// console.log(vm.inputform);
+				// return  false;
+				axios({
+					url: apiUrl.Apimeetingadd,
+					method: "POST",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data:vm.inputform,
+				}).then(function(ret) {
+					if(ret.data.success) {
+						alert('保存提交成功！');
+						html_cancel();
+					} else {
+						vm.$Message.warning(ret.data.message);
+					}
+				});
+				return;
+			},
+			//获取督办人员列表
+			getOverseePeopleList() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiOverseePeopleList,
+					method: "GET",
+					async: false,
+					headers: {
+						"Authorization": "Bearer " + token
+					}
+				}).then(function(ret) {
+					vm.modelOverseePeopleList = [];
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.name;
+						tempitem.value = item.id;
+						vm.modelOverseePeopleList.push(tempitem);
+					});
+				});
+			},
+			// 文件上传
+
+			handleFileRemove(file) {
+				// const fileList = this.$refs.upload.fileList;
+				// this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+				if (file.type == 'photo') {
+					// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+					this.inputform.pictures.splice(this.inputform.pictures.indexOf(file.id), 1);
+				} else if (file.type == 'file') {
+					// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+					this.inputform.files.splice(this.inputform.files.indexOf(file.id), 1);
+				}
+			},
+			handleUnitFileRemove(file) {
+				if (file.type == 'photo') {
+					// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+					file.item.pictures.splice(file.item.pictures.indexOf(file.id), 1);
+				} else if (file.type == 'file') {
+					// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+					file.item.files.splice(file.item.files.indexOf(file.id), 1);
+				}
+			},
+			setInfoUnitAttr(item){
+				item.files= [];
+				item.pictures= [];
+				this.nowItem=item;
+			},
+			infoAttrSuccess(res, file, fileList) {
+				var fl = file;
+				fl.item=this.nowItem;
+				if (fl.response.data.files.length > 0) {
+					if (this.nowItem.files.indexOf(fl.response.data.files[0]) == -1) {
+						fl.id = fl.response.data.files[0];
+						fl.type = 'file';
+						// this.uploadfileList.push(fl);
+						this.nowItem.files.push(fl.id);
+					}
+				}
+				if (fl.response.data.photos.length > 0) {
+					if (this.nowItem.pictures.indexOf(fl.response.data.photos[0]) == -1) {
+						fl.id = fl.response.data.photos[0];
+						fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+						fl.type = 'photo';
+						this.nowItem.pictures.push(fl.id);
+
+
+					}
+				}
+				// console.log(this.infoUnitAttrs);
+			},
+			infoSuccess(res, file, fileList) {
+				var fl = fileList[fileList.indexOf(file)];
+				if (fl.response.data.files.length > 0) {
+					if (this.inputform.files.indexOf(fl.response.data.files[0]) == -1) {
+						fl.id = fl.response.data.files[0];
+						fl.type = 'file';
+						// this.uploadfileList.push(fl);
+						this.inputform.files.push(fl.id);
+					}
+				}
+				if (fl.response.data.photos.length > 0) {
+					if (this.inputform.pictures.indexOf(fl.response.data.photos[0]) == -1) {
+						fl.id = fl.response.data.photos[0];
+						fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+						fl.type = 'photo';
+						// this.uploadphotoList.push(fl);
+						this.inputform.pictures.push(fl.id);
+					}
+				}
+			},
+			handleFormatError(file) {
+				this.$Notice.warning({
+					title: '文件上传出错',
+					desc: '请选择正确的文件格式或正确的文件大小！'
+				});
+			},
+			handleMaxSize(file) {
+				this.$Notice.warning({
+					title: '文件过大',
+					desc: +file.name + ' 文件大小超过8M'
+				});
+			}
+		}
+	});
+</script>

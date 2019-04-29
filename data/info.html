@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <title>数据信息</title>
+    <link rel="stylesheet" href="../css/iview.css">
+    <link rel="stylesheet" href="../css/load.css">
+    <script src="../js/vue.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+    <script src="../js/url.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/axiosConfig.js"></script>
+    <script src="../js/iview.min.js"></script>
+    <script src="../js/rykjpub.js"></script>
+</head>
+<body>
+    <div id="app">
+        <i-table border :columns="columns" :data="data"></i-table>
+        <Page :total="total" :current="current"  show-elevator
+                @on-change="handlePageQuery"></Page>
+    </div>
+</body>
+<script>
+    var app=new Vue({
+        el: '#app',
+        data: {
+            columns:[],
+            data:[],
+            current: 1,
+            pages: "",
+            size: '',
+            total: ""
+        },
+        mounted: function() {
+            this.$nextTick(function () {
+                this.getInfos();
+            })
+        },
+        methods: {
+            getInfos(){
+                var token = localStorage.getItem("wccToken"); //获取
+                var _self=this;
+                axios({
+                    // url: apiUrl.ApiBigInfo,
+                    url:"http://do.scncry.com:8081/admin/api/BigData/infos",
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    data: {
+                        "checkItemId": request("checkItemId"),
+                        "queryType":  request("queryType"),
+                        "page":_self.current
+                    },
+                }).then(function(ret) {
+                    if (ret.data.success){
+                        _self.columns=ret.data.data.titles;
+                        _self.data=ret.data.data.content.records;
+                        _self.current=ret.data.data.content.current;
+                        _self.pages=ret.data.data.content.pages;
+                        _self.size=ret.data.data.content.size;
+                        _self.total=ret.data.data.content.total;
+                    }
+                })
+            },
+            handlePageQuery(){
+                this.getInfos();
+            }
+        }
+    })
+</script>
+</html>

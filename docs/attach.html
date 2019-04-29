@@ -1,0 +1,96 @@
+
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>查看附件</title>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/axios.min.js"></script>
+	</head>
+	<style>		
+	</style>
+	<body>
+		<div id="app">
+			<div>
+				<!--<Col span="11" >-->
+				<Card :bordered="false" style='border: 1px solid #CCCCCC;'>
+					<p slot="title" style="border-bottom: 1px solid #CCCCCC;padding: 10px;"><strong>已上传文件</strong></p>
+					<span v-if="!fileList.length">暂无文件</span>
+					<p v-for="item in fileList" :key="item.id">{{item.filename}} <span style="float: right;"><a :href="fileRoot+item.id">下载</a></span></p>
+				</Card>
+				<!--</Col>-->
+				<!--<Col span="11" offset="2">-->
+				<Card shadow>
+					<p slot="title" style="border-bottom: 1px solid #CCCCCC;padding: 10px;"><strong>已上传图片</strong></p>
+					<div style=" position:relative;display: block;">
+						<table border="0">
+							<tr>
+								<td valign="top">
+									<span v-for="item in pictureList" :key="item.id" class="xsimg">
+			                            <img :src="root+item.id" alt=""><br>
+										{{item.filename}}<br/>
+										<a :href="fileRoot+item.id">下载</a>
+			                        </span>
+									<span v-if="!pictureList.length">暂无图片</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</Card>
+				<!--</Col>-->
+			</div>		
+		</div>			
+	</body>
+</html>
+<script>
+	var pictures = request("pictures");
+	var files = request("files");
+	var myvue = new Vue({
+		el: '#app',
+		data: {
+			fileList:[],
+			pictureList :[],
+			root:apiUrl.RenderPicture+'/',
+			fileRoot:apiUrl.Download+'/',
+		},
+		mounted: function() {
+			var vm= this;
+			vm.getAssetList();
+		},
+		methods: {
+			getAssetList(){
+				var	vm=this;
+				var token = localStorage.getItem("wccToken");
+				axios({
+					url: apiUrl.getFilesByIds+pictures,
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+
+				}).then(function(ret) {
+//					console.log(ret)
+					if (ret.data.success){
+						vm.pictureList = ret.data.data;
+					}
+				});
+				axios({
+					url: apiUrl.getFilesByIds+files,
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+
+				}).then(function(ret) {
+//					console.log(ret)
+					if (ret.data.success){
+						vm.fileList = ret.data.data;
+					}
+				});
+			}
+		}
+	});
+</script>

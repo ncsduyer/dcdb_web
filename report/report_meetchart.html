@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="ECharts">
+		<title>ECharts · Example</title>
+		<link rel="stylesheet" href="../css/iview.css">
+		<link rel="stylesheet" href="../css/load.css">
+		<script src="../js/echarts-all.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/iview.min.js"></script>
+
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+			<div style=" border-bottom: solid 1px #eff0f0; padding-bottom: 20px; padding-top: 10px; padding-left: 20px;display:none;">
+				<row>
+					<i-col span="6">
+						<Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择统计时间段" @on-clear="clearTime"
+						 style="width: 200px"></Date-Picker>
+					</i-col>
+					<i-col span="6">
+						<i-button type="primary" icon="icon-plus" size="mini" @click="GetData()">查询</i-button>
+					</i-col>
+				</row>
+			</div>
+			<div id="main" style="width: 100%;height:700px;  margin-top: 10px; float: left;"></div>
+		</div>
+		<script type="text/javascript">
+			// 图表类型
+            var QueryType = request("QueryType");
+            //alert(QueryType);
+            //QueryType = 5;
+            $(function () {
+                // 获取父界面查询时间段
+                var StartTime = parent.myVue.QueryStartTime;
+                var EndTime = parent.myVue.QueryEndTime;
+                //判断父界面是已选时间端  默认带到子界面
+                if (StartTime) {
+                    myvue.QueryStartTime = StartTime;
+                    myvue.QueryEndTime = EndTime;
+                    myvue.queryType = QueryType
+                    myvue.GetData();
+                }else{
+                	alert("请先选择日期范围");
+					var index = parent.layer.getFrameIndex(window.name);
+					parent.layer.close(index);
+				}
+            });
+			var myvue = new Vue({
+				el: '#app',
+				data: {
+					QueryStartTime: "",
+					QueryEndTime: "",
+					queryType: 5
+                },
+                mounted: function () {
+                    //var vm = this;
+                    //var StartTime = parent.myVue.QueryStartTime;
+                    //var EndTime = parent.myVue.QueryEndTime;
+                    //alert(StartTime);
+                    //alert(QueryType);
+                    //vm.QueryStartTime = StartTime;
+                    //vm.QueryEndTime = EndTime;
+                    //vm.queryType = QueryType
+                    //vm.GetData();
+                },
+				methods: {
+					GetData() {
+						var vm = this;
+						//请求参数
+						var paramdata = {
+							"afterTime": vm.QueryEndTime,
+							"beforeTime": vm.QueryStartTime,
+							"queryType": vm.queryType
+						}
+						//请求数据
+						$.Apiaxios({
+							url: apiUrl.ApireportChart,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+                            success: function (ret) {
+                                //console.log(ret);
+								if (ret.data.length > 0) {
+									var data = ret.data;
+									var legenddata = [];
+									var yAxisdata = [];
+									var series = [];
+                                    $(data).each(function () {
+                                        var row = this;
+                                        // Series 显示样式以及数据
+                                        var rowseries = {
+                                            name: '',
+                                            type: 'bar',
+                                            //barWidth: 25,
+                                            stack: '总量',
+                                            itemStyle: {
+                                                normal: {
+                                                    label: {
+                                                        show: true,
+                                                        position: 'insideLeft',
+                                                        formatter: '{c}',
+                                                        color: 'rgba(0,0,0,0)'
+                                                    }
+                                                }
+                                            },
+                                            data: []
+                                        };
+                                        legenddata.push(row.itemdesc);
+                                        // 获取yAxisdata 数据
+                                        if (yAxisdata.length == 0) {
+                                            yAxisdata = row.grouptitle.split(",").reverse();
+                                        }
+                                        rowseries.name = row.itemdesc;
+                                        rowseries.data = row.groupvalue.split(",").reverse();
+                                        series.push(rowseries);
+                                    });
+
+									// 动态更新图表高度
+									$("#main").height(yAxisdata.length * 30 + "px");
+									// 显示查询时间段
+                                    var subtext = "（" + vm.QueryStartTime + " - " + vm.QueryEndTime + "）"; // 查詢時間段
+
+                                    //console.log(legenddata);
+
+									//加载图表
+									vm.LoadChart(legenddata, yAxisdata, series, subtext); 
+								}
+							},
+							error: function(eret) {
+
+							}
+						})
+
+					},
+					selectTime(event) {
+						var arrTime = event.toString().split(',');
+						this.QueryStartTime = arrTime[0];
+						this.QueryEndTime = arrTime[1];
+					},
+					clearTime() {
+						this.QueryStartTime = "";
+						this.QueryEndTime = "";
+
+					},
+                    LoadChart(legenddata, yAxisdata, series, subtext) {
+                        var vm = this;
+						var myChart = echarts.init(document.getElementById('main'));
+                        var stext = "";
+                        //alert(vm.queryType);
+						// 判断显示图表 名称
+                        switch (vm.queryType) {
+							case '5':
+								stext = "区委会议--部门统计图";
+								break;
+							case '6':
+                                stext = "区委公文--部门统计图";
+								break;
+							case '7':
+                                stext = "区委信息--部门统计图";
+								break;
+
+                        };
+
+                        //alert(stext);
+						//加载 图表
+						option = {
+							title: {
+								text: stext,
+								subtext: subtext,
+                                sublink: '#',
+                                textStyle: {
+                                    fontSize: 16,
+                                    fontWeight: 'normal',
+                                    color: '#111'          // 主标题文字颜色
+                                },
+                                subtextStyle: {
+                                    fontWeight: 'bolder',
+                                    color: '#333'          // 副标题文字颜色
+                                }
+
+							},
+							tooltip: {
+								trigger: 'axis',
+								axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                                    type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+								},
+								formatter: '{b}<br />{a0} : {c0}<br />{a2} : {c2}<br />{a4} : {c4}'
+							},
+							legend: {
+								y: 55,
+								itemGap: document.getElementById('main').offsetWidth / 20,
+								data: legenddata
+							},
+							toolbox: {
+								show: true,
+								feature: {
+									mark: {
+										show: true
+                                    },
+									//dataView: {
+									//	show: true,
+									//	readOnly: false
+         //                           },
+                                    magicType: { show: true, type: ['line', 'bar', 'stack', 'tiled'] },
+									restore: {
+										show: true
+									},
+									saveAsImage: {
+										show: true
+									}
+								}
+							},
+							grid: {
+								y: 80,
+								y2: 30
+							},
+							xAxis: [{
+								type: 'value',
+								position: 'top',
+								splitLine: {
+									show: false
+								},
+								axisLabel: {
+									show: false
+								}
+							}],
+							yAxis: [{
+								type: 'category',
+								splitLine: {
+									show: false
+								},
+								data: yAxisdata
+							}],
+							series: series
+						};
+						myChart.setOption(option);
+					}
+				}
+
+			});
+		</script>
+
+	</body>
+</html>

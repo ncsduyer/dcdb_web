@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>顺庆区区委办督查督办管理系统</title>
+
+	
+
+		<link rel="stylesheet" href="css/iview.css">
+		<link rel="stylesheet" href="css/load.css">
+		<script src="js/vue.min.js"></script>
+		<script src="js/jquery.js"></script>
+		<script src="js/url.js"></script>
+		<script src="js/axios.js"></script>
+		<script src="../js/axiosConfig.js"></script>
+		<script src="js/iview.min.js"></script>
+		<style>
+			.ivu-auto-complete, ivu-select-dropdown {
+            max-height: 80px;
+        }
+        .tabas tr td {
+            padding: 2px;
+        }
+    </style>
+	</head>
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<div>
+				<i-form :label-width="80">
+					<Form-Item label="">
+						<template>
+							<Row>
+								<i-col span="24">
+									<table width="70%" border="0" cellspacing="0" cellpadding="0" class="tabas">
+										<tbody id="mytbodychoosedept">
+											<tr>
+												
+												<td>选择问题类型</td>
+											</tr>
+											<tr>
+											
+												<td>
+													<i-col span="12">
+														<i-select v-model="model11" filterable clearable style="padding-right:5px;" placeholder="选择问题类型
+">
+															<i-option v-for="item in modelCheckItem" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+															
+														</i-select>
+													</i-col>
+													</td>	
+											</tr>
+											
+										</tbody>
+									</table>
+
+								</i-col>
+							</Row>
+						</template>
+					</Form-Item>
+					<Form-Item label="">
+						<i-button type="primary" icon="icon-plus" id="table" @click="fnsave">保存提交</i-button>
+					</Form-Item>
+				</i-form>
+			</div>
+		</div>
+		<script>
+
+	
+		function getQueryVariable(variable) {
+		var query = window.location.search.substring(1);
+		var vars = query.split("&");
+
+	
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split("=");
+			if (pair[0] == variable) { return pair[1]; }
+		}
+		return (false);
+	}
+
+
+	var mid = getQueryVariable('id');
+
+
+			new Vue({
+				el: '#app',
+				data: {
+					model11: '',
+					modelCheckItem: [],
+					departmentList: [],
+					modeldata: []
+				},
+				filters: {
+					numFilter(value) {
+						// 截取当前数据到小数点后两位
+						let realVal = parseFloat(value).toFixed(2)
+
+						// num.toFixed(2)获取的是字符串
+						if (isNaN(value)) {
+							return 0;
+						} else {
+							return parseFloat(realVal);
+						}
+
+					}
+
+				},
+				mounted: function() {
+					var parmDate = new Date();
+					this.checkitem();
+					//this.GetData();
+
+				},
+				methods: {
+				checkitem() {
+				var vm = this;
+				$.Apiaxios({
+					url: apiUrl.ApiCheckItemList + '?itemclass=2',
+					method: "GET",
+					content: "获取数据中，请稍等...",
+					success: function (ret) {
+
+						$.each(ret.data, function (index, item) {
+							var tempitem = {};
+							tempitem.label = item.itemdesc;
+							tempitem.value = item.id;
+						
+							vm.modelCheckItem.push(tempitem);
+						});
+					console.log(vm.modelCheckItem)
+			
+					}
+				});
+
+			}
+
+				,
+					filterMethod(value, option) {
+						return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+					},
+					// 区委信息提交
+					fnsave() {
+						loading(true, "提交数据中...");
+						var vm = this;
+						var token = localStorage.getItem("wccToken"); //获取
+						axios({
+							url: apiUrl.Apimeetupdate,
+							method: "Post",
+							headers: {
+								"Authorization": "Bearer " + token
+							},
+							data: {
+								id: mid,
+								checkitemid: vm.model11
+							},
+						}).then(function(ret) {
+							loading(false);
+							if (ret.data.success) {
+								alert('保存提交成功！');
+								html_cancel();
+							} else {
+								vm.$Message.warning(ret.data.message);
+							}
+
+						});
+					},
+					GetData() {
+						var vm = this;
+						var token = localStorage.getItem("wccToken"); //获取
+						axios({
+							url: apiUrl.ApimeetDetails,
+							method: "Post",
+							headers: {
+								"Authorization": "Bearer " + token
+							},
+							data: {
+								unitid: unitid,
+								meetingid: mid
+							},
+						}).then(function(ret) {
+							// 循环查询出检查项值
+							var data = ret.data.data;
+							$(data).each(function() {
+								var row = this;
+								var item = vm.modelCheckItem.filter(t => t.value == row.checkitemid);
+								if (item.length > 0) {
+									row.itemname = item[0].label;
+								}
+							});
+							vm.modeldata = data;
+						});
+					}
+				}
+			});
+		</script>
+		<script>
+			function html_cancel() {
+				
+				var index = parent.layer.getFrameIndex(window.name);
+				//parent.LoadTable()
+			//  parent.unitid.MeetingPerson();
+			   parent.myvue.MeetingPerson();
+				parent.layer.close(index);
+
+			}
+
+//			function fn_setvalue() {
+//					var ss_newvalue18 = $("#18").val();
+//					var ss_newvalue19 = $("#19").val();
+//					if (ss_newvalue18 != "0" && ss_newvalue19 != "0") {
+//						if (parseFloat(ss_newvalue18) > 0) {
+//							var n_value = (parseFloat(ss_newvalue19) / parseFloat(ss_newvalue18)) * 100;
+//							n_value = Math.round(n_value);
+//							$("#20").val(n_value);
+//						} else {
+//							$("#20").val(0);
+//						}
+//					}
+//			}
+		</script>
+	</body>
+</html>

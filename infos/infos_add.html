@@ -1,0 +1,616 @@
+﻿<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>顺庆区区委办督查督办管理系统</title>
+
+    <link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <script src="../js/vue.min.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/url.js"></script>
+    <script src="../js/axios.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="/js/axiosConfig.js"></script>
+    <script src="../js/iview.min.js"></script>
+    <style>
+        .ivu-auto-complete,
+        ivu-select-dropdown {
+            max-height: 80px;
+        }
+
+        .tabas tr td {
+            padding: 2px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app" style="margin:15px 10px 10px 10px;">
+
+    <div>
+        <i-form :label-width="80">
+            <Form-Item label="上报时间">
+                <Row>
+                    <i-col span="8">
+                        <Date-Picker v-model="inputform.mtime" clearable="false" format="yyyy-MM-dd" type="date"
+                                     placeholder="请选择信息上报时间" :options="startTimeOptions"
+                                     @on-change="endTimeChange"></Date-Picker>
+                    </i-col>
+                    <i-col span="16">
+                        <Form-Item label="信息名称">
+                            <i-input v-model="inputform.title" value='0' placeholder="请输入区委信息名称"
+                                     style="width:80%;"></i-input>
+                        </Form-Item>
+                    </i-col>
+                </Row>
+            </Form-Item>
+            <Form-Item label="上报部门">
+                <Row>
+                    <i-col span="12" style="padding-right:10px; width: 100%;">
+                        <i-select label-in-value="true" filterable multiple @on-change="choosedata">
+                            <i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label
+                                }}
+                            </i-option>
+                        </i-select>
+                    </i-col>
+                </Row>
+            </Form-Item>
+
+            <Form-Item label="">
+                <template v-if="ishidden==true">
+                    <Row>
+                        <i-col span="24">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tabas">
+                                <thead>
+                                <tr>
+                                    <td>已选部门</td>
+                                    <td v-for='(item,index) in modelCheckItem' style="line-height:18px;width: 110px;">{{
+                                        item.label }}
+                                    </td>
+                                </tr>
+                                </thead>
+                                <tbody id="mytbodychoosedept">
+                                <tr v-for='(item,index) in chooseDeptList'>
+                                    <td>{{ item.label }}</td>
+                                    <td v-for='(itemmx,index) in modelCheckItem'>
+                                        <!--<i-input v-if = "itemmx.value == '13'" readonly="true" v-bind:id="'myinput_' + item.value +'_'+itemmx.value" value="0" style="width:90%;height:25px;text-align:center;" onchange="fn_setvalue(this)" ></i-input>-->
+                                        <input v-if="itemmx.value == '21'" readonly="true"
+                                               :id="'myinput_' + item.value +'_'+itemmx.value" value="0"
+                                               style="width:90%;height:25px;text-align:center;"
+                                               onchange="fn_setvalue(this)" type="text"/>
+                                        <input v-else :id="'myinput_' + item.value +'_'+itemmx.value" value="0"
+                                               style="width:90%;height:25px;text-align:center;"
+                                               onchange="fn_setvalue(this)"  type="text"/>
+
+                                        <!--<i-input v-else v-bind:id="'myinput_' + item.value +'_'+itemmx.value" value="0" style="width:90%;height:25px;text-align:center;" onchange="fn_setvalue(this)" ></i-input>-->
+                                    </td>
+                                    <td>
+                                        <Form-Item>
+                                            <Upload
+                                                    ref="uploadFile+'-'+item.value"
+                                                    :action="apiUrl.Upload"
+                                                    :show-upload-list="true"
+                                                    :on-success="infoAttrSuccess"
+                                                    :max-size="81920"
+                                                    :on-format-error="handleFormatError"
+                                                    :on-exceeded-size="handleMaxSize"
+                                                    :on-remove="handleUnitFileRemove"
+                                                    multiple
+                                                    name="files"
+                                                    :headers="header"
+                                                    type="drag"
+                                                    style="display: inline-block;width:auto;">
+                                                <div style="padding: 0px 0;width:58px;">
+                                                    <!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+                                                    <p @click="setInfoUnitAttr(item.value)">上传附件</p>
+                                                </div>
+                                            </Upload>
+                                        </Form-Item>
+                                    </td>
+                                    <!--<td>人员详情</td>-->
+                                </tr>
+
+
+                                </tbody>
+                            </table>
+                        </i-col>
+                    </Row>
+                </template>
+            </Form-Item>
+            <Form-Item v-for="(item, index) in formDynamic"
+                       v-if="item.status"
+                       :key="index"
+                       :label="'问题人员'"
+                       :prop="'items.' + index + '.value'"
+                       :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}"
+            >
+                <!--<i-input v-model="inputform.memo" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写信息备注"></i-input>-->
+                <Row>
+                    <i-col span="18">
+                        <i-input type="text" v-model="item.sender" placeholder="填写问题人员姓名" style="width:190px"></i-input>
+                        <i-input type="text" v-model="item.tel" placeholder="填写问题人员电话"
+                                 style="width:190px; margin-left: 10px;"></i-input>
+                        <i-input type="text" v-model="item.content" placeholder="填写问题情况"
+                                 style="width:190px; margin-left: 10px;"></i-input>
+                    </i-col>
+                    <i-col span="4" offset="1">
+                        <i-button @click="handleRemove(index)">删除</i-button>
+                    </i-col>
+                </Row>
+            </Form-Item>
+            <FormItem>
+                <Row>
+                    <i-col span="4" style="margin-left: 80px; margin-bottom: 30px;">
+                        <i-button type="dashed" long @click="handleAdd" icon="md-add">添加上报人员</i-button>
+                    </i-col>
+                </Row>
+            </FormItem>
+            <Form-Item label="文件上传">
+                <Upload
+                        ref="uploadFile"
+                        :action="apiUrl.Upload"
+                        :show-upload-list="true"
+                        :on-success="infoSuccess"
+                        :max-size="81920"
+                        :on-format-error="handleFormatError"
+                        :on-exceeded-size="handleMaxSize"
+                        :on-remove="handleFileRemove"
+                        multiple
+                        name="files"
+                        :headers="header"
+                        type="drag"
+                        style="display: inline-block;width:auto;">
+                    <div style="padding: 0px 0;width:58px;">
+                        <!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+                        <p>上传附件</p>
+                    </div>
+                </Upload>
+            </Form-Item>
+            <Form-Item label="信息备注">
+                <i-input v-model="inputform.memo" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
+                         placeholder="请填写信息备注"></i-input>
+            </Form-Item>
+
+
+            <Form-Item label="" v-if="isbuttonshow">
+                <i-button type="primary" icon="icon-plus" @click="fnsave">保存提交</i-button>
+            </Form-Item>
+        </i-form>
+    </div>
+</div>
+<script>
+    var header ={'Authorization': 'Bearer ' + localStorage.getItem("wccToken")} ;
+    new Vue({
+        el: '#app',
+        data: {
+            isbuttonshow: true,
+            ishidden: false,
+            startTimeOptions: {},
+            //结束日期设置
+            endTimeOptions: {},
+            //开始日期model
+            starttime: '',
+            //结束日期model
+            inputform: {
+                mtime: '',
+                title: '',
+                memo: '',
+                pictures: [],
+                files:[]
+            },
+            infoUnitAttrs: [],
+            nowUnitid:0,
+            modelCheckItem: [],
+            departmentList: [],
+            chooseDeptList: [],
+            // 输入框值动态计算
+            extra: 0,
+            inputmessage: [],
+            index: 1,
+            formDynamic: []
+
+        },
+        filters: {
+            numFilter(value) {
+                // 截取当前数据到小数点后两位
+                let realVal = parseFloat(value).toFixed(2)
+                // num.toFixed(2)获取的是字符串
+                if (isNaN(value)) {
+                    return 0;
+                } else {
+                    return parseFloat(realVal);
+                }
+            }
+
+        },
+        mounted: function () {
+            var parmDate = new Date();
+            this.endtime = parmDate;
+            this.inputform.mtime = parmDate;
+            this.endTimeChange(parmDate);
+            this.unit();
+            this.checkitem();
+        },
+        methods: {
+            handleReset(name) {
+                this.$refs[name].resetFields();
+            },
+            handleAdd() {
+                this.index++;
+                this.formDynamic.push({
+                    content: '',
+                    tel: '',
+                    sender: '',
+                    index: this.index,
+                    status: 1
+                });
+            },
+            handleRemove(index) {
+                this.formDynamic.slice(index,1);
+                ;
+            },
+            //设置结束时间
+            endTimeChange: function (e) {
+                //debugger
+                this.endtime = e;
+                let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+                this.startTimeOptions = {
+                    disabledDate(date) {
+                        return date && date.valueOf() > Date.now() && endTime != '';
+                    }
+                }
+            },
+            //获取责任单位列表
+            unit() {
+                var vm = this;
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    url: apiUrl.ApiNuitList,
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    data: '',
+                }).then(function (ret) {
+                    //console.log("责任单位获取成功：" + JSON.stringify(ret.data));
+                    $(ret.data.data).each(function (index, item) {
+                        var tempitem = {};
+                        tempitem.label = item.title;
+                        tempitem.value = item.id;
+                        vm.departmentList.push(tempitem);
+                        vm.inputmessage.push({
+                            message: 0,
+                            message2: 0
+                        })
+                    });
+
+                });
+            },
+            //获取信息监督项目列表
+            checkitem() {
+                var vm = this;
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    url: apiUrl.ApiCheckItemList + '?itemclass=4',
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    data: '',
+                }).then(function (ret) {
+                    //console.log("信息监督项目列表：" + JSON.stringify(ret.data));
+                    vm.modelCheckItem = [];
+
+                    $(ret.data.data).each(function (index, item) {
+                        var tempitem = {};
+                        tempitem.label = item.itemdesc;
+                        tempitem.value = item.id;
+                        vm.modelCheckItem.push(tempitem);
+                        vm.inputmessage.push(tempitem);
+                        //console.log(tempitem);
+
+                    });
+                    //							console.log("督办人获取成功："+ JSON.stringify(ret))
+                })
+            },
+            filterMethod(value, option) {
+                return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+            },
+            choosedata(option) {
+                //console.log(option);//
+                this.chooseDeptList = option;
+                if (this.ishidden == false) {
+                    this.ishidden = true;
+                }
+
+
+            },
+            // 区委信息提交
+            fnsave() {
+
+                var vm = this;
+                var token = localStorage.getItem("wccToken"); //获取
+                if (this.inputform.mtime == '') {
+                    vm.$Message.warning('请选择信息上报时间！');
+                    return false;
+                }
+                if (this.inputform.title == '') {
+                    vm.$Message.warning('请填写信息名称！');
+                    return true;
+                }
+                if (this.chooseDeptList.length <= 0) {
+                    vm.$Message.warning('请选择上报部门！');
+                    return false;
+                }
+                var choosedptarray = [];
+                var ret = true;
+                $("#mytbodychoosedept tr").each(function (index, obj) {
+                    var nnlength = 0;
+                    var zerolength = 0;
+
+                    $(obj).find("input[type='text']").each(function (mindex, mobj) {
+                        nnlength++;
+
+                        var ss_attrid = $(mobj).attr("id");
+                        //console.log(ss_attrid);
+                        var aa_attrid = ss_attrid != undefined ? ss_attrid.split('_') : '';
+                        var ss_unitid = aa_attrid[1];
+                        var ss_checkitemid = aa_attrid[2];
+                        var ss_checkvalue = $(mobj).val();
+                        //console.log(ss_checkvalue);
+
+                        try {
+
+                            if (isNaN(parseFloat(ss_checkvalue))) {
+                                ss_checkvalue = 0;
+                            } else {
+                                if (parseFloat(ss_checkvalue) <= 0) {
+                                    ss_checkvalue = 0;
+                                } else {
+                                    ss_checkvalue = parseFloat(ss_checkvalue);
+                                    $(mobj).attr("value", ss_checkvalue);
+                                }
+                            }
+                        } catch (e) {
+                            ss_checkvalue = 0;
+                        }
+                        if (ss_checkvalue == 0) {
+                            zerolength++;
+                        }
+
+                        var tmpobj = {};
+                        tmpobj.unitid = ss_unitid;
+                        tmpobj.checkitemid = ss_checkitemid;
+                        tmpobj.checkvalue = ss_checkvalue;
+                        choosedptarray.push(tmpobj);
+
+
+                        var sendlistTemp = vm.formDynamic;
+                        var sendList = [];
+
+                        for (var i = 0; i < sendlistTemp.length; i++) {
+                            var item = sendlistTemp[i];
+                            if (item.status == 0) {
+                                continue
+                            } else {
+                                sendList.push({
+                                    tel: item.tel,
+                                    sender: item.sender,
+                                    content: item.content
+                                })
+                            }
+                        }
+                        tmpobj.copyRecordNotices = sendList;
+
+                        tmpobj.content = vm.formDynamic.content;
+//								console.log(JSON.stringify(vm.formDynamic.items));
+
+                    });
+
+                    if (zerolength == nnlength) {
+                        ret = false;
+                    }
+
+                });
+
+//						if(ret == false) {
+//							vm.$Message.warning('请信息上报项不能全为0！');
+//							return false;
+//						}
+
+
+                for(var j = 0,len = this.infoUnitAttrs.length; j < len; j++){
+                    this.infoUnitAttrs[j].pictures=this.infoUnitAttrs[j].pictures.join(",");
+                    this.infoUnitAttrs[j].files=this.infoUnitAttrs[j].files.join(",");
+                }
+                //console.log(choosedptarray);
+                axios({
+                    url: apiUrl.Apiinfosadd,
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    data: {
+                        "memo": vm.inputform.memo,
+                        "mtime": vm.inputform.mtime,
+                        "resc": choosedptarray,
+                        "copyRecordNotices": vm.formDynamic,
+                        // "status": 0,
+                        "title": vm.inputform.title,
+                        "files": vm.inputform.files.join(","),
+                        "pictures": vm.inputform.pictures.join(","),
+                        "infoUnitAttrs": vm.infoUnitAttrs
+                    },
+                }).then(function (ret) {
+                    //console.log(JSON.stringify(ret.data));
+                    //return;
+                    if (ret.data.success) {
+                        alert('保存提交成功！');
+                        html_cancel();
+                    } else {
+                        vm.$Message.warning(ret.data.message);
+                    }
+                    // console.log("信息监督项目列表：" + JSON.stringify(ret.data));
+                    // vm.modelCheckItem = [];
+                });
+                return;
+            },
+
+            handleFileRemove(file) {
+                // const fileList = this.$refs.upload.fileList;
+                // this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+                if (file.type == 'photo') {
+                    // this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+                    this.inputform.pictures.splice(this.inputform.pictures.indexOf(file.id), 1);
+                } else if (file.type == 'file') {
+                    // this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+                    this.inputform.files.splice(this.inputform.files.indexOf(file.id), 1);
+                }
+            },
+            handleUnitFileRemove(file) {
+                if (file.type == 'photo') {
+                    // this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+                    this.infoUnitAttrs[file.arrtindex].pictures.splice(this.infoUnitAttrs[file.arrtindex].pictures.indexOf(file.id), 1);
+                } else if (file.type == 'file') {
+                    // this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+                    this.infoUnitAttrs[file.arrtindex].files.splice(this.infoUnitAttrs[file.arrtindex].files.indexOf(file.id), 1);
+                }
+            },
+            setInfoUnitAttr(unitid){
+                var isexcent=true;
+                for(var j = 0,len = this.infoUnitAttrs.length; j < len; j++){
+                    if (this.infoUnitAttrs[j].unitid===unitid) {
+                        isexcent=false;
+                        break;
+                    }
+                }
+                if (isexcent) {
+                this.nowUnitid=unitid;
+                this.infoUnitAttrs.push({
+                    files: [],
+                    pictures: [],
+                    unitid:this.nowUnitid
+                });
+                // console.log(this.infoUnitAttrs);
+                }
+            },
+            infoAttrSuccess(res, file, fileList) {
+                var fl = file;
+                if (fl.response.data.files.length > 0) {
+                    if (this.inputform.files.indexOf(fl.response.data.files[0]) == -1) {
+                        fl.id = fl.response.data.files[0];
+                        fl.type = 'file';
+                        // this.uploadfileList.push(fl);
+                        for(var j = 0,len = this.infoUnitAttrs.length; j < len; j++){
+                           if (this.infoUnitAttrs[j].unitid===this.nowUnitid) {
+                               fl.arrtindex=j;
+                               this.infoUnitAttrs[j].files.push(fl.id);
+                           }
+                        }
+
+                    }
+                }
+                if (fl.response.data.photos.length > 0) {
+                    if (this.inputform.pictures.indexOf(fl.response.data.photos[0]) == -1) {
+                        fl.id = fl.response.data.photos[0];
+                        fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+                        fl.type = 'photo';
+                        for(var j = 0,len = this.infoUnitAttrs.length; j < len; j++){
+                        if (this.infoUnitAttrs[j].unitid===this.nowUnitid) {
+                            fl.arrtindex=j;
+                            this.infoUnitAttrs[j].pictures.push(fl.id);
+                        }
+                    }
+                    }
+                }
+                // console.log(this.infoUnitAttrs);
+            },
+            infoSuccess(res, file, fileList) {
+                var fl = fileList[fileList.indexOf(file)];
+                if (fl.response.data.files.length > 0) {
+                    if (this.inputform.files.indexOf(fl.response.data.files[0]) == -1) {
+                        fl.id = fl.response.data.files[0];
+                        fl.type = 'file';
+                        // this.uploadfileList.push(fl);
+                        this.inputform.files.push(fl.id);
+                    }
+                }
+                if (fl.response.data.photos.length > 0) {
+                    if (this.inputform.pictures.indexOf(fl.response.data.photos[0]) == -1) {
+                        fl.id = fl.response.data.photos[0];
+                        fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+                        fl.type = 'photo';
+                        // this.uploadphotoList.push(fl);
+                        this.inputform.pictures.push(fl.id);
+                    }
+                }
+            },
+            handleFormatError(file) {
+                this.$Notice.warning({
+                    title: '文件上传出错',
+                    desc: '请选择正确的文件格式或正确的文件大小！'
+                });
+            },
+            handleMaxSize(file) {
+                this.$Notice.warning({
+                    title: '文件过大',
+                    desc: +file.name + ' 文件大小超过8M'
+                });
+            }
+        }
+    });
+</script>
+<script>
+    // 动态计算数目
+    function fn_setvalue(mobj) {
+        var ss_attrid = $(mobj).attr("id");
+        var aa_attrid = ss_attrid != undefined ? ss_attrid.split('_') : '';
+        var ss_unitid = aa_attrid[1];
+        var ss_checkitemid = aa_attrid[2];
+        //          if (ss_checkitemid == '18') {
+        //              var ss_checkvalue = $(mobj).val();
+        //              console.log(ss_checkvalue);
+        //              var ss_newvalue = $("#myinput_" + ss_unitid + "_18").val();
+        //              if (parseFloat(ss_newvalue) < parseFloat(ss_checkvalue)) {
+        //                  $(mobj).val(ss_newvalue);
+        //              }
+        //          }
+
+        if (ss_checkitemid == '19' || ss_checkitemid == '20') {
+            var ss_newvalue18 = $("#myinput_" + ss_unitid + "_19").val();
+            var ss_newvalue19 = $("#myinput_" + ss_unitid + "_20").val();
+            if (ss_newvalue18 != "0" && ss_newvalue19 != "0") {
+                if (parseFloat(ss_newvalue18) > 0) {
+                    var n_value = (parseFloat(ss_newvalue19) / parseFloat(ss_newvalue18)) * 100;
+                    n_value = Math.round(n_value);
+                    $("#myinput_" + ss_unitid + "_21").val(n_value);
+                } else {
+                    $("#myinput_" + ss_unitid + "_21").val(0);
+                }
+            }
+
+        }
+
+        //console.log(mobj);
+    }
+
+    function html_cancel() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.LoadTable();
+        parent.layer.close(index);
+
+    }
+
+    //   $(function(){
+    //       // 动态计算数目
+    //       $('#mytbodychoosedept').on('input propertychange','input',function(){
+    //           //console.log('ccc')
+    //           //console.log($(this).val());
+    //       })
+    //    })
+</script>
+</body>
+
+</html>

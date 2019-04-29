@@ -1,0 +1,559 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>顺庆区区委办督查督办管理系统</title>
+    <!--<link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">-->
+    <link rel="stylesheet" type="text/css" href="../css/iview.css"/>
+    <script src="../js/vue.min.js"></script>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/url.js"></script>
+    <script src="../js/axios.js"></script>
+    <script src="../js/axios.min.js"></script>
+	<!--<script src="/js/axiosConfig.js"></script>-->
+    <script src="../js/iview.min.js"></script>
+    <style>
+        .ivu-auto-complete, ivu-select-dropdown {
+            max-height: 80px;
+        }
+
+        .tabas tr td {
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+	<div id="app" style="margin:15px 10px 10px 10px;">
+		<div>
+			<i-form :label-width="80">
+				<Form-Item label="公文名称">
+					<Row>
+						<i-col span="8">
+							<i-input v-model="inputform.title" value='0' placeholder="请输入会议名称"></i-input>
+						</i-col>
+						<i-col span="16">
+							<Form-Item label="收件人">
+								<i-col span="8">
+									<i-input v-model="inputform.currecv" value='0' placeholder="请填写姓名"></i-input>
+								</i-col>
+							</Form-Item>
+						</i-col>
+					</Row>
+				</Form-Item>
+			
+				<Form-Item label="办件人">
+					<Row>
+						<i-col span="8">
+							<row>
+								<i-col span='24'>
+									<i-select label-in-value="true" filterable multiple v-model="inputform.doPersonIds">
+										<i-option v-for='opt in peopleList' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>
+									</i-select>
+								</i-col>
+							</row>
+						</i-col>
+						<i-col span="16">
+							<Form-Item label="是否超期" >
+								<row>
+									<i-col span="8">
+										<i-select label-in-value="true" v-model="inputform.exceed">
+											<i-option :value="0" >未超期</i-option>
+											<i-option :value="1" >已超期</i-option>
+										</i-select>
+									</i-col>
+								</row>
+							</Form-Item>
+						</i-col>
+					</Row>
+				</Form-Item>
+				<Form-Item label="主送人">
+					<Row>
+						<i-col span="8">
+							<row>
+								<i-col span='16'>
+									<i-select label-in-value="true" v-model="inputform.senderId">
+										<i-option v-for='opt in peopleList' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>										
+									</i-select>
+								</i-col>
+							</row>
+						</i-col>
+						<i-col span="16">
+							<Form-Item label="分送人" >
+								<row>
+									<i-col span='8'>
+										<i-select label-in-value="true" filterable multiple v-model="inputform.copySenderId">
+											<i-option v-for='opt in peopleList' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>											
+										</i-select>
+									</i-col>
+								</row>
+							</Form-Item>
+						</i-col>
+					</Row>
+				</Form-Item>
+				<Form-Item label="公文问题" >
+					<row>
+						<i-col span='24'>
+							<i-select label-in-value="true" filterable multiple v-model="chooseDeptList">
+								<i-option v-for='opt in modelCheckItem' :value="opt.value" :key="opt.value">{{ opt.label }}</i-option>
+							</i-select>
+						</i-col>
+					</row>
+				</Form-Item>
+				<Form-Item label="来文时间">
+					<Row>
+						<i-col span="8">
+							<Date-Picker v-model="inputform.assignTime" value='0' type="date" placeholder="请选择来文时间" :options="startTimeOptions" @on-change="endTimeChange"></Date-Picker>
+						</i-col>
+						<i-col span="16">
+							<Form-Item label="完结时间">
+								<Date-Picker v-model="inputform.endTime" value='0' type="date" placeholder="请选择完结时间" :options="startTimeOptions" @on-change="endTimeChange"></Date-Picker>
+							</Form-Item>
+						</i-col>
+					</Row>
+				</Form-Item>				
+				
+				
+				<Form-Item label="部门单位">
+					<Row>
+						<i-col span="24">
+							<i-select v-model="unitid" label-in-value="true">
+								<i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+							</i-select>
+						</i-col>
+					</Row>
+				</Form-Item>
+				<Form-Item v-for="(item, index) in formDynamic" :key="index" :label="'问题人员'" :prop="'items.' + index + '.value'" :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}">
+					<Row>
+						<i-col span="18">
+							<i-input type="text" v-model="item.sender" placeholder="填写问题人员姓名" style="width:190px"></i-input>
+							<i-input type="text" v-model="item.tel" placeholder="填写问题人员电话" style="width:190px; margin-left: 10px;"></i-input>
+							<i-select style="width:190px; margin-left: 10px;" v-model="item.content">
+								<i-option v-for='opt in modelCheckItem' :value="opt.label" :key="opt.value">{{ opt.label }}</i-option>
+							</i-select>
+						</i-col>
+						<i-col span="4" offset="1">
+							<i-button @click="handleRemove(index)">删除</i-button>
+						</i-col>
+					</Row>
+				</Form-Item>
+				<FormItem>
+					<Row>
+						<i-col span="4" style="margin-left: 80px; margin-bottom: 30px;">
+							<i-button type="dashed" long @click="handleAdd" icon="md-add">添加上报人员</i-button>
+						</i-col>
+					</Row>
+				</FormItem>
+				<Form-Item label="附件上传">
+					<Upload
+							ref="upload"
+							:action="apiUrl.Upload"
+							:show-upload-list="true"
+							:on-success="infoSuccess"
+							:max-size="81920"
+							:on-format-error="handleFormatError"
+							:on-exceeded-size="handleMaxSize"
+							:on-remove="handleFileRemove"
+							multiple
+							name="files"
+							:headers="header"
+							type="drag"
+							style="display: inline-block;width:auto;">
+						<div style="padding: 0px 0;width:58px;">
+							<!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+							<p>上传附件</p>
+						</div>
+					</Upload>
+				</Form-Item>
+				<Form-Item label="领导批示">
+					<i-input v-model="inputform.instructions" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写批示"></i-input>
+				</Form-Item>
+				<Form-Item label="办公室建议">
+					<i-input v-model="inputform.suggestion" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写办公室建议"></i-input>
+				</Form-Item>
+				<Form-Item label="拟办意见">
+					<i-input v-model="inputform.opinion" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写拟办意见"></i-input>
+				</Form-Item>
+				<Form-Item label="归档说明">
+					<i-input v-model="inputform.closememo" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写说明"></i-input>
+				</Form-Item>
+				<Form-Item label="" v-if="isbuttonshow">
+					<i-button type="primary" icon="icon-plus" @click="fnsave">保存提交</i-button>
+				</Form-Item>
+			</i-form>
+		</div>
+	</div>
+</body>
+</html>
+<script>
+	var header = {
+		'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
+	};
+	new Vue({
+		el: '#app',
+		data: {
+			unitid:0,
+			isbuttonshow: true,
+			ishidden: false,
+			startTimeOptions: {},
+			//结束日期设置
+			endTimeOptions: {},
+			//开始日期model
+			starttime: '',
+			//结束日期model
+			inputform: {
+				closememo: '',
+				conferenceQuestions: '',
+				assignTime: '',
+				endTime: '',
+				currecv: '',
+				resc: '',
+				copyRecordNotices: '',
+				status: 0,
+				title: '',
+				unitid:'',
+				suggestion:'',//办公室建议
+				senderId:'',//主送人id
+				pictures:'',//图片列表
+				opinion:'',//拟办意见
+				instructions:'',//领导批示
+				files: [],
+				pictures:[],
+				exceed:0,//是否超期
+				doPersonIds:'',//办件人id
+				copySenderId:''//分送人id		
+			},
+			modelCheckItem: [],
+			departmentList: [],
+			chooseDeptList: [],
+			peopleList:[],
+			index: 1,
+			formDynamic: [],
+			questioninfo:[{
+				items:[{
+					checkitemid:'',
+					checkvalue:'',
+					createtime:'',
+					docassignid	:'',
+					id:'',
+					unitid:''
+				}]
+			}]
+		},
+		mounted: function() {
+
+			var parmDate = new Date();
+			this.endtime = parmDate;
+			this.inputform.mtime = parmDate;
+			this.inputform.overtime = parmDate;
+			this.endTimeChange(parmDate);
+			this.unit();
+			this.checkitem();
+			this.getPeopleList();
+		},
+		methods: {
+			handleReset(name) {
+				this.$refs[name].resetFields();
+			},
+			handleAdd() {
+				this.index++;
+				this.formDynamic.push({
+					//value: '',
+					tel: '',
+					sender: ''
+				});
+				// console.log(this.formDynamic)
+			},
+			handleRemove(index) {
+				this.formDynamic.splice(index,1);
+			},
+			//设置结束时间
+			endTimeChange: function(e) {
+				//debugger
+				this.endtime = e;
+				let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+				this.startTimeOptions = {
+					disabledDate(date) {
+						return date && date.valueOf() > Date.now() && endTime != '';
+					}
+				}
+			},
+			//获取责任单位列表
+			unit() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiNuitList,
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: '',
+				}).then(function(ret) {
+					//console.log("责任单位获取成功：" + JSON.stringify(ret.data));
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.title;
+						tempitem.value = item.id;
+						vm.departmentList.push(tempitem);
+//						console.log(vm.departmentList)
+					});
+				})
+			},
+			//获取公文监督项目列表
+			checkitem() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiCheckItemList + '?itemclass=3',
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: '',
+				}).then(function(ret) {
+					//                        console.log("公文监督项目列表：" + JSON.stringify(ret.data));
+					vm.modelCheckItem = [];
+
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.itemdesc;
+						tempitem.value = item.id;
+						vm.modelCheckItem.push(tempitem);
+
+					});
+					//							console.log("督办人获取成功："+ JSON.stringify(ret))
+				})
+			},
+			//获取督办人员列表
+			getPeopleList() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiOverseePeopleList,
+					method: "GET",
+					async: false,
+					headers: {
+						"Authorization": "Bearer " + token
+					}
+				}).then(function(ret) {
+					vm.peopleList = [];
+//					console.log(JSON.stringify(ret))
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.name;
+						tempitem.value = item.id;
+						vm.peopleList.push(tempitem);
+					});
+				});
+			},
+			filterMethod(value, option) {
+				return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+			},
+			choosedata(option) {
+				console.log(option);
+				this.chooseDeptList = option;
+				if(this.ishidden == false) {
+					this.ishidden = true;
+				}
+			},
+			// 文件上传相关函数
+			handleSuccess(res, file, fileList) {
+				for(var fli = 0; fli < fileList.length; fli++) {
+					var fl = fileList[fli];
+					if(fl.response.data.files.length > 0) {
+						if(this.fileIds.indexOf(fl.response.data.files[0]) == -1) {
+							fl.id = fl.response.data.files[0];
+							fl.type = 'file';
+							this.uploadfileList.push(fl);
+							this.fileIds.push(fl.id);
+						}
+					} else {
+						if(this.pictureIds.indexOf(fl.response.data.photos[0]) == -1) {
+							fl.id = fl.response.data.photos[0];
+							fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+							fl.type = 'photo';
+							this.uploadphotoList.push(fl);
+							this.pictureIds.push(fl.id);
+						}
+
+					}
+				}
+				console.log("文件="+this.fileIds);
+				console.log("图片="+this.pictureIds);
+				
+			},
+//			handleFormatError(file) {
+//				this.$Notice.warning({
+//					title: '文件上传出错',
+//					desc: '请选择正确的文件格式或正确的文件大小！'
+//				});
+//			},
+//			handleMaxSize(file) {
+//				this.$Notice.warning({
+//					title: '文件过大',
+//					desc: +file.name + ' 文件大小超过8M'
+//				});
+//			},
+			// 区委公文提交
+			fnsave() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				if(this.inputform.mtime == '') {
+					vm.$Message.warning('请选择来文时间！');
+					return false;
+				}
+				if(this.inputform.overtime == '') {
+					vm.$Message.warning('请选择完结时间！');
+					return false;
+				}
+				if(this.inputform.title == '') {
+					vm.$Message.warning('请填写会议名称！');
+					return true;
+				}
+				if(this.inputform.receivepeople == '') {
+					vm.$Message.warning('请填写接收人姓名！');
+					return true;
+				}
+				var choosedptarray = [];
+				var ret = true;
+//				console.log(this.chooseDeptList);
+				for (var i=0;i<this.chooseDeptList.length;i++)
+					{
+						var item=this.chooseDeptList[i];
+						var tmpobj = {};
+						tmpobj.unitid = this.unitid;
+						tmpobj.checkitemid = item;
+						tmpobj.checkvalue = 1;
+						choosedptarray.push(tmpobj);
+					}
+					console.log(choosedptarray);
+
+
+				if(this.unitid <= 0 || this.unitid=="") {
+					vm.$Message.warning('请选择上报部门！');
+					return false;
+				}
+
+				
+				vm.inputform.resc= choosedptarray;
+				if(vm.formDynamic.length>0){
+					vm.inputform.copyRecordNotices= vm.formDynamic;
+				}
+
+				vm.inputform.unitid=vm.unitid;
+				vm.inputform.doPersonIds=vm.inputform.doPersonIds.join(','),//办件人id
+				vm.inputform.copySenderId=vm.inputform.copySenderId.join(',');//分送人id		
+				vm.inputform.pictures=vm.inputform.pictures.join(',');
+				vm.inputform.files=vm.inputform.files.join(',');
+				// console.log(vm.inputform);
+				axios({
+					url: apiUrl.Apidocsadd,
+					method: "POST",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data: vm.inputform,
+				}).then(function(ret) {
+//					console.log(JSON.stringify(ret.data));
+					if(ret.data.success) {
+						alert('保存提交成功！');
+						html_cancel();
+					} else {
+						vm.$Message.warning(ret.data.message);
+					}
+				});
+			},
+			// 文件上传
+
+			handleFileRemove(file) {
+				// const fileList = this.$refs.upload.fileList;
+				// this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+				if (file.type == 'photo') {
+					// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+					this.inputform.pictures.splice(this.inputform.pictures.indexOf(file.id), 1);
+				} else if (file.type == 'file') {
+					// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+					this.inputform.files.splice(this.inputform.files.indexOf(file.id), 1);
+				}
+			},
+			handleUnitFileRemove(file) {
+				if (file.type == 'photo') {
+					// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+					file.item.pictures.splice(file.item.pictures.indexOf(file.id), 1);
+				} else if (file.type == 'file') {
+					// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+					file.item.files.splice(file.item.files.indexOf(file.id), 1);
+				}
+			},
+			setInfoUnitAttr(item){
+				item.files= [];
+				item.pictures= [];
+				this.nowItem=item;
+			},
+			infoAttrSuccess(res, file, fileList) {
+				var fl = file;
+				fl.item=this.nowItem;
+				if (fl.response.data.files.length > 0) {
+					if (this.nowItem.files.indexOf(fl.response.data.files[0]) == -1) {
+						fl.id = fl.response.data.files[0];
+						fl.type = 'file';
+						// this.uploadfileList.push(fl);
+						this.nowItem.files.push(fl.id);
+					}
+				}
+				if (fl.response.data.photos.length > 0) {
+					if (this.nowItem.pictures.indexOf(fl.response.data.photos[0]) == -1) {
+						fl.id = fl.response.data.photos[0];
+						fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+						fl.type = 'photo';
+						this.nowItem.pictures.push(fl.id);
+
+
+					}
+				}
+				// console.log(this.infoUnitAttrs);
+			},
+			infoSuccess(res, file, fileList) {
+				var fl = fileList[fileList.indexOf(file)];
+				if (fl.response.data.files.length > 0) {
+					if (this.inputform.files.indexOf(fl.response.data.files[0]) == -1) {
+						fl.id = fl.response.data.files[0];
+						fl.type = 'file';
+						// this.uploadfileList.push(fl);
+						this.inputform.files.push(fl.id);
+					}
+				}
+				if (fl.response.data.photos.length > 0) {
+					if (this.inputform.pictures.indexOf(fl.response.data.photos[0]) == -1) {
+						fl.id = fl.response.data.photos[0];
+						fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+						fl.type = 'photo';
+						// this.uploadphotoList.push(fl);
+						this.inputform.pictures.push(fl.id);
+					}
+				}
+			},
+			handleFormatError(file) {
+				this.$Notice.warning({
+					title: '文件上传出错',
+					desc: '请选择正确的文件格式或正确的文件大小！'
+				});
+			},
+			handleMaxSize(file) {
+				this.$Notice.warning({
+					title: '文件过大',
+					desc: +file.name + ' 文件大小超过8M'
+				});
+			}
+		}
+	});
+</script>
+<script>
+    function html_cancel() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.LoadTable();
+        parent.layer.close(index);
+    }
+</script>

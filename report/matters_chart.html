@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="ECharts">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>ECharts · Example</title>
+		<link rel="stylesheet" href="../css/iview.css">
+		<link rel="stylesheet" href="../css/load.css">
+		<script src="../js/echarts-all.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/iview.min.js"></script>
+
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+			<div style=" border-bottom: solid 1px #eff0f0; padding-bottom: 30px; padding-top: 20px;display:none;">
+				<row>
+					<i-col span="3">
+						<Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择统计时间段" @on-clear="clearTime"
+						 style="width: 200px"></Date-Picker>
+					</i-col>
+					<i-col span="2">
+						<i-button type="primary" icon="icon-plus" size="mini" @click="GetData()">查询</i-button>
+					</i-col>
+				</row>
+			</div>
+			<div id="main" style="width: 100%;height:700px;  margin-top: 10px; float: left;"></div>
+		</div>
+		<script type="text/javascript">
+			$(function(){
+				// 获取父界面查询时间段
+                var StartTime = parent.myVue.QueryStartTime;
+                var EndTime = parent.myVue.QueryEndTime;
+				if(StartTime){
+					myvue.QueryStartTime=StartTime;
+					myvue.QueryEndTime=EndTime;
+					myvue.GetData();
+				}
+			})
+			var myvue=new Vue({
+				el: '#app',
+				data: {
+					QueryStartTime: "",
+					QueryEndTime: ""
+				},
+				methods: {
+					GetData() {
+						var vm = this;
+						var paramdata = {
+							"afterTime": vm.QueryEndTime,
+							"beforeTime": vm.QueryStartTime,
+							"queryType": 2
+						}
+                        $.Apiaxios({
+                            url: apiUrl.ApireportChart,
+                            method: "post",
+                            data: paramdata,
+                            content: "查询数据中，请稍等...",
+                            success: function (ret) {
+                                var data = ret.data[0].title;
+                                $("#main").height(data.split(",").length * 30 + 'px');
+                                vm.LoadChart(ret.data[0]);
+                            },
+                            error: function (eret) {
+
+                            }
+                        });
+					},
+					selectTime(event) {
+						var arrTime = event.toString().split(',');
+						this.QueryStartTime = arrTime[0];
+						this.QueryEndTime = arrTime[1];
+					},
+					clearTime() {
+						this.QueryStartTime = "";
+						this.QueryEndTime = "";
+
+					},
+                    LoadChart(data) {
+                        var vm = this;
+                        // 显示查询时间段
+                        var subtext = "（" + vm.QueryStartTime + " - " + vm.QueryEndTime + "）"; // 查詢時間段
+
+						var myChart = echarts.init(document.getElementById('main'));
+						var placeHoledStyle = {
+							normal: {
+								barBorderColor: 'rgba(0,0,0,0)',
+								color: 'rgba(0,0,0,0)'
+							},
+							emphasis: {
+								barBorderColor: 'rgba(0,0,0,0)',
+								color: 'rgba(0,0,0,0)'
+							}
+						};
+						var dataStyle = {
+							normal: {
+								label: {
+									show: true,
+									position: 'insideLeft',
+									formatter: '{c}'
+								}
+							}
+						};
+						var option = {
+							title: {
+                                text: '督办事项--部门统计图',
+                                subtext: subtext,
+                                sublink: '#',
+                                textStyle: {
+                                    fontSize: 16,
+                                    fontWeight: 'normal',
+                                    color: '#111'          // 主标题文字颜色
+                                },
+                                subtextStyle: {
+                                    fontWeight: 'bolder',
+                                    color: '#333'          // 副标题文字颜色
+                                }
+							},
+							tooltip: {
+								trigger: 'axis',
+								axisPointer: { // 坐标轴指示器，坐标轴触发有效
+									type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+								},
+								formatter: '{b}<br />{a0} : {c0}<br />{a2} : {c2}<br />'
+							},
+							legend: {
+								y: 55,
+								itemGap: document.getElementById('main').offsetWidth / 8,
+								data: ['事项总数', '完成数', '正在办理数', '平均时长（天）']
+							},
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    mark: {
+                                        show: true
+                                    },
+                                    //dataView: {
+                                    //	show: true,
+                                    //	readOnly: false
+                                    //                           },
+                                    magicType: { show: true, type: ['line', 'bar', 'stack', 'tiled'] },
+                                    restore: {
+                                        show: true
+                                    },
+                                    saveAsImage: {
+                                        show: true
+                                    }
+                                }
+                            },
+							grid: {
+								y: 80,
+								y2: 30
+							},
+							xAxis: [{
+								type: 'value',
+								position: 'top',
+								splitLine: {
+									show: false
+								},
+								axisLabel: {
+									show: false
+								}
+							}],
+							yAxis: [{
+								type: 'category',
+								splitLine: {
+									show: false
+								},
+								data: data.title.split(",").reverse()
+							}],
+							series: [{
+									name: '事项总数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.Totalnum.split(",").reverse()
+								},
+
+								{
+									name: '完成数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.DealSuccNum.split(",").reverse()
+								},
+								{
+									name: '正在办理数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.NotDealSuccNum.split(",").reverse()
+								},
+
+								{
+									name: '平均时长（天）',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.avgDate.split(",").reverse()
+								}
+							]
+						};
+
+						myChart.setOption(option);
+					}
+				}
+			});
+			// 			$(function() {
+			// 
+			// 
+			// 				var data = parent.valapp.UnintTableData; //数据源
+			// 				var Charttype = 1; //显示数据类型
+			// 				var legenddata = [];
+			// 				var yAxis = [];
+			// 				switch (Charttype) {
+			// 					case 1: //事项单位表图
+			// 						legenddata = ['事项总数', '完成数', '正在办理数', '平均时长（天）'];
+			// 						break;
+			// 				}
+			// 				var TaskTotal = [];
+			// 				var Tasksucc = [];
+			// 				var Taskdeal = [];
+			// 				var Tasksuccdate = [];
+			// 				if (data.length > 0) {
+			// 					$("#main").height(data.length * 30 + 'px');
+			// 					$(data).each(function() {
+			// 						var item = this;
+			// 						yAxis.push(item.title);
+			// 						TaskTotal.push(item.Totalnum);
+			// 						Tasksucc.push(item.Totalnum - item.NotDealSuccNum);
+			// 						Taskdeal.push(item.NotDealSuccNum);
+			// 						Tasksuccdate.push(item.avgDate);
+			// 					});
+			// 				}
+			// 
+			// 				// 使用刚指定的配置项和数据显示图表。
+			// 				LoadChart(yAxis, legenddata, TaskTotal, Tasksucc, Taskdeal, Tasksuccdate);
+			// 
+			// 			});
+		</script>
+
+	</body>
+</html>

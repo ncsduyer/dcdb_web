@@ -1,0 +1,355 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>顺庆区区委办督查督办管理系统</title>
+    <!-- 引入样式 -->
+
+    <link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <link rel="stylesheet" href="../css/load.css">
+    <!--
+    <link rel="stylesheet" href="css/iview.css">
+        -->
+    <!-- import Vue before Element -->
+    <!--
+    <script src="http://vuejs.org/js/vue.min.js"></script>
+     -->
+    <script src="../js/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <!--
+    <script src="http://unpkg.com/iview/dist/iview.min.js"></script>
+    -->
+    <script src="../js/iview.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="/js/axiosConfig.js"></script>
+    <script src="../js/url.js"></script>
+    <style>
+        .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-content {
+            height: 120px;
+            margin-top: -16px;
+        }
+
+            .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-content > .ivu-tabs-tabpane {
+                background: #fff;
+                padding: 16px;
+            }
+
+        .demo-tabs-style1 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+            border-color: transparent;
+        }
+
+        .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+            border-color: #fff;
+        }
+
+        .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+            border-top: 1px solid #3399ff;
+        }
+
+            .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active:before {
+                content: '';
+                display: block;
+                width: 100%;
+                height: 1px;
+                background: #3399ff;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+        .ivu-auto-complete,
+        ivu-select-dropdown {
+            max-height: 80px;
+        }
+
+        .tabas tr td {
+            padding: 6px;
+        }
+
+        .ivu-form-item-error-tip {
+            position: relative;
+            top: 100%;
+            left: 70px;
+            line-height: 1;
+            padding-top: 5px;
+            color: #ed4014;
+            clear: both;
+        }
+        /* 旋转效果 */
+    </style>
+</head>
+
+<body>
+    <!--<div class="load-container" v-if="isSpinShow" style="position: absolute; width: 100%; top: 0; overflow: hidden; height: 100%; z-index: 9999; background:  rgba(0,0,0,0.4);">
+        <div style="width: 20%; height: 100px; position:absolute; background: #fff; border-radius: 5px;     box-shadow: darkgrey 10px 10px 30px 5px ; margin: 0 auto;     margin-left: -10%; left: 50%; top: 50%; margin-top: -50px;">
+            <div class="loader"></div>
+            <p>加载中请稍后...</p>
+        </div>
+    </div>-->
+    <div id="app" style="margin:35px 10px 10px 15px;">
+
+        <div style="width: 100%;">
+            <!--<i-form :label-width="80">
+                <Form-Item label="公文标题">
+                    <i-input placeholder="请输入交办公文标题"></i-input>
+                </Form-Item>-->
+            <!--<Form-Item label="交办时间">
+                    <Row>
+                        <i-col span="11">
+                            <Date-Picker type="date" placeholder="请选择交办时间"></Date-Picker>
+                        </i-col>
+                    </Row>
+                </Form-Item>-->
+            <!--<i-form :label-width="80" ref="formInline" :model="formInline" :rules="ruleInline" inline>
+                    <Form-Item label="归档时间">
+                    <Row>
+                        <i-col span="11">
+                            <Date-Picker v-model="formInline.endTime" type="date" placeholder="选择归档时间"></Date-Picker>
+                        </i-col>
+                    </Row>
+                </Form-Item>
+                <Form-Item label="归档状态">
+                    <i-col span="12" style="padding-right:10px; width: 100%;">
+                        <i-select filterable v-model="formInline.status">
+                            <i-option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                        </i-select>
+                    </i-col>
+                </Form-Item>
+
+
+                <Form-Item label="归档总结">
+                     <i-input v-model="formInline.remarks"   type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入归档总结"></i-input>
+                </Form-Item>
+
+
+                 <form-item>
+                    <i-button type="primary" @click="handleSubmit('formInline')" >提交</i-button>
+                    <i-button style="margin-left: 8px">取消</i-button>
+                </form-item>
+
+
+                <!--<Form-Item label="公文附件">
+                     <upload action="//jsonplaceholder.typicode.com/posts/">
+                        <i-button icon="ios-cloud-upload-outline">上传附件</i-button>
+                    </upload>
+                </Form-Item>
+            </i-form>-->
+
+            <i-form style="width: 100%;" ref="formInline" :model="formInline" :rules="ruleInline" inline>
+                <!--<form-item label="归档时间" prop="endtime" style="padding-right:10px; width: 100%;">
+                    <Row>
+                        <i-col span="11">
+                            <Date-Picker type="date" v-model="formInline.endtime" placeholder="请选择交办时间" @on-change="handleChange"></Date-Picker>
+                        </i-col>
+                    </Row>
+                </form-item>-->
+                <Row>
+                    <i-col span="11">
+                        <Card style="font-size:12px;">
+                            <p slot="title">交办事项基本信息</p>
+                            <Row>
+                                <i-col label="">
+                                    交办事项： {{TaskAssignDetailViewModel.title}}
+                                </i-col>
+                                <i-col label="">
+                                    交办时间： {{TaskAssignDetailViewModel.assigntime.substring(0,11)}}
+                                </i-col>
+                                <i-col label="">
+                                    督办要求： {{TaskAssignDetailViewModel.assignmemo}}
+                                </i-col>
+                            </Row>
+                            <Row>
+                                <i-col span="24">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tabas">
+                                        <thead>
+                                            <tr>
+                                                <td>责任单位</td>
+                                                <td>办理时限</td>
+                                                <td>反馈信息</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="mytbodychoosedept">
+                                            <tr v-for='(item,index) in TaskAssignUnitList'>
+                                                <td>
+                                                    {{ item.company.title }}
+                                                </td>
+                                                <td>
+                                                    {{item.endtime.substring(0,11)}}
+                                                </td>
+                                                <td>
+                                                    {{item.requirements}}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </i-col>
+                            </Row>
+                        </Card>
+
+                    </i-col>
+                    <i-col span="1">
+                    </i-col>
+                    <i-col span="12" style="margin-left:20px;">
+                        <Form-Item label="归档时间">
+                            <Row>
+                                <i-col span="11">
+                                    <Date-Picker style="padding-right:10px; width: 150px;" type="date" :options="startTimeOptions" placeholder="请选择归档时间" v-model="endtime" @on-change="endTimeChange"></Date-Picker>
+                                </i-col>
+                            </Row>
+                        </Form-Item>
+                        <form-item prop="status" label="归档状态" style="padding-right:10px; width: 100%;">
+                            <i-col span="12" style="padding-right:0px; width: 80%;">
+                                <i-select filterable v-model="formInline.status">
+                                    <i-option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                                </i-select>
+                            </i-col>
+                        </form-item>
+                        <form-item prop="closememo" label="归档总结" style="padding-right:0px; width: 100%;">
+                            <i-input style="padding-right:0px; width: 85%;" v-model="formInline.closememo" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请输入归档总结"></i-input>
+                        </form-item>
+                        <Form-Item label="">
+                            <i-button type="primary" icon="icon-plus" @click="fnsave">保存提交</i-button>
+                        </Form-Item>
+                        <form-item style="padding-left:70px;">
+                            <!--<i-button style="margin-left: 8px">取消</i-button>-->
+                        </form-item>
+                    </i-col>
+
+                </Row>
+            </i-form>
+
+        </div>
+
+    </div>
+    <script>
+        var keyvalue = request("keyvalue");
+        var taid = request("taid");
+        var vueapp = new Vue({
+            el: '#app',
+            data: {
+                startTimeOptions: {},
+                endtime: '',
+                cityList: [{
+                    value: '5',
+                    label: '办结归档'
+                },
+                {
+                    value: '6',
+                    label: '关闭归档'
+                },
+                ],
+                formInline: {
+                    endtime: '',
+                    status: '',
+                    closememo: ''
+                },
+                ruleInline: {
+                    endtime: [{
+                        required: true,
+                        type: 'date',
+                        message: '请选择归档时间',
+                        trigger: 'change'
+                    }],
+                    status: [{
+                        required: true,
+                        message: '请选择状态',
+                        trigger: 'blur'
+                    }]
+                },
+                isSpinShow: false,
+                // 交办事项详情
+                TaskAssignDetailModel: {
+                },
+                TaskAssignDetailViewModel: {
+                    title: "",
+                    assigntime: "",
+                    assignmemo: "",
+                    dealdesc: "",
+                    pretime: "",
+                    isdelay: true,
+                    status: 0,
+                    taskassignUnit: {},
+                },
+                TaskAssignUnitList: [
+                ]
+            },
+            mounted: function () {
+                var parmDate = new Date();
+                this.endTimeChange(parmDate);
+                this.getApiTaskAssignDetailModel();
+            },
+            methods: {
+                //设置结束时间
+                endTimeChange: function (e) {
+                    //debugger
+                    this.endtime = e;
+                    let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+                    this.startTimeOptions = {
+                        disabledDate(date) {
+                            return date && date.valueOf() > Date.now() && endTime != '';
+                        }
+                    }
+                },
+                // 取得交办事项基本信息
+                getApiTaskAssignDetailModel() {
+                    var vm = this;
+                    var token = localStorage.getItem("wccToken"); //获取
+                    axios({
+                        method: "GET",
+                        async: false,
+                        url: apiUrl.ApiTaskDetailList + '/' + keyvalue,
+                        headers: { "Authorization": "Bearer " + token }
+                        //                      data: '',
+                    }).then(function (ret) {
+                        console.log("交办事项基本信息：" + JSON.stringify(ret.data));
+                        vm.TaskAssignDetailModel = ret.data.data.data;
+                        if (vm.TaskAssignDetailModel.taskassigns.length > 0) {
+                            vm.TaskAssignDetailViewModel.title = vm.TaskAssignDetailModel.title;
+                            vm.TaskAssignDetailViewModel.assigntime = vm.TaskAssignDetailModel.taskassigns[0].assigntime;
+                            vm.TaskAssignDetailViewModel.assignmemo = vm.TaskAssignDetailModel.taskassigns[0].assignmemo;
+                            vm.TaskAssignUnitList = vm.TaskAssignDetailModel.taskassigns[0].taskassignUnits;
+                        }
+                    });
+                },
+                fnsave() {
+                    var $this = this;
+                    this.$refs["formInline"].validate((valid) => {
+                        if (valid) {
+                            $this.formInline.id = taid;
+                            $.Apiaxios({
+                                method: "POST",
+                                url: apiUrl.ApiUpdateAssignTask,
+                                data: JSON.stringify($this.formInline),
+                                IsLoading: true,
+                                content: "提交数据中，请稍后...",
+                                success: function (ret) {
+                                    parent.myVue.getData(parent.myVue.wh_sn, parent.myVue.wh_parmdata);
+                                    html_cancel();
+                                }
+                            });
+                        }
+                    })
+
+                }
+                //					handleSubmit(name) {
+                //
+                //					},
+                //					handleChange(daterange) {
+                //						this.formInline.endtime = daterange;
+                //					}
+            }
+        });
+        function html_cancel() {
+            parent.LoadTable();
+        }
+    </script>
+</body>

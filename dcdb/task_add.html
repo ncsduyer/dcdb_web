@@ -1,0 +1,441 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>顺庆区区委办督查督办管理系统</title>
+    <!-- 引入样式 -->
+
+    <link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+    <!--
+    <link rel="stylesheet" href="css/iview.css">
+        -->
+    <!-- import Vue before Element -->
+    <!--
+    <script src="http://vuejs.org/js/vue.min.js"></script>
+     -->
+    <script src="../js/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <!--
+    <script src="http://unpkg.com/iview/dist/iview.min.js"></script>
+    -->
+    <script src="../js/jquery.js"></script>
+    <script src="../js/url.js"></script>
+    <script src="../js/axios.js"></script>
+    <script src="../js/axios.min.js"></script>
+    <script src="/js/axiosConfig.js"></script>
+    <script src="../js/iview.min.js"></script>
+    <script src="../js/rykjpub.js"></script>
+    <style>
+        .ivu-auto-complete, ivu-select-dropdown {
+            max-height: 80px; 
+        }
+      
+
+        .tabas tr td {
+            padding: 2px;
+        }
+        .ivu-select-dropdown-list {
+            min-width: 100%;
+            list-style: none;
+            max-height:200px;
+            
+        }
+  
+    </style>
+</head>
+<body>
+    <div id="app" style="margin:15px 10px 10px 10px;">
+
+        <div>
+            <i-form :label-width="80">
+                <Form-Item label="交办事项"  prop="交办事项">
+                    <Row>
+                        <i-col span="8">
+                            <Auto-Complete v-model="inputform.title" :data="dataTask" :filter-method="filterMethod" :transfer="true" placeholder="请输入交办事项" style="width:80%;"></Auto-Complete>
+                        </i-col>
+                        <i-col span="7">
+                            <Form-Item label="交办时间">
+                                <Date-Picker v-model="starttime" format="yyyy-MM-dd" type="date" placeholder="请选择交办时间" :options="startTimeOptions" @on-change="endTimeChange"  style="width:120px;"></Date-Picker>
+                            </Form-Item>
+                        </i-col>
+
+                        <i-col span="7" >
+                            <Form-Item label="交办类型">
+                                <i-select v-model="inputform.worktype"  style="width:140px;">
+                                    <i-option v-for="item in worktypeList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                                </i-select>
+                            </Form-Item>
+                        </i-col>
+                    </Row>
+                </Form-Item>
+                <Form-Item label="责任单位">
+                    <Row>
+                        <i-col span="12" style="padding-right:10px; width: 100%;">
+                            <i-select label-in-value="true" filterable multiple @on-change="choosedata">
+                                <i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+                            </i-select>
+                        </i-col>
+                    </Row>
+                </Form-Item>
+
+                <Form-Item label="">
+                    <template v-if="ishidden==true">
+                        <Row>
+                            <i-col span="24">
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tabas">
+                                    <thead>
+                                        <tr>
+                                            <td>已选单位 </td>
+                                            <td>督办责任人 </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mytbodychoosedept">
+                                        <tr v-for='(item,index) in chooseDeptList'>
+                                            <td>{{ item.label }}</td>
+                                            <td>
+                                                <input type="hidden" :value="item.value" class="unitvalue">
+                                            	<!--<i-select v-bind:id="'myselect_' + item.value" v-bind:onchange="'fnchange(' + item.value+ ')'">
+					                                <i-option v-for="itemmx in modelOverseePeopleList" v-bind:value="itemmx.value">{{ itemmx.label }}</i-option>
+					                            </i-select>-->
+					                            <!--<i-col span="16">
+                                                <i-select  v-bind:id="'myselect_' + item.value" v-bind:onchange="'fnchange(' + item.value+ ')'" >
+                                                    <i-option v-for="itemmx in modelOverseePeopleList" v-bind:value="itemmx.value" >{{ itemmx.label }}</i-option>
+                                                </i-select>
+                                                 </i-col>-->
+                                                <i-col span="16">
+						                      
+						                        <i-select v-model="inputform.creatorid" filterable style="padding-right:5px;width:200px;" placeholder="请选择责任人">
+				                                    <i-option v-for="item1 in modelOverseePeopleList" v-bind:value="item1.value" :key="item1.value">{{ item1.label }}</i-option>
+				                                </i-select>
+						                           
+						                        </i-col>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </i-col>
+                        </Row>
+                    </template>
+                </Form-Item>
+                <Form-Item label="督办要求">
+                    <i-input v-model="inputform.assignmemo" type="textarea" :autosize="{minRows: 2,maxRows: 5}"  id="dbyq" placeholder="请填写督办要求"></i-input>
+                </Form-Item>
+ 				 <Form-Item label="承办人姓名">
+                    <Row>
+                        <i-col span="8">
+                            <i-input v-model="inputform.charge" :transfer="true" placeholder="请输入承办人姓名" style="width:80%;"></i-input>
+                        </i-col>  
+                    </Row>
+                    
+                </Form-Item>  
+                	 <Form-Item label="承办人电话">
+                    <Row>
+                        <i-col span="8">
+                            <i-input v-model="inputform.phone" :transfer="true" placeholder="请输入承办人电话" style="width:80%;"></i-input>
+                        </i-col>  
+                    </Row>
+                    
+                </Form-Item> 
+
+
+                <Form-Item label="">
+                    <i-button type="primary" icon="icon-plus" @click="fnsave" id="save">保存提交</i-button>
+                </Form-Item>
+            </i-form>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                ishidden: false,
+                startTimeOptions: {},
+                //结束日期设置
+                endTimeOptions: {},
+                //开始日期model
+                starttime: '',
+                dataTask: [],
+                //结束日期model
+                inputform: {
+                    pid: '',
+                    title: '',
+                    assigntime: '',
+                    worktype: '',
+                    assignmemo: '',
+                    charge:'',
+                    phone:'',
+                },
+                modelOverseePeopleList:[],
+                modelCheckItem: [
+                ],
+                worktypeList: [
+                ],
+                departmentList: [
+                ],
+                dataTaskList: [
+                ],
+                chooseDeptList: [],
+                chooseOverseePeopleList: []
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    var parmDate = new Date().Format("yyyy-MM-dd");
+
+                    this.starttime = parmDate;
+                    this.endTimeChange(parmDate);
+                    this.getTask();
+                    this.getWorktypeList();
+                    this.getUnit();
+                    this.getOverseePeopleList();
+                });
+
+                
+            },
+            methods: {
+                //设置结束时间
+                endTimeChange: function (e) {
+                    //debugger
+                    this.inputform.assigntime = e;
+
+                    let endTime = this.starttime ? new Date(this.starttime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+                    this.startTimeOptions = {
+                        disabledDate(date) {
+                            return date && date.valueOf() > Date.now() && endTime != '';
+                        }
+                    }
+                },
+                //获取交办事项列表
+                getTask() {
+                    var vm = this;
+                    var token = localStorage.getItem("wccToken"); //获取
+                    axios({
+                        method: "POST",
+                        async: false,
+                        url: apiUrl.ApiTaskList,
+                        headers: { "Authorization": "Bearer " + token },
+                        data:''
+                    }).then(function (ret) {
+//                        console.log("获取交办事项列表：" + JSON.stringify(ret.data));
+                        $(ret.data.data).each(function (index, item) {
+                            var tempitem = {};
+                            tempitem.label = item.title;
+                            tempitem.value = item.id;
+                            vm.dataTaskList.push(tempitem);
+                            vm.dataTask.push(item.title);
+                        });
+                    });
+                },
+                //获取交办类型列表
+                getWorktypeList() {
+                    var vm = this;
+                    var token = localStorage.getItem("wccToken"); //获取
+                    axios({
+                        method: "GET",
+                        async: false,
+                        url: apiUrl.SupervisionTypeList,
+                        headers: { "Authorization": "Bearer " + token }
+                    }).then(function (ret) {
+                    //    console.log("获取交办类型列表：" + JSON.stringify(ret.data));
+                        $(ret.data.data).each(function (index, item) {
+                            var tempitem = {};
+                            tempitem.label = item.title;
+                            tempitem.value = item.id;
+                            vm.worktypeList.push(tempitem);
+                        });
+                    });
+                },
+                //获取责任单位列表
+                getUnit() {
+                    var vm = this;
+                    var token = localStorage.getItem("wccToken"); //获取
+                    axios({
+                        url: apiUrl.ApiNuitList,
+                        method: "GET",
+                        headers: { "Authorization": "Bearer " + token }
+                    }).then(function (ret) {
+//                        console.log("责任单位获取成功：" + JSON.stringify(ret.data));
+                        $(ret.data.data).each(function (index, item) {
+                            var tempitem = {};
+                            tempitem.label = item.title;
+                            tempitem.value = item.id;
+                            vm.departmentList.push(tempitem);
+                        });
+                    });
+                },
+                //获取督办人员列表
+                getOverseePeopleList() {
+                    var vm = this;
+                    var token = localStorage.getItem("wccToken"); //获取
+                    axios({
+                        url: apiUrl.ApiOverseePeopleList,
+                        method: "GET",
+                        async: false,
+                        headers: { "Authorization": "Bearer " + token }
+                    }).then(function (ret) {
+                        //console.log("获取督办人员列表：" + JSON.stringify(ret.data));
+                        vm.modelOverseePeopleList = [];
+
+                        $(ret.data.data).each(function (index, item) {
+                            var tempitem = {};
+                            tempitem.label = item.name;
+                            tempitem.value = item.id;
+                            vm.modelOverseePeopleList.push(tempitem);
+
+                        });
+                        //							console.log("督办人获取成功："+ JSON.stringify(ret))
+                    });
+                },
+                filterMethod(value, option) {
+                    //console.log(option);
+                    return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+                },
+                choosedata(option) {
+                    console.log(option);
+                    this.chooseDeptList = option;
+                    if (this.ishidden == false) {
+                        this.ishidden = true;
+                    }
+
+                },
+                fnsave() {
+                    var vm = this;
+                    
+
+                    //return;
+                    var pid = this.inputform.pid;
+                    var title = this.inputform.title;
+
+                    if (title == '') {
+                        vm.$Message.warning('请填写督办事项！');
+                        return true;
+                    }
+                    var assigntime = this.inputform.assigntime;
+                    if (assigntime == '') {
+                        vm.$Message.warning('请选择交办时间！');
+                        return false;
+                    }
+                    var worktype = this.inputform.worktype;
+                    if (worktype == '') {
+                        vm.$Message.warning('请选择交办类型！');
+                        return false;
+                    }
+
+                    var assignmemo = this.inputform.assignmemo;
+                    var charge = this.inputform.charge;
+                    var phone = this.inputform.phone;
+
+                    $(vm.dataTaskList).each(function (index, item) {
+                        var s_label = item.label;
+                        if (s_label == title) {
+                            pid = item.value;
+                            return;
+                        }
+                    });
+
+
+                    var sendobj = {};
+                    sendobj.id = pid;
+                    sendobj.title = title;
+                    sendobj.worktype = worktype;
+                    sendobj.assigntime = assigntime;
+                    sendobj.companyIds = [];
+                    sendobj.assignmemo = assignmemo;
+                    sendobj.createtime = assigntime;
+                    sendobj.charge = charge;
+                    sendobj.phone = phone;
+
+
+
+                    var choosedptarray = [];
+                    $("#mytbodychoosedept tr").each(function (index, obj) {
+
+                        $(obj).find("div>input[type=hidden]").each(function (mindex, mobj) {
+                            var ss_checkvalue = $(mobj).attr("value");
+                            console.log(ss_checkvalue);
+                            if (ss_checkvalue == '') {
+                                vm.$Message.warning('请选择督办单位对应责任人！');
+                                return false;
+                            }
+                            var tmpobj = {};
+                            $(obj).find(".unitvalue").each(function (mindex, mobj) {
+                                tmpobj.unitid = $(mobj).attr("value");
+                            })
+                            tmpobj.personid = ss_checkvalue;
+                            sendobj.companyIds.push(tmpobj);
+                        });
+                    });
+                    console.log(sendobj.companyIds);
+                    if (sendobj.companyIds.length <= 0) {
+                        vm.$Message.warning('请选择责任单位！');
+                        return false;
+                    }
+
+                    if (assignmemo=="") {
+											  vm.$Message.warning('请填写督办要求!');
+                        // alert("请填写督办要求");
+                        return false;
+                    }
+                  
+
+                    var dataobj = sendobj;
+//                       console.log(sendobj);
+                    //return;
+
+                    //console.log("提交数据信息：" + JSON.stringify(dataobj));
+					$('#save').attr("disabled",true);
+                    
+                    var token = localStorage.getItem("wccToken"); //获取
+                    axios({
+                        url: apiUrl.ApiTaskAdd,
+                        method: "post",
+                        headers: { "Authorization": "Bearer " + token },
+                        data: dataobj,
+                    }).then(function (ret) {
+						console.log(ret);
+                        if (ret.data.success) {
+                            
+                            alert('保存提交成功！');
+
+                            html_cancel();
+                            $('#save').attr("disabled",false);
+                            
+                        }
+                        else {
+                            vm.$Message.warning(ret.data.message);
+                        }
+                    });
+                    
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+<script>
+    function fnchange(sn) {
+        var s_value = $("#myselect_" + sn).val();
+        var isset = false;
+
+        $("#mytbodychoosedept tr").each(function (index, obj) {
+            
+            $(obj).find("select[id^='myselect_'] ").each(function (mindex, mobj) {
+                var ss_attrid = $(mobj).attr("id");
+                var aa_attrid = ss_attrid.split('_');
+                var ss_unitid = aa_attrid[1];
+                if (parseFloat(ss_unitid) == parseFloat(sn)) {
+                    isset = true;
+                }
+                if (isset) {
+                    $(mobj).val(s_value);
+                }
+            });
+        });
+    }
+
+    function html_cancel() {
+        parent.LoadTable();
+    }
+
+
+</script>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title> </title>
+		<link rel="stylesheet" type="text/css" href="../static/h-ui/css/H-ui.min.css" />
+		<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/H-ui.admin.css" />
+		<link rel="stylesheet" type="text/css" href="../lib/Hui-iconfont/1.0.8/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/skin/default/skin.css" id="skin" />
+		<link rel="stylesheet" type="text/css" href="../static/h-ui.admin/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<link rel="stylesheet" type="text/css" href="../css/font-awesome.min.css" />
+		<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+		<script src="../js/jquery.SuperSlide.2.1.1.js"></script>
+		<script type="text/javascript" src="../js/url.js"></script>
+		<script type="text/javascript" src="../lib/datatables/1.10.15/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+		<script type="text/javascript" src="../lib/My97DatePicker/4.8/WdatePicker.js"></script>
+
+
+	</head>
+	<body>
+		<div class="set-content" style="margin-left: 10px;">
+			<div style="height: 10px;"></div>
+			<div class="set-title hd">
+				<ul class="clearfix">
+					<li class="on">督办事项报表</li>
+					<li>督办综合报表</li>
+					<!-- <li>报表3</li>
+					<li>报表4</li>
+					<li>报表5</li>
+					<li>报表6</li> -->
+				</ul>
+			</div>
+			<div class="set-middle bd">
+				<!-- 督办事项报表 -->
+				<ul class="set-middle-item">
+					<li>
+						<div class="cl bg-1 bk-gray" style="margin-left: 5px; margin-top: 20px;">
+							<table id="TableParm">
+								<tr>
+									<td style="width: 80px;">&nbsp;报表名称：</td>
+									<td style="width: 200px;padding-top: 5px;">
+										<div class="ui-select" type="select" id="reportName" name="reportName"></div>
+									</td>
+									<td>&nbsp;</td>
+									<td><a href="javascript:;" id="1051752060833345538" onclick="queryData()" class="btn btn-primary radius">
+											查询</a>
+										<a href="javascript:;" id="1051752060833345538" onclick="ExcelReport()" class="btn btn-primary radius">导出</a>
+									</td>
+								</tr>
+							</table>
+							<br />
+						</div>
+						<div id="app" style="margin-left: 10px;">
+							<table id="mytabledtlist" name="mytabledtlist" style="float: left; " class="table table-border table-bordered table-bg table-hover table-sort"></table>
+						</div>
+
+					</li>
+				</ul>
+				<!-- 综合报表 -->
+				<ul class="set-middle-item">
+					<li>
+						<div class="mt-20">
+							<table id="mytabledtlist" class="table table-border table-bordered table-bg table-hover table-sort">
+
+								<thead>
+									<tr>
+										<th lay-data="{ fixed:'left', sort: true,width:80}" rowspan="2">编号</th>
+										<th lay-data="{field:'username', sort: true}" rowspan="2">类别/单位</th>
+										<th lay-data="{align:'center'}" colspan="4">区委主要领导督办事项落实情况</th>
+										<th lay-data="{align:'center'}" colspan="3">区委会议召开情况</th>
+										<th lay-data="{align:'center'}" colspan="4">区委公文运转情况</th>
+										<th lay-data="{align:'center'}" colspan="2">区委信息工作情况</th>
+
+									</tr>
+									<tr>
+										<th lay-data="{field:'province'}">
+											交办事项总数
+										</th>
+										<th lay-data="{field:'city'}">按期办结率</th>
+										<th lay-data="{field:'zone'}">逾期办结率</th>
+										<th lay-data="{field:'province'}">平均办结用时</th>
+										<th lay-data="{field:'city'}">无故缺席<br />/迟到次数</th>
+										<th lay-data="{field:'zone'}">
+											会场玩手机<br />/打瞌睡/未按 要求着装等问题次数
+										</th>
+										<th lay-data="{field:'province'}">会议发言超时次数</th>
+										<th lay-data="{field:'zone'}">公文形式/内容/出错的次数</th>
+										<th lay-data="{field:'province'}">公文运转平均时长</th>
+										<th lay-data="{field:'city'}">公文运转总数</th>
+										<th lay-data="{field:'zone'}">公文及时办结率</th>
+										<th lay-data="{field:'city'}">上报信息有效率</th>
+										<th lay-data="{field:'zone'}">未及时报送信息次数</th>
+									</tr>
+								</thead>
+
+							</table>
+						</div>
+					</li>
+				</ul>
+				<ul class="set-middle-item">
+					<li>
+
+						22
+					</li>
+				</ul>
+				<ul class="set-middle-item">
+					<li>
+
+
+					</li>
+				</ul>
+				<ul class="set-middle-item">
+					<li>
+
+
+					</li>
+				</ul>
+				<ul class="set-middle-item">
+					<li>
+
+
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<script>
+			$(function() {
+				fn_init_dataTable([]);
+				$("#reportName").ComboBox({
+					url: apiUrl.ApiWorkReportdateGroup,
+					id: "id",
+					text: "name",
+					description: "",
+					allowSearch: true
+				});
+
+			})
+
+			function ExcelReport() {
+				if (!dateGroup) {
+					DialogMsg("请选中导出报表名称");
+					return;
+				}
+				var fileName =  $("#reportName").attr("data-text")+ ".xlsx";
+				var xhr = new XMLHttpRequest();
+				var url = apiUrl.ApiWorkReportexport + "?dateGroup=" + dateGroup;
+				xhr.open('get', url, true);
+				xhr.responseType = "blob";
+				xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("token"));
+				xhr.onload = function() {
+					if (this.status === 200) {
+						let type = xhr.getResponseHeader('Content-Type')
+
+						let blob = new Blob([this.response], {
+							type: type
+						})
+						if (typeof window.navigator.msSaveBlob !== 'undefined') {
+							window.navigator.msSaveBlob(blob, fileName)
+						} else {
+							let URL = window.URL || window.webkitURL
+							let objectUrl = URL.createObjectURL(blob)
+							if (fileName) {
+								var a = document.createElement('a')
+								if (typeof a.download === 'undefined') {
+									window.location = objectUrl
+								} else {
+									a.href = objectUrl
+									a.download = fileName
+									document.body.appendChild(a)
+									a.click()
+									a.remove()
+								}
+							} else {
+								window.location = objectUrl
+							}
+						}
+					}
+
+				}
+				xhr.send();
+
+			}
+
+			function queryData() {
+				dateGroup = $("#reportName").attr("data-value");
+				if (!dateGroup) {
+					DialogMsg("请选中报表名称");
+					return;
+				}
+				$.apiAjax({
+					type: "POST",
+					url: apiUrl.ApiWorkReportlist,
+					alert: false,
+					data: JSON.stringify({
+						"dateGroup": dateGroup
+					}),
+					IsLoading: true,
+					success: function(ret) {
+						fn_init_dataTable(ret)
+					}
+				});
+			}
+
+			function fn_init_dataTable(data) {
+				$("#mytabledtlist").dataTable({
+					width: "300px",
+					height: "700px",
+					"columns": [{
+							"data": "id",
+							"title": "序号",
+							"sWidth": "60px",
+							"render": function(data, type, full, meta) {
+								return meta.row + 1 + meta.settings._iDisplayStart;
+							}
+						},
+						{
+							"data": "createdTime",
+							"title": "交办时间",
+							"render": function(data, type, full, meta) {
+								var ss_show = data;
+								return '<div style="text-align:center;">' + ss_show + '</div>';
+							},
+							"className": "mycenter",
+							"sWidth": "135px"
+						},
+						{
+							"data": "title",
+							"title": "交办事项",
+							"className": "mycenter",
+							"sWidth": "170px"
+						},
+						{
+							"data": "company",
+							"title": "责任单位",
+							"render": function(data, type, full, meta) {
+								var ss_show = "";
+								$(data.split(',')).each(function(index, item) {
+									ss_show += item + "<br/>";
+								});
+
+								if (ss_show == "undefined") {
+									ss_show = "";
+								}
+
+								return '<div style="text-align:center;">' + ss_show + '</div>';
+							},
+							"className": "mycenter",
+							"sWidth": "170px"
+						},
+						{
+							"data": "agent",
+							"title": "督办责任人",
+							"className": "mycenter",
+							"sWidth": "100px"
+						},
+						{
+							"data": "requirement",
+							"title": "办理要求及时限",
+							"className": "mycenter"
+						},
+						{
+							"data": "useTime",
+							"title": "办理用时",
+							"className": "mycenter",
+							"sWidth": "135px"
+						},
+						{
+							"data": "status",
+							"title": "事项进度",
+							"className": "mycenter",
+							"render": function(data, type, full, meta) {
+								//1已下发未反馈,2已反馈,3欠进度,4达进度,5超进度,6已完成,7现场办结,8允许延期,9手动关闭
+								var ss_show = '<div style="text-align:center;color:#ff8300;">' + data + '</div>';
+
+								return ss_show;
+							},
+						}
+					],
+					data: data,
+					"destroy": true, //如果需要重新加载的时候请加上这个
+					"scrollY": 640, //高度超过多少出现滚动条
+					"bInfo": true, //是否显示页脚信息，DataTables插件左下角显示记录数 
+					"searching": false, //是否出现搜索狂
+
+				});
+			};
+
+
+			jQuery(".set-content").slide({
+				autoPlay: false,
+				trigger: "click",
+				delayTime: 700,
+				pnLoop: false
+			});
+		</script>
+
+	</body>
+</html>

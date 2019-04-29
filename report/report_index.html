@@ -1,0 +1,672 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>顺庆区区委办督查督办管理系统</title>
+		<!-- 引入样式 -->
+		<link rel="stylesheet" href="../css/iview.css">
+		<link rel="stylesheet" href="../css/load.css">
+		<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/iview.min.js"></script>
+		<style>
+			.demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-content {
+            height: 120px;
+            margin-top: -16px;
+        }
+
+            .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-content > .ivu-tabs-tabpane {
+                background: #fff;
+                padding: 16px;
+            }
+
+        .demo-tabs-style1 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+            border-color: transparent;
+        }
+
+        .demo-tabs-style1 > .ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+            border-color: #fff;
+        }
+
+        .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+            border-radius: 0;
+            background: #fff;
+        }
+
+        .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+            border-top: 1px solid #3399ff;
+        }
+
+            .demo-tabs-style2 > .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active:before {
+                content: '';
+                display: block;
+                width: 100%;
+                height: 1px;
+                background: #3399ff;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+        .ivu-auto-complete, ivu-select-dropdown {
+            max-height: 80px;
+        }
+
+        .tdnoborder {
+            border: 0px solid #dedede;
+            font-size: 18px;
+            height: 35px;
+            line-height: 35px;
+        }
+
+        td {
+            border: 1px solid #dedede;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            padding: 5px 5px 5px 5px;
+        }
+		.ivu-page-total{
+			display: none;
+		}		
+				
+   
+} 
+ 
+   </style>
+	</head>
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<Tabs value="name1" type="card" :animated="false" @on-click="tabclick">
+				<Tab-Pane label="督办事项相关统计表图" style="min-height: 700px;" name="name1">
+					<Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择统计时间段" @on-clear="clearTime"
+					 style="width: 200px"></Date-Picker>
+					<i-button icon="icon-plus" size="mini" @click="getData()">统计</i-button>
+					<i-button icon="icon-plus" size="mini" @click="getExportXls(1)">报表导出</i-button>
+
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('../dcdb/supervise_Img.html','事项统计图')">相应统计图</i-button>
+					<br />
+					<div style="width: 100%;">
+						<table border="0" cellpadding="0" cellspacing="0" style="width: 100%; ">
+
+							<thead id="fieldThead" style=" z-index: 1; background-color: #ffffff;width: calc( 100% - 1em );">
+								<tr>
+									<td colspan="10" align="center" id="Titletext" class="tdnoborder"></td>
+								</tr>
+								<tr>
+									<td style="width:80px;">序号</td>
+									<td style="width:460px;">交办事项</td>
+									<td style="width:120px;">交办时间</td>
+									<td style="width:120px;">责任单位</td>
+									<td style="width:120px;">督办责任人</td>
+									<td style="width:300px;">办理要求</td>
+									<td style="width:120px;">办理时限</td>
+									<td style="width:250px;">办理情况</td>
+									<td style="width:120px;">延期办结情况</td>
+									<td style="width:120px;">办结总时间</td>
+								</tr>
+							</thead>
+							<tbody>
+								<template v-for="(item,r) in TableData">
+									<tr>
+										<td colspan="10" align="center" style="font-size:16px;">{{item.name}}（{{item.taskVoss.length}}）</td>
+									</tr>
+									<template v-for="(row,i) in item.taskVoss">
+
+										<template v-for="(unti,j) in row.taskUntiVo">
+
+											<template v-if="j==0">
+												<tr>
+													<td style="width:80px;" :rowspan="row.taskUntiVo.length">{{Rank(TableData,i,r)}}</td>
+													<td style="width:460px;" :rowspan="row.taskUntiVo.length">{{row.name}}</td>
+													<td style="width:120px;" :rowspan="row.taskUntiVo.length">{{row.assigntime}}</td>
+													<td style="width:120px;">{{unti.campany}}</td>
+													<td style="width:120px;">{{unti.agent}}</td>
+													<td style="width:300px;" :rowspan="row.taskUntiVo.length">{{row.assignmemo}}</td>
+													<td style="width:120px;" :rowspan="row.taskUntiVo.length">{{unti.endTime}}</td>
+													<td style="width:250px;" :rowspan="row.taskUntiVo.length">{{unti.taskassignUnitdeals.length>0?unti.taskassignUnitdeals[0].dealdesc:""}}</td>
+													<td style="width:120px;" :rowspan="row.taskUntiVo.length">{{unti.taskassignUnitdeals.length>0?unti.taskassignUnitdeals[0].delaydesc:""}}</td>
+													<td style="width:120px;" :rowspan="row.taskUntiVo.length">{{row.usetime}}</td>
+												</tr>
+											</template>
+											<template v-if="j>0">
+												<tr>
+													<td style="width:120px;">{{unti.campany}}</td>
+													<td style="width:120px;">{{unti.agent}}</td>
+												</tr>
+											</template>
+
+										</template>
+
+									</template>
+
+								</template>
+
+							</tbody>
+						</table>
+
+						<br />
+						<Page :total="pageTotal" :current="pageNum" :page-size="pageSize" show-elevator show-sizer show-total placement="top"
+						 @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
+					</div>
+				</Tab-Pane>
+
+
+				<Tab-Pane label="责任单位相关统计表图" style="min-height: 700px;" name="name2">
+					<Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择统计时间段" @on-clear="clearTime"
+					 style="width: 200px"></Date-Picker>
+					<i-button icon="icon-plus" size="mini" @click="GetunintData(2)">统计</i-button>
+					<i-button icon="icon-plus" size="mini" @click="getExportXls(2)">报表导出</i-button>
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('matters_chart.html','事项统计图')">相应事项统计图</i-button>
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('report_meetchart.html?QueryType=5','会议统计图')">相应会议统计图</i-button>
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('report_meetchart.html?QueryType=6','公文统计图')">相应公文统计图</i-button>
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('report_meetchart.html?QueryType=7','信息统计图')">相应信息统计图</i-button>
+					<br />
+					<table width="100%" border="0" cellpadding="0" cellspacing="0">
+						<thead>
+							<tr>
+								<td :colspan="AnalysisColmergenum.title1+AnalysisColmergenum.title2+AnalysisColmergenum.title3+AnalysisColmergenum.title4"
+								 align="center" id="Titletext2" class="tdnoborder"></td>
+							</tr>
+							<tr>
+								<td style="width:50px;"></td>
+								<td :colspan="AnalysisColmergenum.title1" :width="AnalysisColmergenum.title1*80+'px'">区委会议议定事项及区委主要领导批交办事项落实情况</td>
+								<td :colspan="AnalysisColmergenum.title2" :width="AnalysisColmergenum.title2*80+'px'">区委会议召开情况</td>
+								<td :colspan="AnalysisColmergenum.title3" :width="AnalysisColmergenum.title3*80+'px'">区委公文运转情况</td>
+								<td :colspan="AnalysisColmergenum.title4" :width="AnalysisColmergenum.title4*80+'px'">区委信息工作情况</td>
+							</tr>
+							<tr>
+								<!--<td style="width:50px;">序号</td>
+								<template v-for="item in AnalysisCol">
+									<td style="width:80px;">{{item}}</td>
+								</template>
+								-->
+							</tr>
+						</thead>
+						<!--<tbody style="height: 700px;overflow: auto;">
+							<template v-for="(row,i) in UnintTableData">
+								<tr>
+									<td style="width:50px;">{{i+1}}</td>
+									<template v-for="(item,key,i) in row">
+										<td style="width:80px;" v-if="key.toString().substring(0, 1) == '$'">{{item}}</td>
+									</template>
+								</tr>
+							</template>
+						</tbody>-->
+					</table>
+						
+						<i-table border :columns="Analysis" :data="AnalysisData"></i-table>
+						
+				</Tab-Pane>
+				<Tab-Pane label="区委办人员相关统计表图" style="min-height: 700px;" name="name3">
+					<Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择统计时间段" @on-clear="clearTime"
+					 style="width: 200px"></Date-Picker>
+					<i-button icon="icon-plus" size="mini" @click="GetstaffInfo">统计</i-button>
+					<i-button icon="icon-plus" size="mini" @click="getExportXls(3)">报表导出</i-button>
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('report_officestaffChart.html','区委办人员统计图')">相应统计图</i-button>
+					<br />
+					<br />
+					<i-table border :columns="staffcolumns" :data="staffTableData"></i-table>
+				</Tab-Pane>
+				<Tab-Pane label="区委办事务相关统计表图" style="min-height: 700px;" name="name4">
+					<date-picker type="year" placeholder="请选择年" style="width: 200px" @on-change="selectYear" @on-clear="clearYear"></date-picker>
+					<i-select v-model="SelectStatus" style="padding-right:5px;width:200px;" placeholder="请选择状态">
+						<i-option value="no">未完成</i-option>
+						<i-option value="yes">完成</i-option>
+					</i-select>
+					<i-button icon="icon-plus" size="mini" @click="GetGwInfo">统计</i-button>
+					<i-button icon="icon-plus" size="mini" @click="getExportXls(4)">报表导出</i-button>
+					<i-button icon="icon-plus" size="mini" @click="myselfinfo('report_districtaffairs.html','区委办事务统计图')">相应统计图</i-button>
+					<br />
+					<br />
+					<i-table border :columns="QwInfocolumns" :data="QwInfoTableData"></i-table>
+
+				</Tab-Pane>
+			</Tabs>
+		</div>
+
+		<script>
+			$(function() {
+				$(".ivu-table-body").css("overflow", "auto").css("height", "700px");
+			});
+			var myVue = new Vue({
+				el: '#app',
+				data: {
+					TableData: [],
+					pageTotal: 0,
+					pageNum: 1,
+					pageSize: 10,
+					QueryStartTime: "", //查询结束时间
+					QueryEndTime: "", // 查询开始时间
+					QueryYear: "", // 区委办事务相关
+					Titletext: "", //显示title(查询时间段)
+					rank: 0, // table 序号
+					UnintTableData: [],
+					QwInfoTableData: [],
+					staffTableData: [],
+					
+					Analysis: [{
+							title: "序号",
+							width: 47,
+							render: (h, params) => {
+								return h('span', params.index + (myVue.pageNum - 1) * myVue.pageSize + 1);
+							},
+							}],
+					AnalysisData: [],
+					
+					AnalysisCol: [],
+					AnalysisColmergenum: {},
+					SelectStatus: "",
+					QwInfocolumns: [{
+							title: "序号",
+							width: 80,
+							render: (h, params) => {
+								return h('span', params.index + (myVue.pageNum - 1) * myVue.pageSize + 1);
+							}
+						},
+						{
+							title: '项目名称',
+							width: 120,
+							key: 'titlename',
+							sortable: true
+						},
+						{
+							title: '一月',
+							key: 'one',
+							sortable: true
+						},
+						{
+							title: '二月',
+							key: 'two',
+							sortable: true
+						},
+						{
+							title: '三月',
+							key: 'three',
+							sortable: true
+						},
+						{
+							title: '四月',
+							key: 'four',
+							sortable: true
+						},
+						{
+							title: '五月',
+							key: 'five',
+							sortable: true
+						},
+						{
+							title: '六月',
+							key: 'six',
+							sortable: true
+						},
+						{
+							title: '七月',
+							key: 'seven',
+							sortable: true
+						},
+						{
+							title: '八月',
+							key: 'eight',
+							sortable: true
+						},
+						{
+							title: '九月',
+							key: 'nine',
+							sortable: true
+						},
+						{
+							title: '十月',
+							key: 'ten',
+							sortable: true
+						},
+						{
+							title: '十一月',
+							key: 'eleven',
+							sortable: true
+						},
+						{
+							title: '十二月',
+							key: 'twelve',
+							sortable: true
+						},
+					],
+					staffcolumns: [{
+							title: "序号",
+							width: 80,
+							render: (h, params) => {
+								return h('span', params.index + (myVue.pageNum - 1) * myVue.pageSize + 1);
+							}
+						},
+						{
+							title: '姓名',
+							key: 'name',
+							sortable: true
+						},
+						{
+							title: '督办单位数',
+							key: 'unitnum',
+							sortable: true
+						},
+						{
+							title: '事项新建数',
+							key: 'taskCrenum',
+							sortable: true
+						},
+						{
+							title: '事项督办数',
+							key: 'dealnum',
+							sortable: true
+						},
+						{
+							title: '会议新建数',
+							key: 'meetnum',
+							sortable: true
+						},
+						{
+							title: '公文新建数',
+							key: 'assignnum',
+							sortable: true
+						},
+						{
+							title: '信息新建数',
+							key: 'infonum',
+							sortable: true
+						}
+					]
+
+				},
+				mounted: function() {
+					this.$nextTick(function() {
+						// this.getData();
+					})
+
+				},
+				methods: {
+					fngoreportzrdw(ss, title) {
+						var ss_url = 'doc/example/myrenmqbar9_' + ss + '.html';
+						var ss_title = title;
+						myselfinfo(ss_url, ss_title);
+
+					},
+					// 督办事项相关统计数据
+					getData() {
+						var vm = this;
+						if (vm.QueryEndTime == '' || vm.QueryStartTime == '') {
+							alert("请先选择时间段");
+							return false;
+						}
+						var paramdata = {};
+						paramdata.limit = vm.pageSize;
+						paramdata.page = vm.pageNum;
+						paramdata.afterTime = vm.QueryEndTime;
+						paramdata.beforeTime = vm.QueryStartTime;
+
+
+						$("#Titletext").html("区委主要领导批交办事项督办台账（" + vm.QueryStartTime + "-" + vm.QueryEndTime + "）");
+						$.Apiaxios({
+							url: apiUrl.ApiTaskReportlist,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+							success: function(ret) {
+								vm.TableData = ret.data.records;
+								vm.pageTotal = ret.data.total;
+							},
+							error: function(eret) {
+
+							}
+						})
+					},
+					// 责任单位相关统计数据
+					GetunintData() {
+						var vm = this;
+						if (vm.QueryEndTime == '' || vm.QueryStartTime == '') {
+							alert("请先选择时间段");
+							return false;
+						}
+						var paramdata = {};
+						paramdata.afterTime = vm.QueryEndTime;
+						paramdata.beforeTime = vm.QueryStartTime;
+						paramdata.queryType = 2;
+						$.Apiaxios({
+							url: apiUrl.Apireportlist,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+							success: function(ret) {
+								vm.UnintTableData = ret.data;
+								vm.AnalysisData = ret.data;
+								vm.AnalysisCol = [];
+								vm.AnalysisColmergenum = {
+									title1: 1,
+									title2: 0,
+									title3: 0,
+									title4: 0
+								}
+								$("#Titletext2").html("督查督办数据分析表（" + vm.QueryStartTime + "-" + vm.QueryEndTime + "）");
+								for (var item in vm.UnintTableData[0]) {
+									var colname = item.toString();
+									if (colname.substring(0, 1) == "$") {
+										var index = colname.substring(1, 2);
+										if (index != 0) {
+											vm.AnalysisColmergenum["title" + index] = parseInt(vm.AnalysisColmergenum["title" + index] + 1);
+										}
+										vm.AnalysisCol.push(colname.substring(2, colname.length));
+										vm.Analysis.push({title:colname.substring(2, colname.length),key: colname,sortable: colname.substring(2, colname.length) === "单位" ? false :true});
+										
+									}
+								}
+							},
+							error: function(eret) {
+
+							}
+						});
+					},
+					// 区委办人员相关
+					GetstaffInfo() {
+						var vm = this;
+						var paramdata = {};
+						paramdata.afterTime = vm.QueryEndTime;
+						paramdata.beforeTime = vm.QueryStartTime;
+						paramdata.queryType = 3;
+						if (vm.QueryEndTime == '' || vm.QueryStartTime == '') {
+							alert("请先选择时间段");
+							return false;
+						}
+						$.Apiaxios({
+							url: apiUrl.Apireportlist,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+							success: function(ret) {
+								vm.staffTableData = ret.data;
+								$("#Titletext3").html("区委办人员（" + vm.QueryStartTime + "-" + vm.QueryEndTime + "）");
+							}
+						});
+					},
+					// 区委办事务相关统计数据
+					GetGwInfo() {
+						var vm = this;
+						var paramdata = {};
+						var status=[];
+						if(vm.SelectStatus=="yes"){
+							status=[4];
+						}else if(vm.SelectStatus=="no"){
+							status=[1,2,3]
+						}else{
+							status=[1,2,3,4]
+						}
+						// SelectStatus
+						paramdata.beforeTime = vm.QueryYear + "-01-01";
+						paramdata.queryType = 4;
+						paramdata.status=status;
+						if (vm.QueryYear == '') {
+							alert("请先选择年份");
+							return false;
+						}
+						$.Apiaxios({
+							url: apiUrl.Apireportlist,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+							success: function(ret) {
+								vm.QwInfoTableData = ret.data;
+								$("#Titletext4").html("区委办事务台账（" + vm.QueryYear + "）");
+							}
+						});
+					},
+					handlePage(value) {
+						this.pageNum = value;
+						this.getData();
+					},
+					handlePageSize(value) {
+						this.pageSize = value;
+						this.getData();
+					},
+					selectTime(event) {
+						var arrTime = event.toString().split(',');
+						this.QueryStartTime = arrTime[0];
+						this.QueryEndTime = arrTime[1];
+					},
+					clearTime() {
+						this.QueryStartTime = "";
+						this.QueryEndTime = "";
+
+					},
+					//切换选项卡时间
+					tabclick(value) {
+						var vm = this;
+						vm.clearTime();
+					},
+					//计算序号
+					Rank(data, i, r) {
+						var vm = this;
+						var ranki = 0;
+						// (valapp.pageNum - 1) * valapp.pageSize + 1)
+						if (r == 0) {
+							ranki = i + 1;
+						} else {
+							var num = 0;
+							for (var j = 0; j < r; j++) {
+								var length = data[j].taskVoss.length;
+								num = num + length;
+							}
+							ranki = num + i + 1;
+						}
+						ranki = ranki + (vm.pageNum - 1) * vm.pageSize
+						return ranki;
+					},
+					//更新年份
+					selectYear(event) {
+						this.QueryYear = event;
+					},
+					//区委办事务相关 年份查询条件清空
+					clearYear() {
+						this.QueryYear = "";
+					},
+					// 导出XLS文件
+					getExportXls(ExportType) {
+						var vm = this;
+						if (ExportType == 4 && !vm.QueryYear) {
+							alert("请先选择年份");
+							return false;
+						} else if (ExportType != 4 && vm.QueryEndTime == '' && vm.QueryStartTime == '') {
+							alert("请先选择时间段");
+							return false;
+						}
+						var status=[];
+						if(vm.SelectStatus=="yes"){
+							status=[4];
+						}else if(vm.SelectStatus=="no"){
+							status=[1,2,3]
+						}else{
+							status=[1,2,3,4]
+						}
+						var postdata = {
+							"queryType": ExportType,
+							"afterTime": vm.QueryEndTime,
+							"beforeTime": vm.QueryStartTime,
+							"status":status
+						};
+
+						// SelectStatus
+
+						var fileName = "";
+						switch (ExportType) {
+							case 1:
+								fileName = "督办事项相关统计表.xls";
+								break;
+							case 2:
+								fileName = "责任单位相关统计表.xls";
+								break;
+							case 3:
+								fileName = "区委办人员相关统计表.xls";
+								break;
+							case 4:
+								postdata.beforeTime = vm.QueryYear + "-01-01";
+								fileName = "区委办事务相关统计表.xls";
+								break;
+						}
+						var xhr = new XMLHttpRequest();
+						var url = apiUrl.ApiReportXlsExport;
+						//参数
+						xhr.open('post', url, true);
+						xhr.responseType = "blob";
+						xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem("wccToken"));
+						xhr.setRequestHeader("Content-Type", "application/json");
+						xhr.onload = function() {
+							if (this.status === 200) {
+								let type = xhr.getResponseHeader('Content-Type')
+
+								let blob = new Blob([this.response], {
+									type: type
+								})
+								if (typeof window.navigator.msSaveBlob !== 'undefined') {
+									window.navigator.msSaveBlob(blob, fileName)
+								} else {
+									let URL = window.URL || window.webkitURL
+									let objectUrl = URL.createObjectURL(blob)
+									if (fileName) {
+										var a = document.createElement('a')
+										if (typeof a.download === 'undefined') {
+											window.location = objectUrl
+										} else {
+											a.href = objectUrl
+											a.download = fileName
+											document.body.appendChild(a)
+											a.click()
+											a.remove()
+										}
+									} else {
+										window.location = objectUrl
+									}
+								}
+							}
+
+						}
+						xhr.send(JSON.stringify(postdata));
+					}
+				}
+			});
+			// 跳转页面
+			function myselfinfo(ss_url, ss_title) {
+				var width = $(window).width();
+				var height = $(window).height();
+				dialogOpen({
+					id: 'Report',
+					title: ss_title,
+					url: ss_url,
+					width: width + 'px',
+					height: height + 'px',
+					btn: null
+				});
+
+			}
+		</script>
+	</body>
+</html>

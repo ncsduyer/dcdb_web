@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="ECharts">
+		<title>ECharts · Example</title>
+		<link rel="stylesheet" href="../css/iview.css">
+		<link rel="stylesheet" href="../css/load.css">
+		<script src="../js/echarts-all.js"></script>
+		<script src="../js/jquery.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/iview.min.js"></script>
+
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+			<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+			<div style=" border-bottom: solid 1px #eff0f0; padding-bottom: 30px; padding-top: 20px; padding-left: 20px; ">
+				<row>
+					<i-col span="3">
+						<Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择统计时间段" @on-clear="clearTime"
+						 style="width: 200px"></Date-Picker>
+					</i-col>
+					<i-col span="2">
+						<i-button type="primary" icon="icon-plus" size="mini" @click="GetData()">查询</i-button>
+					</i-col>
+				</row>
+			</div>
+			<div id="main" style="width: 100%;height:700px;  margin-top: 50px; float: left;"></div>
+		</div>
+		<script type="text/javascript">
+			$(function(){
+				// 获取父界面查询时间段
+				var StartTime=parent.valapp.QueryStartTime;
+				var EndTime=parent.valapp.QueryEndTime;
+				if(StartTime){
+					myvue.QueryStartTime=StartTime;
+					myvue.QueryEndTime=EndTime;
+					myvue.GetData();
+				}else{
+					alert("请先选择日期范围");
+					var index = parent.layer.getFrameIndex(window.name);
+					parent.layer.close(index);
+				}
+			})
+			var myvue=new Vue({
+				el: '#app',
+				data: {
+					QueryStartTime: "",
+					QueryEndTime: ""
+				},
+				methods: {
+					GetData() {
+						var vm = this;
+						var paramdata = {
+							"afterTime": vm.QueryEndTime,
+							"beforeTime": vm.QueryStartTime,
+							"queryType": 3
+						}
+						$.Apiaxios({
+							url: apiUrl.ApireportChart,
+							method: "post",
+							data: paramdata,
+							content: "查询数据中，请稍等...",
+							success: function(ret) {
+								if (ret.data.length > 0) {
+									var datalength = ret.data[0].name.split(",").length;
+									$("#main").height(datalength * 30 + 'px');//图表总高度
+									var subtext="（"+vm.QueryStartTime+" - "+vm.QueryEndTime+"）";// 查詢時間段
+									vm.LoadChart(ret.data[0],subtext);//在加图表
+								}
+							},
+							error: function(eret) {
+
+							}
+						})
+
+					},
+					selectTime(event) {
+						var arrTime = event.toString().split(',');
+						this.QueryStartTime = arrTime[0];
+						this.QueryEndTime = arrTime[1];
+					},
+					clearTime() {
+						this.QueryStartTime = "";
+						this.QueryEndTime = "";
+
+					},
+					LoadChart(data,subtext) {
+						var myChart = echarts.init(document.getElementById('main'));
+						var dataStyle = {
+							normal: {
+								label: {
+									show: true,
+									position: 'insideLeft',
+									formatter: '{c}'
+								}
+							}
+						};
+						var option = {
+							title: {
+								text: '区委办人员-事务统计图',
+								subtext:subtext,
+								sublink: '#'
+							},
+							tooltip: {
+								trigger: 'axis',
+								axisPointer: { // 坐标轴指示器，坐标轴触发有效
+									type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+								},
+								formatter: '{b}<br />{a0} : {c0}<br />{a2} : {c2}<br />{a4} : {c4}<br />{a6} : {c6}<br />'
+							},
+							legend: {
+								y: 55,
+								itemGap: document.getElementById('main').offsetWidth / 30,
+								data: ['督办单位数', '事项新建数', '事项督办数', '会议新建数', '公文新建数', '公文流转数', '信息新建数']
+							},
+							toolbox: {
+								show: true,
+								feature: {
+									mark: {
+										show: true
+									},
+									dataView: {
+										show: true,
+										readOnly: false
+									},
+									restore: {
+										show: true
+									},
+									saveAsImage: {
+										show: true
+									}
+								}
+							},
+							grid: {
+								y: 80,
+								y2: 30
+							},
+							xAxis: [{
+								type: 'value',
+								position: 'top',
+								splitLine: {
+									show: false
+								},
+								axisLabel: {
+									show: false
+								}
+							}],
+							yAxis: [{
+								type: 'category',
+								splitLine: {
+									show: false
+								},
+								data: data.name.split(",").reverse()
+							}],
+							series: [{
+									name: '督办单位数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.unitnum.split(",").reverse()
+								},
+								{
+									name: '事项新建数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.taskCrenum.split(",").reverse()
+								},
+								{
+									name: '事项督办数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: data.dealnum.split(",").reverse()
+								},
+								{
+									name: '会议新建数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: []
+								},
+								{
+									name: '公文新建数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: []
+								},
+								{
+									name: '公文流转数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: []
+								},
+								{
+									name: '信息新建数',
+									type: 'bar',
+									stack: '总量',
+									itemStyle: dataStyle,
+									data: []
+								}
+							]
+						};
+						myChart.setOption(option);
+					}
+				}
+			
+			});
+			
+		</script>
+
+	</body>
+</html>

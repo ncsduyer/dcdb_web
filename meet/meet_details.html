@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>顺庆区区委办督查督办管理系统</title>
+		<!-- 引入样式 -->
+
+		<link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+		<!--
+    <link rel="stylesheet" href="css/iview.css">
+        -->
+		<!-- import Vue before Element -->
+		<!--
+    <script src="http://vuejs.org/js/vue.min.js"></script>
+     -->
+		<script src="../js/vue.min.js"></script>
+		<!-- 引入组件库 -->
+		<!--
+    <script src="http://unpkg.com/iview/dist/iview.min.js"></script>
+	-->
+		<script type="text/javascript" src="../lib/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+
+		<script src="../js/jquery.js"></script>
+		<script src="../js/axios.js"></script>
+		<script src="../js/axios.min.js"></script>
+		<script src="/js/axiosConfig.js"></script>
+		<script src="../js/url.js"></script>
+		<script src="../js/iview.min.js"></script>
+		<style>
+			.ivu-auto-complete,
+			ivu-select-dropdown {
+				max-height: 80px;
+			}
+			
+			.tabas tr td {
+				padding: 2px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="app" style="margin:15px 10px 10px 10px;">
+
+			<div>
+				<div style="clear: both;"><span style="font-size: 16px;">当前会议：</span><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{mtile}}</span></div>
+				<div style="clear: both; padding-top: 30px;">
+					<i-table border :columns="columns6" :data="showData5" id="mainlist"></i-table>
+				</div>
+			</div>
+			<div style="margin: 20px auto;width: 90%">
+				<template v-if="type==1">
+					<i-form>
+					<Form-Item label="文件上传">
+						<Upload
+								ref="upload"
+								:action="apiUrl.Upload"
+								:show-upload-list="true"
+								:on-success="infoSuccess"
+								:max-size="81920"
+								:on-format-error="handleFormatError"
+								:on-exceeded-size="handleMaxSize"
+								:on-remove="handleFileRemove"
+								multiple
+								name="files"
+								:headers="header"
+								type="drag"
+								style="display: inline-block;width:auto;">
+							<div style="padding: 0px 0;width:58px;">
+								<p>上传附件</p>
+							</div>
+						</Upload>
+					</Form-Item>
+					<Form-Item>
+						<i-button type="primary" icon="icon-plus" id="table" @click="fnsave" :disabled="!iscansave">保存提交</i-button>
+					</Form-Item>
+					</i-form>
+				</template>
+			</div>
+			<Row style="background:#eee;padding:20px" >
+				<Col span="11">
+				<Card :bordered="false">
+					<p slot="title">已上传文件</p>
+					<span v-if="!filesList.length">暂无文件</span>
+					<p v-for="item in fileList" :key="item.id">{{item.filename}} <span style="float: right;"><a :href="fileRoot+item.id">下载</a></span></p>
+				</Card>
+				</Col>
+				<Col span="11" offset="2">
+				<Card shadow>
+					<p slot="title">已上传图片</p>
+					<div style="position:relative;display: block;">
+                        <span v-for="item in pictureList" :key="item.id" style="display: inline-block;width: 32%;padding: 1%;
+							  ">
+
+                            <img :src="root+item.id" alt="" style="width: 100%;margin: 0 auto"><br>
+							{{item.filename}}<br/>
+							<a :href="fileRoot+item.id">下载</a>
+                        </span>
+									<span v-if="!pictureList.length">暂无图片</span>
+
+
+					</div>
+				</Card>
+				</Col>
+			</Row>
+
+
+
+		</div>
+
+	</body>
+
+</html>
+
+<script>
+	function getQueryVariable(variable) {
+		var query = window.location.search.substring(1);
+		var vars = query.split("&");
+		for(var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split("=");
+			if(pair[0] == variable) {
+				return pair[1];
+			}
+		}
+		return(false);
+	}
+	// 获取地址栏参数--解决中文参数问题  王晓
+	function getUrlParam(key) {
+		// 获取参数
+		var url = window.location.search;
+		// 正则筛选地址栏
+		var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)");
+		// 匹配目标参数
+		var result = url.substr(1).match(reg);
+		//返回参数值
+		return result ? decodeURIComponent(result[2]) : null;
+	}
+
+	function removeRepeatArray(arr) {
+		return arr.filter(function(item, index, self) {
+			return self.indexOf(item) === index;
+		});
+	}
+
+	var unitid = request('unitid');
+	var type = request('type');
+	// console.log(type);
+	var header = {
+		'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
+	};
+	var myvue = new Vue({
+		el: '#app',
+		data: {
+			mtile: "",
+			modelCheckItem: [],
+			columns6: [],
+			showData5: [],
+			filesList:[],
+			photos:[],
+			pictureList:[],
+			fileList:[],
+			root:apiUrl.RenderPicture+'/',
+			fileRoot:apiUrl.Download+'/',
+			type:type,
+			iscansave:false,
+			meet:{}
+		},
+		watch: {
+			meet: function (newV,oldV) {
+				this.getAssetList();
+			}
+		},
+		mounted: function() {
+			var vm= this;
+			vm.checkitem();
+			vm.mtile = getUrlParam('mtile');
+			vm.getInfo();
+		},
+		methods: {
+			// 获取问题类型title
+			checkitem() {
+				var vm = this;
+				$.Apiaxios({
+					url: apiUrl.ApiCheckItemList + '?itemclass=2',
+					method: "GET",
+					content: "获取数据中，请稍等...",
+					success: function(ret) {
+						vm.modelCheckItem = [];
+						vm.columns6 = [{
+							title: '问题部门',
+							key: 'ctitle',
+							sortable: true
+						}];
+
+						$.each(ret.data, function (index, item) {
+							var tempitem = {};
+							tempitem.title = item.itemdesc;
+							tempitem.key = item.id;
+							tempitem.sortable = true;
+							vm.columns6.push(tempitem);
+							vm.modelCheckItem.push(tempitem);
+						});
+						var optitem = {
+							title: '操作',
+							key: 'action',
+							width: 150,
+							align: 'center',
+							render: (h, params) => {
+								return h('div', [
+									h('Button', {
+										props: {
+											type: 'danger',
+											size: 'small'
+										},
+										style: {
+											marginRight: '5px'
+										},
+										on: {
+											click: () => {
+												CheckDetail(params.row.unitid);
+											}
+										}
+									}, '查看人员')
+								]);
+							}
+						}
+						if(vm.qqq != "2") {
+							vm.columns6.push(optitem);
+						}
+						// vm.getInfo();
+					}
+				});
+			},
+			getInfo() {
+				var vm = this;
+				var id = request('id');
+				$.Apiaxios({
+					url: apiUrl.MeetingDetail + "/" +id,
+					method: "GET",
+					content: "获取数据中，请稍等...",
+					success: function(res) {
+						// console.log("id="+res.data.pictures);
+//						console.log(JSON.stringify(res));
+						vm.showData5 = res.data.companys;
+						vm.meet= res.data;
+					}
+				})
+			},
+			getAssetList(){
+				var	vm=this;
+				var token = localStorage.getItem("wccToken");
+				if (vm.meet.pictures!=""&&vm.meet.pictures!=undefined){
+
+				axios({
+					url: apiUrl.getFilesByIds+vm.meet.pictures,
+					method: "GET",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+
+				}).then(function(ret) {
+					if (ret.data.success){
+						vm.pictureList = ret.data.data;
+					}
+				});
+				}
+				if (vm.meet.files!=""&&vm.meet.files!=undefined) {
+					axios({
+						url: apiUrl.getFilesByIds + vm.meet.files,
+						method: "GET",
+						headers: {
+							"Authorization": "Bearer " + token
+						},
+
+					}).then(function (ret) {
+						if (ret.data.success) {
+							vm.fileList = ret.data.data;
+						}
+					});
+				}
+			},
+			// 区委会议提交
+			fnsave() {
+				if (!this.iscansave){
+					return false;
+				}
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				var inputform={};
+				inputform.id=vm.meet.id;
+				inputform.pictures=vm.photos.join(",");
+				inputform.files=vm.filesList.join(",");
+				// console.log(vm.inputform);
+				// return  false;
+				axios({
+					url: apiUrl.ApimeetingEdit,
+					method: "POST",
+					headers: {
+						"Authorization": "Bearer " + token
+					},
+					data:inputform,
+				}).then(function(ret) {
+					if(ret.data.success) {
+						alert('保存提交成功！');
+						window.location.href="meet_details.html?id=" + vm.meet.id + "&unitid=" + vm.meet.unitid + "&mtile=" + vm.meet.title + "&type=" + type;
+					} else{
+						vm.$Message.warning(ret.data.message);
+					}})
+				return;
+			},
+
+
+			// 文件上传
+
+			handleFileRemove(file) {
+				// const fileList = this.$refs.upload.fileList;
+				// this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+				if (file.type == 'photo') {
+					// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+					this.photos.splice(this.photos.indexOf(file.id), 1);
+				} else if (file.type == 'file') {
+					// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+					this.filesList.splice(this.filesList.indexOf(file.id), 1);
+				}
+			},
+			infoSuccess(res, file, fileList) {
+				var fl = fileList[fileList.indexOf(file)];
+				if (fl.response.data.files.length > 0) {
+					if (this.filesList.indexOf(fl.response.data.files[0]) == -1) {
+						fl.id = fl.response.data.files[0];
+						fl.type = 'file';
+						// this.uploadfileList.push(fl);
+						this.filesList.push(fl.id);
+						this.iscansave=true;
+					}
+				}
+				if (fl.response.data.photos.length > 0) {
+					if (this.photos.indexOf(fl.response.data.photos[0]) == -1) {
+						fl.id = fl.response.data.photos[0];
+						fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+						fl.type = 'photo';
+						// this.uploadphotoList.push(fl);
+						this.photos.push(fl.id);
+						this.iscansave=true;
+					}
+				}
+			},
+			handleFormatError(file) {
+				this.$Notice.warning({
+					title: '文件上传出错',
+					desc: '请选择正确的文件格式或正确的文件大小！'
+				});
+			},
+			handleMaxSize(file) {
+				this.$Notice.warning({
+					title: '文件过大',
+					desc: +file.name + ' 文件大小超过8M'
+				});
+			}
+		}
+	});
+
+	var meetId = getQueryVariable('id');
+	function CheckDetail(unitid) {
+		layerindex = layer.open({
+			type: 2,
+			title: "查看",
+			maxmin: true,
+			area: ['1200px', '600px'], //弹出层页面比例
+			content: "meet_view.html?id=" + meetId + "&unitid=" + unitid+ "&type=" + type
+		});
+	}
+</script>
+<script>
+</script>

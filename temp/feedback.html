@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>欢迎登录后台管理系统--区委办督查督办系统</title>
+		<link rel="Bookmark" href="/favicon.ico">
+		<link rel="Shortcut Icon" href="/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+		<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+		<link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+		<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+		<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+		<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+		<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+		<script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+		<script type="text/javascript" src="lib/datatables/1.10.15/jquery.dataTables.min.js"></script>
+		<script src="js/url.js"></script>
+
+	</head>
+
+	<body>
+		<article class="page-container" style="width: 90%;">
+			<form class="form form-horizontal" id="form-article-add">
+				<table id="RowData" style="width: 100%;">
+					<tr id="Row_0" name="Row">
+						<td style="width: 40%;">
+							<div>
+								<div class="row cl">
+									<label class="form-label col-xs-2 col-sm-2"><span class="c-red">*</span>责任单位：</label>
+									<div class="formControls col-xs-8 col-sm-9">
+										<div class="ui-select" type="select" disabled id="companyId" name="companyId"></div>
+										<input type="hidden" id="id" name="id" />
+									</div>
+								</div>
+								<div class="row cl">
+									<label class="form-label col-xs-2 col-sm-2"><span class="c-red">*</span>完成时限：</label>
+									<div class="formControls col-xs-8 col-sm-9">
+										<input type="text" class="input-text" value="" placeholder="" id="deadline" name="deadline" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm', minDate: '%y-%M-#{%d} 00:00' })"
+										 readonly />
+									</div>
+								</div>
+								<div class="row cl">
+									<label class="form-label col-xs-2 col-sm-2">办理要求：</label>
+									<div class="formControls col-xs-8 col-sm-9">
+										<textarea style="width:100%;height:100px;resize: none;" id="requirement" name="requirement"></textarea>
+									</div>
+
+								</div>
+								<!-- <div class="row cl">
+									<label class="form-label col-xs-2 col-sm-2">状态：</label>
+									<div class="formControls col-xs-8 col-sm-9">
+										<div class="ui-select" type="select" id="status" name="status"></div>
+									</div>
+								</div> -->
+								<div class="row cl" name="divsituation" id="divsituation" style="display: none;">
+									<label class="form-label col-xs-2 col-sm-2"><span class="c-red">*</span>完成总结：</label>
+									<div class="formControls col-xs-8 col-sm-9">
+										<textarea style="width:100%;height:100px;resize: none;" id="situation" name="situation"></textarea>
+									</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2"><br />
+							<hr />
+						</td>
+					</tr>
+				</table>
+				<div class="row cl">
+					<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-2">
+						<button onClick="article_save();" class="btn btn-secondary radius" type="button"><i class="Hui-iconfont">&#xe632;</i>
+							保存提交</button>
+						<button onClick="article_cancel();" class="btn btn-default radius" type="button">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+					</div>
+				</div>
+			</form>
+		</article>
+	</body>
+</html>
+<script type="text/javascript">
+	var awid = request('id');
+	var type = request('type');
+	var ComData = [];
+	$(function() {
+		var Rowdatahtml = $("#Row_0").html();
+		$.apiAjax({
+			type: "Get",
+			alert: false,
+			url: apiUrl.ApicompanyList,
+			success: function(ret) {
+				ComData = ret;
+			}
+		});
+		$.apiAjax({
+			type: "Get",
+			alert: false,
+			url: apiUrl.ApiworkCompanyList + "/" + awid,
+			success: function(ret) {
+				if (ret.length == 0) {
+					$("#RowData").htmlText("");
+					return;
+				}
+				for (var i = 0; i < ret.length; i++) {
+					if (i > 0) {
+						var $htmldiv = "<tr id=\"Row_" + i + "\" name=\"Row\">" + Rowdatahtml +
+							"</tr><tr><td colspan=\"2\"><br/><hr/></td></tr>";
+						$("#RowData").append($htmldiv);
+					}
+					var data = ret[i];
+					var $Row = $("#Row_" + i);
+					var $id = $Row.find("input[name=id]");
+					var $companyId = $Row.find("div[name=companyId]");
+					var $deadline = $Row.find("input[name=deadline]");
+					var $requirement = $Row.find("textarea[name=requirement]");
+					// var $status = $Row.find("div[name=status]");
+					var $divsituation = $Row.find("div[name=divsituation]");
+					var $situation = $Row.find("textarea[name=situation]");
+					$companyId.attr("id", "companyId_" + i);
+					// $status.attr("id", "status_" + i);
+					$requirement.attr("id", "requirement_" + i);
+					$deadline.attr("id", "deadline_" + i);
+					$id.attr("id", "id_" + i);
+					$situation.attr("id", "situation_" + i);
+					$divsituation.attr("id", "divsituation_" + i);
+					$("#companyId_" + i).ComboBox({
+						data: ComData,
+						id: "id",
+						text: "abbTitle",
+						description: "==请选择=="
+					});
+					// 					$status.ComboBox({
+					// 						data: [{
+					// 							name: "未完成",
+					// 							value: 0
+					// 						}, {
+					// 							name: "完成",
+					// 							value: 1
+					// 						}],
+					// 						id: "value",
+					// 						text: "name",
+					// 						description: "==请选择==",
+					// 						onSelect: function(value, text, obj) {
+					// 							var id = $(obj).attr("id");
+					// 							var num = id.substring(id.indexOf("_"), id.length);
+					// 							if (value == 1) {
+					// 								$("#divsituation" + num).css("display", "");
+					// 							} else {
+					// 								$("#divsituation" + num).css("display", "none");
+					// 								$("#situation" + num).val("");
+					// 							}
+					// 						}
+					// 					});
+					$companyId.ComboBoxSetValue(data.companyId);
+					$requirement.val(data.requirement);
+					//$deadline.val(data.deadline);
+					// $status.ComboBoxSetValue(data.status);
+					$id.val(data.id);
+				}
+			}
+		});
+	});
+
+	function article_save() {
+		var Datarow = [];
+        $("tr[name=Row]").each(function () {
+            var Rowdata = $(this).GetWebControls();
+            Rowdata.aWId = awid;
+            Rowdata.status = null;
+
+            if (!Rowdata.deadline) {
+                DialogMsg('请选择完成时限！');
+                return false;
+            }
+            if (!Rowdata.requirement) {
+                DialogMsg('请填写办理要求！');
+                return false;
+            }
+
+            Rowdata.deadline = Rowdata.deadline + ":00";
+            Datarow.push(Rowdata);
+        });
+
+
+        //return;
+		$.apiAjax({
+			type: "POST",
+			url: apiUrl.ApiworkCompanyUpdate,
+			data: JSON.stringify({"list":Datarow}),
+			IsLoading: true,
+			IsClose: false,
+			success: function(ret) {
+                parent.LoadTable();
+				var index = parent.layer.getFrameIndex(window.name);
+				parent.layer.close(index);
+			}
+		});
+
+	}
+
+	function article_cancel() {
+
+		var index = parent.layer.getFrameIndex(window.name);
+		parent.layer.close(index);
+	}
+
+	function Updatemethod(obj) {
+
+		var index = parent.layer.open({
+			id: "AddUpdatespeed",
+			type: 2,
+			area: ["700px", "400px"],
+			title: "添加进度",
+			content: "UpdateSpeed.html?id=" + obj
+		});
+		layer.full(index);
+	}
+</script>
