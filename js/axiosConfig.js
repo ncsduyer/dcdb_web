@@ -18,7 +18,13 @@ axios.interceptors.response.use(
             switch (response.data.code) {
                 case 700:
                     // 这里写清除token的代码
-                    window.parent.parent.location.href = '../login.html';
+                   var  url=window.document.location.href;
+                   var pathName=window.document.location.pathname;
+                   // alert(url);
+                   // alert(pathName);
+                   // alert(url.substring(0,url.indexOf(pathName))+'/../login.html');
+                    window.top.location.href = url.substring(0,url.indexOf(pathName))+'/../login.html';
+
             }
         }
         return response;

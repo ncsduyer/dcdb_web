@@ -522,10 +522,6 @@
 								$(ret.data.data).each(function(index, item) {
 									vm.pubuserid = item.id;
 								});
-							} else {
-								//vm.$Message.warning(ret.data.message);
-								alert("有最新发布，请重新登陆！");
-								window.parent.parent.location.href = 'login.html';
 							}
 
 						});

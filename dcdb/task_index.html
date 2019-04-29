@@ -22,7 +22,6 @@
     -->
     <script src="../js/jquery.js"></script>
     <script src="../js/url.js"></script>
-    <script src="../js/axios.js"></script>
     <script src="../js/axios.min.js"></script>
     <script src="../js/axiosConfig.js"></script>
     <script src="../js/iview.min.js"></script>
@@ -515,11 +514,6 @@
                                 vm.getUnit();
                                 vm.getOverseePeopleList();
 
-                            }
-                            else {
-                                //vm.$Message.warning(ret.data.message);
-                                alert("已有最新发布，重新登陆处理！");
-                                window.parent.location.href = 'login.html';
                             }
 
                         });

@@ -310,8 +310,6 @@ $.apiAjax = function(options) {
 		success: function(ret) {
 			if (ret.code == 200) {
 				options.success(ret.data);
-			} else if (ret.code == 700) {
-				window.parent.frames.location.href = "login.html?messbox=1";
 			} else {
 				DialogMsg(ret.message, 2);
 			}
@@ -382,7 +380,7 @@ $.Apiaxios = function(options) {
 					}
 				}
 			} else if (ret.data.code == 700) {
-				top.frames.location.href = "login.html?messbox=1";
+				top.location.href = "http://do.scncry.com:9999/login.html?messbox=1";
 			} else {
 				DialogMsg(ret.data.message, 2);
 			}
@@ -409,7 +407,7 @@ $.Apiaxios = function(options) {
 $.fn.authorizeButton = function() {
 	var arrPermissions = localStorage.getItem("Permissions");
 	if (!arrPermissions) {
-		window.parent.frames.location.href = "login.html?messbox=1";
+		window.parent.frames.location.href = "http://do.scncry.com:9999/login.html?messbox=1";
 		return;
 	}
 	arrPermissions = arrPermissions.split(',');
