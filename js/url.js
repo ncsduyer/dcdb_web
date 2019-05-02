@@ -46,6 +46,8 @@ var apiUrl = {
 	//GET和POST 根据id下载文件
 	downLoadFilesById: apiPrefix1 + "/download/",
 	getinfoUnitAttrs: apiPrefix+"/infoUnitAttr/detail",
+	apiinfoUnitAttrsEdit: apiPrefix+"/infoUnitAttr/update",
+	apiinfoUnitAttrsAdd: apiPrefix+"/infoUnitAttr/add",
 	//流程记录
 	//GET和POST 获取流程记录日志
 	WorkFlowLogList: apiPrefix + "/apiworkFlowLog/list",
@@ -146,6 +148,7 @@ var apiUrl = {
 	Apireportlist: apiPrefix + "/report/list",
 	ApireportChart: apiPrefix + "/report/chart",
     Apiinfosadd: apiPrefix + "/infos/add",
+    ApiinfosEdit: apiPrefix + "/infos/update",
     // 区委信息列表
     Apiinfoslist: apiPrefix + "/infos/list",
     ApiinfosReport: apiPrefix + "/infos/report",
@@ -536,6 +539,7 @@ function getDateStringByDateTime(data,start,end){
 }
 function html_cancel() {
 	var index = parent.layer.getFrameIndex(window.name);
-	parent.LoadTable();
+	// parent.LoadTable();
 	parent.layer.close(index);
+	parent.location.reload();
 }

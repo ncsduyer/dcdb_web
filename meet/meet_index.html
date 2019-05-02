@@ -125,7 +125,7 @@
 					</Row>
 
 					<br />
-					<i-table border :columns="columns6" :data="data5" id="mainlist"></i-table>
+					<i-table border :columns="columns6" :data="dataQuery" id="mainlist"></i-table>
 					<Page :total="pageTotal" :current="pageNum" :page-size="pageSize" show-elevator show-sizer show-total placement="top" @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
 				</Tab-Pane>
 				<Tab-Pane label="区委会议查询" name="name2">
@@ -259,7 +259,7 @@
 						this.unit();
 						this.checkitem();
 						this.setColumns();
-						this.getinfoslist(this.paramData);
+						this.getinfosQueryList(this.paramData);
 					})
 
 				},
@@ -809,7 +809,7 @@
 			type: 2,
 			title: ss_title,
 			maxmin: true,
-			area: ['1000px', '600px'], //弹出层页面比例
+			area: ['800px', '400px'], //弹出层页面比例
 			content: ss_url,
 
 		});
@@ -842,7 +842,7 @@
 			type: 2,
 			title: "会议查看",
 			maxmin: true,
-			area: ['1000px', '400px'], //弹出层页面比例
+			area: ['800px', '400px'], //弹出层页面比例
 			content: "meet_details.html?id=" + id + "&unitid=" + unitid + "&mtile=" + mtile + "&type=" + type
 		});
 		layer.full(layerindex);

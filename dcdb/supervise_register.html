@@ -209,98 +209,7 @@
 
 								</Form-Item>
 							</template>
-
-<<<<<<< .mine                            <Form-Item label="督办情况">
-                                <i-input v-model="inputform.dealdesc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="填写内容"></i-input>
-                            </Form-Item>
-                            <Form-Item label="文件上传">
-                                <Upload
-                                        ref="uploadFile"
-                                        :action="apiUrl.Upload"
-                                        :show-upload-list="true"
-                                        :on-success="handleSuccess"
-                                        :max-size="81920"
-                                        :on-format-error="handleFormatError"
-                                        :on-exceeded-size="handleMaxSize"
-                                        multiple
-                                        name="files"
-                                        :headers="header"
-                                        type="drag"
-                                        :on-remove="handleRemove"
-                                        style="display: inline-block;width:auto;">
-                                    <div style="padding: 0px 0;width:58px;">
-                                        <!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
-                                        <p>上传附件</p>
-                                    </div>
-                                </Upload>
-                            </Form-Item>
-                            <Form-Item label="图片上传">
-                                <div class="demo-upload-list" v-for="item in uploadphotoList">
-                                    <template v-if="item.status === 'finished'">
-                                        <img :src="item.url">
-                                        <div class="demo-upload-list-cover">
-                                            <Icon type="ios-eye-outline" @click.native="handleView(item.id)"></Icon>
-                                            <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
-                                        </div>
-                                    </template>
-                                    <template v-else>
-                                        <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
-                                    </template>
-                                </div>
-                                <Upload
-                                        ref="upload"
-                                        :show-upload-list="false"
-                                        :on-success="handleSuccess"
-                                        :format="['jpg','jpeg','png','gif','ico','bmp']"
-                                        :max-size="8192"
-                                        :on-format-error="handleFormatError"
-                                        :on-exceeded-size="handleMaxSize"
-                                        multiple
-                                        name="files"
-                                        :headers="header"
-                                        type="drag"
-                                        :action="apiUrl.Upload"
-                                        style="display: inline-block;width:58px;">
-                                    <div style="width: 58px;height:58px;line-height: 58px;">
-                                        <Icon type="ios-camera" size="20"></Icon>
-                                    </div>
-                                </Upload>
-                                <Modal title="View Image" v-model="visible">
-                                    <img :src="imgName" v-if="visible" style="width: 100%">
-                                </Modal>
-                            </Form-Item>
-                            <Form-Item  v-for="(item, index) in formDynamic.items"
-                v-if="item.status"
-                :key="index"
-                :label="'抄送人' "
-                :prop="'items.' + index + '.value'"
-                :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}"
-                >
-						<!--<i-input v-model="inputform.memo" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写信息备注"></i-input>-->
-						 <Row>
-                <i-col span="18">
-                    <i-input type="text" v-model="item.sender" placeholder="填写抄送人姓名" style="width:150px"></i-input>
-                    <i-input type="text" v-model="item.tel" placeholder="填写抄送人电话" style="width:150px; margin-left: 10px;"></i-input>
-                </i-col>
-                <i-col span="4" offset="1">
-                    <i-button @click="handleRemovea(index)">删除</i-button>
-                </i-col>
-            </Row>
-					</Form-Item>
-					<FormItem>
-            <Row>
-                <i-col span="4" style="margin-left: 80px; margin-bottom: 30px;">
-                    <i-button  type="dashed" long @click="handleAdd" icon="md-add" style="width:150px" >添加抄送人</i-button>
-                </i-col>
-            </Row>
-       </FormItem>
-							
-                            <Form-Item label="">
-                                <i-button type="primary" icon="icon-plus" @click="fnsave">保存提交</i-button>
-                            </Form-Item>
-                        </i-form>
-                    </div>
-=======							<Form-Item v-if="!isfinishChange" label="是否延期">
+						<Form-Item v-if="!isfinishChange" label="是否延期">
 								<Row>
 									<i-col span="6">
 										<Checkbox v-model="inputform.isdelay" @on-change="FnIsdelayChange"></Checkbox>
@@ -317,7 +226,7 @@
 								<i-input v-model="inputform.dealdesc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="填写内容"></i-input>
 							</Form-Item>
 							<Form-Item label="文件上传">
-								<Upload ref="uploadFile" :action="apiUrl.Upload" :show-upload-list="true" :on-success="handleSuccess" :max-size="81920" :on-format-error="handleFormatError" :on-exceeded-size="handleMaxSize" multiple name="files" :headers="header" type="drag" style="display: inline-block;width:auto;">
+								<Upload ref="uploadFile" :action="apiUrl.Upload" :show-upload-list="true" :on-success="handleSuccess" :max-size="81920" :on-format-error="handleFormatError" :on-exceeded-size="handleMaxSize" multiple name="files" :headers="header" :on-remove="handleRemove" type="drag" style="display: inline-block;width:auto;">
 									<div style="padding: 0px 0;width:58px;">
 										<!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
 										<p>上传附件</p>
@@ -371,7 +280,7 @@
 							</Form-Item>
 						</i-form>
 					</div>
->>>>>>> .theirs				</i-col>
+				</i-col>
 			</Row>
 
 		</div>
@@ -681,7 +590,7 @@
 						//sendobj.sender=vm.formDynamic.items;
 						var sendlistTemp = vm.formDynamic.items;
 						var sendList = [];
-						console.log(sendList);
+						// console.log(sendList);
 						for(var i = 0; i < sendlistTemp.length; i++) {
 							var item = sendlistTemp[i];
 							if(item.status == 0) {
@@ -727,73 +636,35 @@
 					handleRemove(file) {
 						// const fileList = this.$refs.upload.fileList;
 						// this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
-						if(file.type == 'photo') {
 							this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+						if(file.type == 'photo') {
 							this.pictureIds.splice(this.pictureIds.indexOf(file.id), 1);
-						} else if(file.type == 'file') {
-							this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+						}
+						if(file.type == 'file') {
 							this.fileIds.splice(this.fileIds.indexOf(file.id), 1);
 						}
+							this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
 					},
 					handleSuccess(res, file, fileList) {
-						for(var fli = 0; fli < fileList.length; fli++) {
-							var fl = fileList[fli];
-							if(fl.response.data.files.length > 0) {
-								if(this.fileIds.indexOf(fl.response.data.files[0]) == -1) {
-									fl.id = fl.response.data.files[0];
-									fl.type = 'file';
-									this.uploadfileList.push(fl);
-									this.fileIds.push(fl.id);
-								}
-							} else {
-								if(this.pictureIds.indexOf(fl.response.data.photos[0]) == -1) {
-									fl.id = fl.response.data.photos[0];
-									fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
-									fl.type = 'photo';
-									this.uploadphotoList.push(fl);
-									this.pictureIds.push(fl.id);
-								}
-
-<<<<<<< .mine                    },
-                    // 文件上传相关函数
-                    handleView (id) {
-                        this.imgName = apiUrl.RenderPicture+'/'+id;
-                        this.visible = true;
-                    },
-
-                    handleRemove (file) {
-                        // const fileList = this.$refs.upload.fileList;
-                        // this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
-                        if (file.type=='photo'){
-                            this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
-                            this.pictureIds.splice(this.pictureIds.indexOf(file.id), 1);
-                        } else if(file.type=='file'){
-                            this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
-                            this.fileIds.splice(this.fileIds.indexOf(file.id), 1);
-                        }
-                    },
-                    handleSuccess (res, file,fileList) {
-                            var fl=fileList[fileList.indexOf(file)];
-                            if (fl.response.data.files.length>0) {
-                                if( this.fileIds.indexOf(fl.response.data.files[0])==-1){
-                                    fl.id=fl.response.data.files[0];
-                                    fl.type='file';
-                                    this.uploadfileList.push(fl);
-                                    this.fileIds.push(fl.id);
-                                }
-                            }
-                            if (fl.response.data.photos.length>0){
-                                if(this.pictureIds.indexOf(fl.response.data.photos[0])==-1){
-                                    fl.id=fl.response.data.photos[0];
-                                    fl.url=apiUrl.RenderPicture+'/'+fl.response.data.photos[0];
-                                    fl.type='photo';
-                                    this.uploadphotoList.push(fl);
-                                    this.pictureIds.push(fl.id);
-                                }
-=======							}
+						var fl = fileList[fileList.indexOf(file)];
+						if (fl.response.data.files.length > 0) {
+							if (this.fileIds.indexOf(fl.response.data.files[0]) == -1) {
+								fl.id = fl.response.data.files[0];
+								fl.type = 'file';
+								this.uploadfileList.push(fl);
+								this.fileIds.push(fl.id);
+							}
 						}
-						console.log(this.pictureIds);
-					},
+						if (fl.response.data.photos.length > 0) {
+							if (this.pictureIds.indexOf(fl.response.data.photos[0]) == -1) {
+								fl.id = fl.response.data.photos[0];
+								fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+								fl.type = 'photo';
+								this.uploadphotoList.push(fl);
+								this.pictureIds.push(fl.id);
+							}
+						}
+                  },
 					handleFormatError(file) {
 						this.$Notice.warning({
 							title: '文件上传出错',
@@ -806,49 +677,15 @@
 							desc: +file.name + ' 文件大小超过8M'
 						});
 					}
-					// handleBeforeUpload () {
-					//     const check = this.uploadList.length < 15;
-					//     if (!check) {
-					//         this.$Notice.warning({
-					//             title: 'Up to five pictures can be uploaded.'
-					//         });
-					//     }
-					//     return check;
-					// }
 				}
-			});
->>>>>>> .theirs                            }
 
-<<<<<<< .mine                    },
-                    handleFormatError (file) {
-                        this.$Notice.warning({
-                            title: '文件上传出错',
-                            desc: '请选择正确的文件格式或正确的文件大小！'
-                        });
-                    },
-                    handleMaxSize (file) {
-                        this.$Notice.warning({
-                            title: '文件过大',
-                            desc: + file.name + ' 文件大小超过8M'
-                        });
-                    }
-                    // handleBeforeUpload () {
-                    //     const check = this.uploadList.length < 15;
-                    //     if (!check) {
-                    //         this.$Notice.warning({
-                    //             title: 'Up to five pictures can be uploaded.'
-                    //         });
-                    //     }
-                    //     return check;
-                    // }
-				}
             });
             function html_cancel() {
                 parent.LoadTable();
             }
-=======			function html_cancel() {
+		function html_cancel() {
 				parent.LoadTable();
 			}
->>>>>>> .theirs		</script>
+		</script>
 
 	</body>

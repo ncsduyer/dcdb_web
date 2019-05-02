@@ -274,8 +274,15 @@
 
                             var ss = '<div style="margin:10px 10px 10px 10px;" id=id'+snn+'>';
                             ss += '<div class="c' + snn +'" style="font-size:16px;color:blue;"><span>' + snn + '，' + unit_title + '（' + person_name + '）</span>';
+                            if (item.istimely==1){
+
+                            ss += '<span style="font-size:16px;color:#333;margin-left: 50px;"> <label> <input class="' + snn + '" name="Fruit" type="checkbox" value="+row.istimely+" checked/> 未及时上报信息  </label>  </span>';
+                            ss += '<span style="font-size:14px;color:#333;margin-left: 50px; float: right;"><button id="btn' + snn + '"  type="button" style=" padding: 0px 10px; " onclick="">确定</button></span></div>';
+                            } else {
                             ss += '<span style="font-size:16px;color:#333;margin-left: 50px;"> <label> <input class="' + snn + '" name="Fruit" type="checkbox" value="+row.istimely+" /> 未及时上报信息  </label>  </span>';
                             ss += '<span style="font-size:14px;color:#333;margin-left: 50px; float: right;"><button id="btn' + snn + '"  type="button" style=" padding: 0px 10px; " onclick="queding(' + snn +','+row.id+ ')">确定</button></span></div>';
+
+                            }
                             ss += '<div class="c' + snn +'" style="color:blue;margin-top:10px;">反馈情况</div>';
                             ss += '<div style="line-height:20px;">';
                             ss += '<p id="sdd" style="line-height:20px;">办结时限：' + unit_endtime.substring(0, 11) + '</p>';
@@ -417,7 +424,7 @@
                     "Authorization": "Bearer " + token
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                 }
             })
         }else{
@@ -429,7 +436,7 @@
                     "Authorization": "Bearer " + token
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                 }
             })
         }

@@ -23,14 +23,74 @@
 			<i-table border :columns="columns6" :data="data5" class='main-list'>
 			</i-table>
 			<Page :total="pageTotal" :current="pageNum" :page-size="pageSize" show-elevator show-sizer show-total placement="top" @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
+
+
+			<div style="margin: 20px auto;width: 90%">
+				<template v-if="type==1">
+					<i-form>
+						<Form-Item label="文件上传">
+							<Upload
+									ref="upload"
+									:action="apiUrl.Upload"
+									:show-upload-list="true"
+									:on-success="infoSuccess"
+									:max-size="81920"
+									:on-format-error="handleFormatError"
+									:on-exceeded-size="handleMaxSize"
+									:on-remove="handleFileRemove"
+									multiple
+									name="files"
+									:headers="header"
+									type="drag"
+									style="display: inline-block;width:auto;">
+								<div style="padding: 0px 0;width:58px;">
+									<p>上传附件</p>
+								</div>
+							</Upload>
+						</Form-Item>
+						<Form-Item>
+							<i-button type="primary" icon="icon-plus" id="table" @click="fnsave" :disabled="!iscansave">保存提交</i-button>
+						</Form-Item>
+					</i-form>
+				</template>
+			</div>
+			<Row style="background:#eee;padding:20px" >
+				<Col span="11">
+				<Card :bordered="false">
+					<p slot="title">已上传文件</p>
+					<span v-if="!filesList.length">暂无文件</span>
+					<p v-for="item in fileList" :key="item.id">{{item.filename}} <span style="float: right;"><a :href="fileRoot+item.id">下载</a></span></p>
+				</Card>
+				</Col>
+				<Col span="11" offset="2">
+				<Card shadow>
+					<p slot="title">已上传图片</p>
+					<div style="position:relative;display: block;">
+                        <span v-for="item in pictureList" :key="item.id" style="display: inline-block;width: 32%;padding: 1%;">
+
+                            <img :src="root+item.id" alt="" style="width: 100%;margin: 0 auto"><br>
+							{{item.filename}}<br/>
+							<a :href="fileRoot+item.id">下载</a>
+                        </span>
+						<span v-if="!pictureList.length">暂无图片</span>
+
+
+					</div>
+				</Card>
+				</Col>
+			</Row>
 		</div>
 		<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
 		<script>
 			var type = request("type");
+			var id = request('id');
+			var header = {
+				'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
+			};
 			var myVue = new Vue({
 				el: '#app',
 				data: {
-					qqq: "1",
+					qqq:type,
 					pageTotal: 0,
 					pageNum: 1,
 					pageSize: 10,
@@ -46,10 +106,26 @@
 						limit: 10,
 						page: 1
 					},
-					qqq:type
+					filesList:[],
+					photos:[],
+					pictureList:[],
+					fileList:[],
+					root:apiUrl.RenderPicture+'/',
+					fileRoot:apiUrl.Download+'/',
+					type:type,
+					iscansave:false,
+					meet:{}
+				},
+				watch: {
+					meet: function (newV,oldV) {
+						this.getAssetList();
+					}
 				},
 				mounted: function() {
-					this.checkitem();
+					this.$nextTick(function () {
+						this.checkitem();
+						this.getinfoslist(this.paramData);
+					}
 				},
 				methods: {
 					//获取信息监督项目列表
@@ -187,8 +263,6 @@
 								}else if (vm.qqq == "2") {
 									vm.columns6.push(optitem1);
 								}
-								vm.getinfoslist(vm.paramData);
-
 							}
 						});
 
@@ -196,7 +270,6 @@
 
 					//获取单位信息监督项目列表
 					getinfoslist(paramData) {
-						var id = request('id');
 						var vm = this;
 						paramData.limit = vm.pageSize;
 						paramData.id = id;
@@ -214,6 +287,7 @@
 									vm.pageTotal = ret.data.total;
 									var outputdata = [];
 									$(infolist).each(function(index, item) {
+										vm.meet=item;
 										var mtile = item.title;
 										var mtime = item.mtime;
 										var mid = item.id;
@@ -243,6 +317,124 @@
 						this.pageSize = value;
 						this.getinfoslist(this.paramData);
 					},
+
+					getAssetList(){
+						var	vm=this;
+						var token = localStorage.getItem("wccToken");
+						if (vm.meet.pictures!=""&&vm.meet.pictures!=undefined){
+							axios({
+								url: apiUrl.getFilesByIds+vm.meet.pictures,
+								method: "GET",
+								headers: {
+									"Authorization": "Bearer " + token
+								},
+
+							}).then(function(ret) {
+								if (ret.data.success){
+									vm.pictureList = ret.data.data;
+								}
+							});
+						}
+						if (vm.meet.files!=""&&vm.meet.files!=undefined) {
+							axios({
+								url: apiUrl.getFilesByIds + vm.meet.files,
+								method: "GET",
+								headers: {
+									"Authorization": "Bearer " + token
+								},
+							}).then(function (ret) {
+								if (ret.data.success) {
+									vm.fileList = ret.data.data;
+								}
+							});
+						}
+					},
+					// 区委信息提交
+					fnsave() {
+						var vm = this;
+						if (!this.iscansave||(vm.photos.length <= 0&&vm.filesList.length <= 0)){
+							alert("请选择上传文件");
+							return false;
+						}
+						var token = localStorage.getItem("wccToken"); //获取
+						var inputform={};
+						inputform.id=vm.meet.id;
+						if (vm.photos.length>0){
+							inputform.pictures=vm.photos.join(",");
+						}
+						if (vm.filesList.length>0){
+							inputform.files=vm.filesList.join(",");
+						}
+						// console.log(vm.inputform);
+						// return  false;
+						axios({
+							url: apiUrl.ApiinfosEdit,
+							method: "POST",
+							headers: {
+								"Authorization": "Bearer " + token
+							},
+							data:inputform,
+						}).then(function(ret) {
+							if(ret.data.success) {
+								alert('保存提交成功！');
+								html_cancel();
+							} else{
+								vm.$Message.warning(ret.data.message);
+							}})
+						return;
+					},
+
+
+					// 文件上传
+
+					handleFileRemove(file) {
+						// const fileList = this.$refs.upload.fileList;
+						// this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+						if (file.type == 'photo') {
+							// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+							this.photos.splice(this.photos.indexOf(file.id), 1);
+						} else if (file.type == 'file') {
+							// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+							this.filesList.splice(this.filesList.indexOf(file.id), 1);
+						}
+					},
+					infoSuccess(res, file, fileList) {
+						var fl = fileList[fileList.indexOf(file)];
+						if (fl.response.data.files.length > 0) {
+							if (this.filesList.indexOf(fl.response.data.files[0]) == -1) {
+								fl.id = fl.response.data.files[0];
+								fl.type = 'file';
+								// this.uploadfileList.push(fl);
+								this.filesList.push(fl.id);
+								this.iscansave=true;
+							}
+						}
+						if (fl.response.data.photos.length > 0) {
+							if (this.photos.indexOf(fl.response.data.photos[0]) == -1) {
+								fl.id = fl.response.data.photos[0];
+								fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+								fl.type = 'photo';
+								// this.uploadphotoList.push(fl);
+								this.photos.push(fl.id);
+								this.iscansave=true;
+							}
+						}
+					},
+					handleFormatError(file) {
+						this.$Notice.warning({
+							title: '文件上传出错',
+							desc: '请选择正确的文件格式或正确的文件大小！'
+						});
+					},
+					handleMaxSize(file) {
+						this.$Notice.warning({
+							title: '文件过大',
+							desc: +file.name + ' 文件大小超过8M'
+						});
+					}
+
+
+
 				}
 			});
 

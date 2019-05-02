@@ -157,20 +157,20 @@
 											<tr>
 												<td style="color: #2d8cf0;">{{ item.label }}</td>
 												<td style="font-size: 28px; float: left; color: #dcdee2;">
-													<i-button type="dashed" long @click="handleAdd(key)" icon="md-add">添加问题人员</i-button>
+													<i-button type="dashed" long @click="handleAdd(key)" icon="md-add">添加短信提示人员</i-button>
 													<!--<ion-icon name="add-circle-outline" @click="handleAdd"></ion-icon>-->
 												</td>
 
 											</tr>
 											<tr>
 												<td>
-													<Form-Item v-for="(item, index) in item.items" v-if="item.status" :key="index" :label="'问题人员'" :prop="'items.' + index + '.value'" :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}" style="padding-bottom: 15px;">
+													<Form-Item v-for="(item, index) in item.items" v-if="item.status" :key="index" :label="'短信提示人员'" :prop="'items.' + index + '.value'" :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}" style="padding-bottom: 15px;">
 														<Row span="24">
 															<i-col span="4">
-																<i-input data-type="name" type="text" v-model="item.sender" placeholder="填写问题人员姓名" style="width:190px"></i-input>
+																<i-input data-type="name" type="text" v-model="item.sender" placeholder="填写短信提示人员姓名" style="width:190px"></i-input>
 															</i-col>
 																<i-col span="6">
-																	<i-input type="text" v-model="item.tel" placeholder="填写问题人员电话" style="width:190px; margin-left: 10px;"></i-input></i-col>
+																	<i-input type="text" v-model="item.tel" placeholder="填写短信提示人员电话" style="width:190px; margin-left: 10px;"></i-input></i-col>
 															<i-col span="6">
 																<i-select style="width:190px; margin-left: 10px;" v-model="item.content">
 																	<i-option v-for='opt in modelCheckItem' :value="opt" :key="">{{ opt.label }}</i-option>

@@ -37,6 +37,15 @@
             height: 300px;
             overflow: hidden;
         }
+        /*.over_flow{*/
+            /*!*padding: 10px;*!*/
+            /*width: 160px;*/
+            /*!*height:30px;*!*/
+            /*text-overflow: ellipsis;*/
+            /*overflow: hidden;*/
+            /*word-break: break-all;*/
+            /*white-space: nowrap;*/
+            /*}*/
     </style>
 </head>
 
@@ -70,11 +79,11 @@
                             <table class="table3" border="0" cellspacing="0" cellpadding="0">
                                 <thead style="background-color:#133552;">
                                     <tr>
-                                        <th>责任单位</th>
-                                        <th>事项总数</th>
-                                        <th>完成</th>
-                                        <th>正在办理</th>
-                                        <th>平均时长</th>
+                                        <th width="200px">责任单位</th>
+                                        <th width="70px">事项总数</th>
+                                        <th width="70px">完成</th>
+                                        <th width="70px">正在办理</th>
+                                        <th width="70px">平均时长</th>
                                     </tr>
                                 </thead>
                                 <tbody style="opacity:0; visibility:hidden;" id="tbody1"></tbody>
@@ -84,11 +93,11 @@
                             <table class="table3" border="0" cellspacing="0" cellpadding="0" style="position:relative;">
                                 <thead>
                                     <tr>
-                                        <th>责任单位</th>
-                                        <th>事项总数</th>
-                                        <th>完成</th>
-                                        <th>正在办理</th>
-                                        <th>平均时长</th>
+                                        <th width="200px">责任单位</th>
+                                        <th width="70px">事项总数</th>
+                                        <th width="70px">完成</th>
+                                        <th width="70px">正在办理</th>
+                                        <th width="70px">平均时长</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbody2" style="margin-top:50px;height:100px!important;overflow:hidden;position:relative; z-index: 999;"></tbody>
@@ -140,10 +149,10 @@
                                     <tr>
                                         <th>问题评级</th>
                                         <th>责任单位</th>
-                                        <th>督办事项</th>
-                                        <th>区委会议</th>
-                                        <th>区委公文</th>
-                                        <th>区委信息</th>
+                                        <th width="78px">督办事项</th>
+                                        <th width="78px">区委会议</th>
+                                        <th width="78px">区委公文</th>
+                                        <th width="78px">区委信息</th>
                                     </tr>
                                 </thead>
                                 <tbody style="opacity:0; filter:alpha(opacity=0); visibility:hidden" id="tbody3"></tbody>
@@ -155,10 +164,10 @@
                                     <tr>
                                         <th>问题评级</th>
                                         <th>责任单位</th>
-                                        <th>督办事项</th>
-                                        <th>区委会议</th>
-                                        <th>区委公文</th>
-                                        <th>区委信息</th>
+                                        <th width="78px">督办事项</th>
+                                        <th width="78px">区委会议</th>
+                                        <th width="78px">区委公文</th>
+                                        <th width="78px">区委信息</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbody4"></tbody>
@@ -301,7 +310,7 @@
                 type: 2,
                 title: ss_title,
                 content: ss_url,
-                area:['90%','90%'],
+                area:['300px', '200px'],
                 maxmin: true
             });
         }
@@ -666,7 +675,7 @@
                 document.getElementById("tbody2").innerHTML = "";
                 for (var i = 0; i < ret.data.data.length; i++) {
                     var str = '<tr>' +
-                        '<td>' + ret.data.data[i].title + '</td>' +
+                        '<td class="over_flow" alt="+' +ret.data.data[i].title +'">' + ret.data.data[i].title + '</td>' +
                         '<td>' + ret.data.data[i].total + '</td>' +
                         '<td>' + ret.data.data[i].wc + '</td>' +
                         '<td>' + ret.data.data[i].zzbl + '</td>' +
@@ -726,7 +735,7 @@
                         '<span class="iconfont" style="color:  ' + color + ';">&#xe624;</span>' +
                         '<span class="iconfont" style="color:  ' + color + ';">&#xe624;</span>' +
                         '</td >' +
-                        '<td>' + ret.data.data[i].ctitle + '</td>' +
+                        '<td class="over_flow" alt="'+  +ret.data.data[i].title + '">' + ret.data.data[i].ctitle + '</td>' +
                         '<td>' + ret.data.data[i].dcdb + '</td>' +
                         '<td> ' + ret.data.data[i].qwhy + '</td> ' +
                         '<td> ' + ret.data.data[i].qwgw + '</td> ' +

@@ -62,7 +62,7 @@
 	</style>
 	<body>
 		<div id="app" style="margin:15px 10px 10px 10px;">
-			<b>信息编辑</b>
+			<b>公文编辑</b>
 			<ul class="doclist">
 				<li class="one" v-for="item in successData"><a style="cursor:default" href="javascript:void(0);">{{item.title}}</a><button @click="btnDelete(item.id)" style="position: absolute; width: 50px;height: 25px; right: 4%;background: red;color: white;border-radius: 5px;">删除</button>
 					<ul class="listdetail">
@@ -318,12 +318,12 @@
 							item.proUnit.push(items.checkitemid);
 						});
 						item.doPersonuser.forEach(function(items,index){
-							item.fsr.push(items.id);
-//							console.log(item.fsr);
+							item.bjr.push(items.id);
+							// console.log(item.bjr);
 						});
 						item.copySender.forEach(function(items,index){
-							item.bjr.push(items.id);
-//							console.log(item.bjr);
+							item.fsr.push(items.id);
+							// console.log(item.fsr);
 						});
 					})
 					
@@ -445,28 +445,10 @@
 					title: "附件详情",
 					maxmin: true,
 					area: ['886px', '460px'], //弹出层页面比例
-		            content: "attach.html?pictures=" + item.pictures+"&files="+item.files
+		            content: "attach.html?id=" + item.id + "&type=1"
 				});
 			}
-//			showLi(){
-//				$('.listdetail').hasClass('hide') ? $('.listdetail').removeClass('hide') : $('.listdetail').addClass('hide');
-//				console.log($('.listdetail').hasClass('hide'));
-//			}
 		}
 	});
-</script>
-<script>
-//	$(function(){
-//		
-//		$('.doclist').find('.one').click(function(e){
-//			e.preventDefault();
-//			var $ul = $(this).find('ul');
-//			$ul.hasClass('hide') ? $ul.removeClass('hide') : $ul.addClass('hide');
-//		})
-//	})
-
-//	$('.tabas').find(td).change(function(){
-//	  $(this).css("background-color","#FFFFCC");
-//	});
 </script>
 

@@ -10,7 +10,7 @@
 		<script src="../js/vue.min.js"></script>
 		<script src="../js/jquery.js"></script>
 		<script src="../js/url.js"></script>
-		<script src="../js/axios.js"></script>
+		<!--<script src="../js/axios.js"></script>-->
 		<script src="../js/axios.min.js"></script>
 		<script src="../js/axiosConfig.js"></script>
 		<script src="../js/iview.min.js"></script>
@@ -36,9 +36,9 @@
 	<body>
 		<div id="app" style="margin:15px 10px 10px 10px;">
 			<div>
+						<template>
 				<i-form :label-width="80">
 					<Form-Item label="">
-						<template>
 							<Row>
 								<i-col span="24">
 									<table width="70%" border="0" cellspacing="0" cellpadding="0" class="tabas">
@@ -65,12 +65,41 @@
 									</table>
 								</i-col>
 							</Row>
-						</template>
 					</Form-Item>
 					<Form-Item label="" v-if="type=='1'">
 						<i-button type="primary" icon="icon-plus" id="table" @click="fnsave">保存提交</i-button>
 					</Form-Item>
 				</i-form>
+						</template>
+				<div style="margin: 20px auto;width: 90%">
+					<template v-if="type==1">
+						<i-form>
+							<Form-Item label="文件上传">
+								<Upload
+										ref="upload"
+										:action="apiUrl.Upload"
+										:show-upload-list="true"
+										:on-success="infoSuccess"
+										:max-size="81920"
+										:on-format-error="handleFormatError"
+										:on-exceeded-size="handleMaxSize"
+										:on-remove="handleFileRemove"
+										multiple
+										name="files"
+										:headers="header"
+										type="drag"
+										style="display: inline-block;width:auto;">
+									<div style="padding: 0px 0;width:58px;">
+										<p>上传附件</p>
+									</div>
+								</Upload>
+							</Form-Item>
+							<Form-Item>
+								<i-button type="primary" icon="icon-plus" id="table" @click="fnsaveAttr" :disabled="!iscansave">保存提交</i-button>
+							</Form-Item>
+						</i-form>
+					</template>
+				</div>
 			</div>
 			<Row style="background:#eee;padding:20px">
 				<Col span="11">
@@ -107,6 +136,9 @@
 			var unitid = request("unitid");
 			var mid = request("id");
 			var type = request("type");
+			var header = {
+				'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
+			};
 			new Vue({
 				el: '#app',
 				data: {
@@ -118,6 +150,9 @@
 					unitAttr:'',
 					fileList:[],
 					pictureList:[],
+					filesList:[],
+					photos:[],
+					iscansave:false,
 					type:type
 				},
 				filters: {
@@ -280,20 +315,100 @@
 							}
 						});
 					},
+
+					fnsaveAttr() {
+						var vm = this;
+						if (!this.iscansave||(vm.photos.length <= 0&&vm.filesList.length <= 0)){
+							alert("请选择上传文件");
+							return false;
+						}
+						var url= apiUrl.apiinfoUnitAttrsEdit;
+						var token = localStorage.getItem("wccToken"); //获取
+						var inputform={};
+						if (vm.unitAttr==null||vm.unitAttr.id==undefined||vm.unitAttr.id==''){
+							url= apiUrl.apiinfoUnitAttrsAdd;
+							inputform.infoid=id;
+							inputform.unitid=unitid;
+						}else {
+							inputform.id=vm.unitAttr.id;
+						}
+						if (vm.photos.length>0){
+							inputform.pictures=vm.photos.join(",");
+						}
+						if (vm.filesList.length>0){
+							inputform.files=vm.filesList.join(",");
+						}
+						// console.log(vm.inputform);
+						// return  false;
+						axios({
+							url:url,
+							method: "POST",
+							headers: {
+								"Authorization": "Bearer " + token
+							},
+							data:inputform,
+						}).then(function(ret) {
+							if(ret.data.success) {
+								alert('保存提交成功！');
+								html_cancel();
+							} else{
+								vm.$Message.warning(ret.data.message);
+							}})
+					},
+
+
+					// 文件上传
+
+					handleFileRemove(file) {
+						// const fileList = this.$refs.upload.fileList;
+						// this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+						if (file.type == 'photo') {
+							// this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+							this.photos.splice(this.photos.indexOf(file.id), 1);
+						} else if (file.type == 'file') {
+							// this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+							this.filesList.splice(this.filesList.indexOf(file.id), 1);
+						}
+					},
+					infoSuccess(res, file, fileList) {
+						var fl = fileList[fileList.indexOf(file)];
+						if (fl.response.data.files.length > 0) {
+							if (this.filesList.indexOf(fl.response.data.files[0]) == -1) {
+								fl.id = fl.response.data.files[0];
+								fl.type = 'file';
+								// this.uploadfileList.push(fl);
+								this.filesList.push(fl.id);
+								this.iscansave=true;
+							}
+						}
+						if (fl.response.data.photos.length > 0) {
+							if (this.photos.indexOf(fl.response.data.photos[0]) == -1) {
+								fl.id = fl.response.data.photos[0];
+								fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+								fl.type = 'photo';
+								// this.uploadphotoList.push(fl);
+								this.photos.push(fl.id);
+								this.iscansave=true;
+							}
+						}
+					},
+					handleFormatError(file) {
+						this.$Notice.warning({
+							title: '文件上传出错',
+							desc: '请选择正确的文件格式或正确的文件大小！'
+						});
+					},
+					handleMaxSize(file) {
+						this.$Notice.warning({
+							title: '文件过大',
+							desc: +file.name + ' 文件大小超过8M'
+						});
 					}
-
-
+					}
 			});
 		</script>
 
 		<script>
-			function html_cancel() {
-				var index = parent.layer.getFrameIndex(window.name);
-				parent.myVue.fnquery(1);
-				parent.layer.close(index);
-
-			}
-
 			function fn_setvalue() {
 					var ss_newvalue18 = $("#19").val();
 					var ss_newvalue19 = $("#20").val();

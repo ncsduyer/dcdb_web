@@ -94,21 +94,10 @@
                                         <tr v-for='(item,index) in chooseDeptList'>
                                             <td>{{ item.label }}</td>
                                             <td>
-                                                <input type="hidden" :value="item.value" class="unitvalue">
-                                            	<!--<i-select v-bind:id="'myselect_' + item.value" v-bind:onchange="'fnchange(' + item.value+ ')'">
-					                                <i-option v-for="itemmx in modelOverseePeopleList" v-bind:value="itemmx.value">{{ itemmx.label }}</i-option>
-					                            </i-select>-->
-					                            <!--<i-col span="16">
-                                                <i-select  v-bind:id="'myselect_' + item.value" v-bind:onchange="'fnchange(' + item.value+ ')'" >
-                                                    <i-option v-for="itemmx in modelOverseePeopleList" v-bind:value="itemmx.value" >{{ itemmx.label }}</i-option>
-                                                </i-select>
-                                                 </i-col>-->
                                                 <i-col span="16">
-						                      
-						                        <i-select v-model="inputform.creatorid" filterable style="padding-right:5px;width:200px;" placeholder="请选择责任人">
+						                        <i-select v-model="item.personid" filterable style="padding-right:5px;width:200px;" placeholder="请选择责任人">
 				                                    <i-option v-for="item1 in modelOverseePeopleList" v-bind:value="item1.value" :key="item1.value">{{ item1.label }}</i-option>
 				                                </i-select>
-						                           
 						                        </i-col>
                                             </td>
                                         </tr>
@@ -291,17 +280,14 @@
                     return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
                 },
                 choosedata(option) {
-                    console.log(option);
+                    // console.log(option);
                     this.chooseDeptList = option;
                     if (this.ishidden == false) {
                         this.ishidden = true;
                     }
-
                 },
                 fnsave() {
                     var vm = this;
-                    
-
                     //return;
                     var pid = this.inputform.pid;
                     var title = this.inputform.title;
@@ -344,35 +330,22 @@
                     sendobj.createtime = assigntime;
                     sendobj.charge = charge;
                     sendobj.phone = phone;
-
-
-
-                    var choosedptarray = [];
-                    $("#mytbodychoosedept tr").each(function (index, obj) {
-
-                        $(obj).find("div>input[type=hidden]").each(function (mindex, mobj) {
-                            var ss_checkvalue = $(mobj).attr("value");
-                            console.log(ss_checkvalue);
-                            if (ss_checkvalue == '') {
-                                vm.$Message.warning('请选择督办单位对应责任人！');
-                                return false;
-                            }
+                    // console.log(this.chooseDeptList);
+                    this.chooseDeptList.forEach(function (obj, index) {
                             var tmpobj = {};
-                            $(obj).find(".unitvalue").each(function (mindex, mobj) {
-                                tmpobj.unitid = $(mobj).attr("value");
-                            })
-                            tmpobj.personid = ss_checkvalue;
+                            tmpobj.unitid =obj.value;
+                            tmpobj.personid = obj.personid;
                             sendobj.companyIds.push(tmpobj);
                         });
-                    });
-                    console.log(sendobj.companyIds);
+
+                    // console.log(sendobj.companyIds);
                     if (sendobj.companyIds.length <= 0) {
                         vm.$Message.warning('请选择责任单位！');
                         return false;
                     }
 
                     if (assignmemo=="") {
-											  vm.$Message.warning('请填写督办要求!');
+					 vm.$Message.warning('请填写督办要求!');
                         // alert("请填写督办要求");
                         return false;
                     }

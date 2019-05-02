@@ -751,7 +751,7 @@
 
                         //alert(vm.modeldepartment);
 
-                        if (vm.modeldepartment != 'all') {
+                        if (vm.modeldepartment != 'all'&&vm.modeldepartment!=null) {
                             var aa = [];
                             aa.push(vm.modeldepartment);
                             conditQuery.companyIds = aa;
@@ -760,7 +760,7 @@
 
                         //alert(vm.modeloverseepeople);
 
-                        if (vm.modeloverseepeople != 'all') {
+                        if (vm.modeloverseepeople != 'all'&&vm.modeloverseepeople!=null) {
                             var aa = [];
                             aa.push(vm.modeloverseepeople);
                             conditQuery.agent = aa;
@@ -846,7 +846,7 @@
 					type: 2,
 					title: "事项登记",
 					maxmin: true,
-					area: ['1100px', '400px'], //弹出层页面比例
+					area: ['900px', '400px'], //弹出层页面比例
                     content: "supervise_register.html?id=" + id
 				});
 			}

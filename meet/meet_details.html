@@ -91,8 +91,7 @@
 				<Card shadow>
 					<p slot="title">已上传图片</p>
 					<div style="position:relative;display: block;">
-                        <span v-for="item in pictureList" :key="item.id" style="display: inline-block;width: 32%;padding: 1%;
-							  ">
+                        <span v-for="item in pictureList" :key="item.id" style="display: inline-block;width: 32%;padding: 1%;">
 
                             <img :src="root+item.id" alt="" style="width: 100%;margin: 0 auto"><br>
 							{{item.filename}}<br/>
@@ -283,15 +282,20 @@
 			},
 			// 区委会议提交
 			fnsave() {
-				if (!this.iscansave){
+				var vm = this;
+				if (!this.iscansave||(vm.photos.length <= 0&&vm.filesList.length <= 0)){
+					alert("请选择上传文件");
 					return false;
 				}
-				var vm = this;
 				var token = localStorage.getItem("wccToken"); //获取
 				var inputform={};
 				inputform.id=vm.meet.id;
-				inputform.pictures=vm.photos.join(",");
-				inputform.files=vm.filesList.join(",");
+				if (vm.photos.length>0){
+					inputform.pictures=vm.photos.join(",");
+				}
+				if (vm.filesList.length>0){
+					inputform.files=vm.filesList.join(",");
+				}
 				// console.log(vm.inputform);
 				// return  false;
 				axios({
@@ -368,7 +372,7 @@
 			type: 2,
 			title: "查看",
 			maxmin: true,
-			area: ['1200px', '600px'], //弹出层页面比例
+			area: ['800px', '400px'], //弹出层页面比例
 			content: "meet_view.html?id=" + meetId + "&unitid=" + unitid+ "&type=" + type
 		});
 	}
