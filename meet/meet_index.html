@@ -255,7 +255,7 @@
 					this.$nextTick(function() {
 						var parmDate = new Date();
 						this.endTimeChange(parmDate);
-						this.getSelectList();
+						// this.getSelectList();
 						this.unit();
 						this.checkitem();
 						this.setColumns();
@@ -368,7 +368,7 @@
 													//do something
 													layer.close(index);
 													$.Apiaxios({
-														url: apiUrl.Apimeetdeleterec + '/' + params.row.mid,
+														url: apiUrl.ApiMeetDelete + params.row.id,
 														method: "GET",
 														data: {
 															//                                                              unitid: vm.data5[params.row.unitid],

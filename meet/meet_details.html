@@ -44,8 +44,13 @@
 	<body>
 		<div id="app" style="margin:15px 10px 10px 10px;">
 
-			<div>
-				<div style="clear: both;"><span style="font-size: 16px;">当前会议：</span><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{mtile}}</span></div>
+			<div style="margin:0 auto;width: 90%;">
+				<div style="clear: both;"><span style="font-size: 16px;">当前会议：</span><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{meet.title}}</span></div>
+				<div style="clear: both;"><span style="font-size: 16px;">会议时间：</span><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{meet.mtime}}</span></div>
+				<div style="clear: both;"><span style="font-size: 16px;">会风会纪督查人：</span><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{meet.createuser.name}}</span></div>
+				<div style="clear: both;"><span style="font-size: 16px;">会议责任人：</span><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{meet.hostuser.name}}</span></div>
+				<div style="clear: both;"><span style="font-size: 16px;">会议备注：</span>
+					<br/><span style="font-size: 16px;  color: #2d8cf0; padding-top: 15px;">{{meet.memo}}</span></div>
 				<div style="clear: both; padding-top: 30px;">
 					<i-table border :columns="columns6" :data="showData5" id="mainlist"></i-table>
 				</div>
@@ -53,6 +58,45 @@
 			<div style="margin: 20px auto;width: 90%">
 				<template v-if="type==1">
 					<i-form>
+						<Form-Item label="会议时间">
+							<Row span="24">
+								<i-col span="4">
+									<Date-Picker v-model="meet.mtime" value='0' type="date" placeholder="请选择会议时间" :options="startTimeOptions" @on-change="endTimeChange"></Date-Picker>
+								</i-col>
+							</Row>
+						</Form-Item>
+						<Form-Item label="会议名称">
+							<Row>
+								<i-col span="24">
+									<i-input v-model="meet.title" value='0' placeholder="请输入区委会议名称" style="width:80%;"></i-input>
+								</i-col>
+							</Row>
+						</Form-Item>
+						<Form-Item label="会风会纪督查人">
+							<Row span="24">
+								<i-col span="12">
+									<Form-Item >
+										<i-select v-model="meet.creatorid" filterable style="padding-right:5px;width:200px;" placeholder="请选择会议责任人">
+											<i-option v-for="item in modelOverseePeopleList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+										</i-select>
+									</Form-Item>
+								</i-col>
+							</Row>
+						</Form-Item>
+						<Form-Item label="会议责任人">
+							<Row span="24">
+								<i-col span="12">
+									<Form-Item>
+										<i-select v-model="meet.hostid" filterable style="padding-right:5px;width:200px;" placeholder="请选择会议责任人">
+											<i-option v-for="item in modelOverseePeopleList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+										</i-select>
+									</Form-Item>
+								</i-col>
+							</Row>
+						</Form-Item>
+						<Form-Item label="会议备注">
+							<i-input v-model="meet.memo" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写会议备注"></i-input>
+						</Form-Item>
 					<Form-Item label="文件上传">
 						<Upload
 								ref="upload"
@@ -83,8 +127,12 @@
 				<Col span="11">
 				<Card :bordered="false">
 					<p slot="title">已上传文件</p>
-					<span v-if="!filesList.length">暂无文件</span>
-					<p v-for="item in fileList" :key="item.id">{{item.filename}} <span style="float: right;"><a :href="fileRoot+item.id">下载</a></span></p>
+					<template v-if="filesList.length > 0">
+						<p v-for="item in fileList" :key="item.id">{{item.filename}} <span style="float: right;"><a :href="fileRoot+item.id">下载</a></span></p>
+					</template>
+					<template v-else>
+					<span >暂无文件</span>
+					</template>
 				</Card>
 				</Col>
 				<Col span="11" offset="2">
@@ -156,6 +204,8 @@
 			modelCheckItem: [],
 			columns6: [],
 			showData5: [],
+			modelOverseePeopleList: [],
+			startTimeOptions: {},
 			filesList:[],
 			photos:[],
 			pictureList:[],
@@ -167,17 +217,56 @@
 			meet:{}
 		},
 		watch: {
-			meet: function (newV,oldV) {
-				this.getAssetList();
+			meet:{
+				handler: function (val, oldVal) { this.getAssetList();if (oldVal!=null){
+					this.iscansave=true;
+				} },
+				deep: true
 			}
 		},
 		mounted: function() {
+			this.$nextTick(function () {
+
 			var vm= this;
 			vm.checkitem();
 			vm.mtile = getUrlParam('mtile');
+			vm.getOverseePeopleList();
 			vm.getInfo();
+			})
 		},
 		methods: {
+			//获取督办人员列表
+			getOverseePeopleList() {
+				var vm = this;
+				var token = localStorage.getItem("wccToken"); //获取
+				axios({
+					url: apiUrl.ApiOverseePeopleList,
+					method: "GET",
+					async: false,
+					headers: {
+						"Authorization": "Bearer " + token
+					}
+				}).then(function(ret) {
+					vm.modelOverseePeopleList = [];
+					$(ret.data.data).each(function(index, item) {
+						var tempitem = {};
+						tempitem.label = item.name;
+						tempitem.value = item.id;
+						vm.modelOverseePeopleList.push(tempitem);
+					});
+				});
+			},
+			//设置结束时间
+			endTimeChange: function(e) {
+				//debugger
+				this.inputform.mtime = e;
+				let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
+				this.startTimeOptions = {
+					disabledDate(date) {
+						return date && date.valueOf() > Date.now() && endTime != '';
+					}
+				}
+			},
 			// 获取问题类型title
 			checkitem() {
 				var vm = this;
@@ -283,13 +372,12 @@
 			// 区委会议提交
 			fnsave() {
 				var vm = this;
-				if (!this.iscansave||(vm.photos.length <= 0&&vm.filesList.length <= 0)){
-					alert("请选择上传文件");
+				if (!this.iscansave){
 					return false;
 				}
 				var token = localStorage.getItem("wccToken"); //获取
 				var inputform={};
-				inputform.id=vm.meet.id;
+				inputform=vm.meet;
 				if (vm.photos.length>0){
 					inputform.pictures=vm.photos.join(",");
 				}

@@ -183,7 +183,9 @@ var apiUrl = {
     
     //区委会议详情
     ApiMeetDetail: apiPrefix + "/meeting/detail",
-    
+    //区委会议删除
+    ApiMeetDelete: apiPrefix + "/meeting/delete/",
+
     //获取督查类型管理列表
     ApiStatistics: apiPrefix + "/checkitem/list",
 
@@ -540,6 +542,10 @@ function getDateStringByDateTime(data,start,end){
 function html_cancel() {
 	var index = parent.layer.getFrameIndex(window.name);
 	// parent.LoadTable();
+	if (typeof parent.LoadTable != 'undefined' && parent.LoadTable instanceof Function) {
+		parent.LoadTable();
+	}
+
 	parent.layer.close(index);
 	parent.location.reload();
 }
