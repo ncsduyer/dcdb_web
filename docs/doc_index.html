@@ -242,9 +242,10 @@
 
                 var parmDate = new Date();
                 this.endTimeChange(parmDate);
-                this.getSelectList();
+                // this.getSelectList();
                 this.unit();
                 this.checkitem();
+                this.getinfoslist(this.paramData);
             },
             methods: {
                 getReportDateRange: function (dateA) {
@@ -390,7 +391,6 @@
                             }else if (vm.qqq == "2") {
                                 vm.columns6.push(optitem1);
                             }
-								vm.getinfoslist(vm.paramData);
 						}
                     });
 
@@ -493,110 +493,6 @@
                                 vm.data5 = [];
                                 vm.$Message.warning(ret.message);
                             }
-                            // if (ret.success) {
-
-                                // var infolist = ret.data.records; //信息部门列表数据
-                                //
-                                // var outputdata = [];
-                                // $(infolist).each(function (index, item) {
-                                //     $(item.companys).each(function (indexmx, itemmx) {
-                                //
-                                //         var tmp_ctitle = itemmx.ctitle;
-                                //         var tmp_unitid = itemmx.unitid;
-                                //         var tmp_outobj = null;
-                                //         var tmp_outobjindex = 0;
-                                //
-                                //         $(outputdata).each(function (nidex, nitem) {
-                                //             var s_unitid = nitem.unitid;
-                                //             if (s_unitid == tmp_unitid) {
-                                //                 tmp_outobj = nitem;//记录目前返回数组的查找对象
-                                //                 tmp_outobjindex = nidex;//记录目前返回数组的查找对象索引
-                                //                 return;
-                                //             }
-                                //         });
-                                //
-                                //         var aaJson_key = [];
-                                //         var aaJson_value = [];
-                                //
-                                //         $.each(itemmx, function (i) {
-                                //             aaJson_key.push(i); //获取键值
-                                //             aaJson_value.push(itemmx[i]); //获取对应的value
-                                //         });
-                                //
-                                //         if (tmp_outobj == null) {
-                                //             outputdata.push(itemmx);
-                                //         }
-                                //         else {
-                                //
-                                //
-                                //             var aaTemp_key = [];//
-                                //             var aaTemp_value = [];
-                                //             $.each(tmp_outobj, function (i) {
-                                //                 aaTemp_key.push(i); //获取键值
-                                //                 aaTemp_value.push(tmp_outobj[i]); //获取对应的value
-                                //             });
-                                //
-                                //             for (var n = 0; n < aaJson_key.length; n++) {
-                                //
-                                //                 var cur_key = aaJson_key[n];
-                                //
-                                //                 if (cur_key != 'ctitle' && cur_key != 'unitid') {
-                                //                     var prexx = ',';
-                                //                     if (n == 0) {
-                                //                         prexx = '';
-                                //                     }
-                                //
-                                //                     var cur_value = aaJson_value[n];
-                                //                     var old_value = aaTemp_value[n];
-                                //                     var new_value = parseFloat(cur_value) + parseFloat(old_value);
-                                //                     aaTemp_value[n] = new_value;
-                                //                 }
-                                //             }
-                                //
-                                //             var newobjstr = '';
-                                //             for (var n = 0; n < aaTemp_key.length; n++) {
-                                //                 var prexx = ',';
-                                //                 if (n == 0) {
-                                //                     prexx = '{';
-                                //                 }
-                                //                 newobjstr += '' + prexx + '"' + aaTemp_key[n] + '":"' + aaTemp_value[n] + '"';
-                                //             }
-                                //             if (newobjstr != '') {
-                                //                 newobjstr += '}';
-                                //                 //console.log(newobjstr);
-                                //                 var newobj = JSON.parse(newobjstr);
-                                //                 outputdata[tmp_outobjindex] = newobj;
-                                //             }
-                                //         }
-                                //     });
-                                // });
-                                // //console.log(outputdata);
-                                // //return;
-                                // $("#mystaticreporttable").find("div[id ^= 'myshowdiv_']").each(function (index, item) {
-                                //     $(item).html("");
-                                // });
-                                //
-                                // $(outputdata).each(function (index, item) {
-                                //
-                                //     var s_unitid = item.unitid;
-                                //
-                                //     var aaTemp_key = [];//
-                                //     var aaTemp_value = [];
-                                //     $.each(item, function (i) {
-                                //         aaTemp_key.push(i); //获取键值
-                                //         aaTemp_value.push(item[i]); //获取对应的value
-                                //     });
-                                //
-                                //     var newobjstr = '';
-                                //     for (var n = 0; n < aaTemp_key.length; n++) {
-                                //         $('#myshowdiv_' + s_unitid + '_' + aaTemp_key[n] + '').html(aaTemp_value[n]);
-                                //     }
-                                // });
-                            // }
-                            // else {
-                            //     //vm.dataQuery = [];
-                            //     vm.$Message.warning(ret.message);
-                            // }
                         }
                     });
                 },
@@ -678,7 +574,7 @@
                             limit: 2000,
                             page: 1
                         }
-                        console.log(vm.paramData)
+                        // console.log(vm.paramData)
                         vm.getinfosStaticList(vm.paramData);
                     }
                 },
@@ -855,6 +751,6 @@
     function LoadTable() {
 
         myVue.checkitem();
-        myVue.getSelectList();
+        // myVue.getSelectList();
     }
 </script>
