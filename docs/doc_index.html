@@ -95,11 +95,9 @@
                     <i-col span="2">
                         <i-button type="primary" icon="icon-plus" size="mini" @click="fnaddnew">新建</i-button>
                     </i-col>
-                    <!--<i-col span="4">
-                        <i-select v-model="myinfosSelectedOption" filterable clearable style="padding-right:5px;" placeholder="按上报名称查询">
-                            <i-option v-for="item in myinfosList" :value="item.title" :key="item.id">{{ item.mtime }} {{ item.title }}</i-option>
-                        </i-select>
-                    </i-col>-->
+                    <i-col span="4">
+                        <i-input v-model="myinfosQueryOption" placeholder="请输入公文关键字" ></i-input>
+                    </i-col>
                     <i-col span="4">
                         <i-select v-model="model11" filterable clearable style="padding-right:5px;" placeholder="按上报单位查询">
                             <i-option value="" key="">全部</i-option>
@@ -121,6 +119,10 @@
             <Tab-Pane label="区委公文查询" name="name2">
                 <Row v-show="condition2">
                     <i-col span="4">
+                            <i-input v-model="myinfosQueryOption" placeholder="请输入公文关键字"></i-input>
+                        </i-input>
+                    </i-col>
+                    <i-col span="4">
                         <i-select v-model="model11" filterable clearable style="padding-right:5px;" placeholder="按上报单位查询">
                             <i-option value="" key="">全部</i-option>
                             <i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label }}</i-option>
@@ -128,9 +130,6 @@
                     </i-col>
                     <i-col span="4">
                         <Date-Picker type="daterange" placement="bottom-end" @on-change="selectTime" placeholder="请选择查询时间段" @on-clear="clearTime" style="width: 200px"></Date-Picker>
-                    </i-col>
-                    <i-col span="4">
-
                     </i-col>
 
                     <i-col span="2">
