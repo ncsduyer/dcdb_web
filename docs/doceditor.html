@@ -233,6 +233,8 @@
 </html>
 <script>
 	var unitid = request("unitid");
+	var afterTime = request("afterTime");
+	var beforeTime = request("beforeTime");
 	var mid = request("id");
 	new Vue({
 		el: '#app',
@@ -302,8 +304,9 @@
 						"Authorization": "Bearer " + token
 					},
 					data:{
-//						afterTime: "2019-04-25",
-//						beforeTime: "2019-04-1",
+						afterTime: afterTime,
+						beforeTime: beforeTime,
+						limit:2000,
 						companyIds: [unitid]
 					}
 				}).then(function(ret) {

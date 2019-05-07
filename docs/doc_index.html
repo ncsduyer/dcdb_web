@@ -340,7 +340,7 @@
                                             },
                                             on: {
                                                 click: () => {
-                                                    CheckDetail(params.row.mid,params.row.unitid);
+                                                    CheckDetail(params.row.mid,params.row.unitid,vm.paramData.beforeTime,vm.paramData.afterTime);
                                                 }
                                             }
                                         }, '编辑'),
@@ -354,7 +354,7 @@
                                             },
                                             on: {
                                                 click: () => {
-                                                    CheckDetails(params.row.mid,params.row.unitid);
+                                                    CheckDetails(params.row.mid,params.row.unitid,vm.paramData.beforeTime,vm.paramData.afterTime);
                                                 }
                                             }
                                         }, '查看'),                                        
@@ -378,7 +378,7 @@
                                             },
                                             on: {
                                                 click: () => {
-                                                    CheckDetails(params.row.mid,params.row.unitid);
+                                                    CheckDetails(params.row.mid,params.row.unitid,vm.paramData.beforeTime,vm.paramData.afterTime);
                                                 }
                                             }
                                         }, '查看'),
@@ -701,22 +701,22 @@
 				
             }
         });
-        function CheckDetail(id,unitid) {
+        function CheckDetail(id,unitid,beforeTime,afterTime) {
             layerindex = layer.open({
 				type: 2,
 				title: "编辑",
 				maxmin: true,
 				area: ['800px', '400px'], //弹出层页面比例
-                content: "doceditor.html?id=" + id+"&unitid="+unitid
+                content: "doceditor.html?id=" + id+"&unitid="+unitid+"&beforeTime="+beforeTime+"&afterTime="+afterTime
 			});
 		}
-        function CheckDetails(id,unitid) {
+        function CheckDetails(id,unitid,beforeTime,afterTime) {
             layerindex = layer.open({
 				type: 2,
 				title: "查看",
 				maxmin: true,
 				area: ['800px', '400px'], //弹出层页面比例
-                content: "docdetail.html?id=" + id+"&unitid="+unitid
+                content: "docdetail.html?id=" + id+"&unitid="+unitid+"&beforeTime="+beforeTime+"&afterTime="+afterTime
 			});
 		}
     </script>
