@@ -207,8 +207,8 @@
 				assignTime: '',
 				endTime: '',
 				currecv: '',
-				resc: '',
-				copyRecordNotices: '',
+				resc:[],
+				copyRecordNotices: [],
 				status: 0,
 				title: '',
 				unitid:'',
@@ -244,8 +244,8 @@
 
 			var parmDate = new Date();
 			this.endtime = parmDate;
-			this.inputform.mtime = parmDate;
-			this.inputform.overtime = parmDate;
+			this.inputform.assignTime = parmDate;
+			this.inputform.endTime = parmDate;
 			this.endTimeChange(parmDate);
 			this.unit();
 			this.checkitem();
@@ -399,11 +399,11 @@
 			fnsave() {
 				var vm = this;
 				var token = localStorage.getItem("wccToken"); //获取
-				if(this.inputform.mtime == '') {
+				if(this.inputform.assignTime == '') {
 					vm.$Message.warning('请选择来文时间！');
 					return false;
 				}
-				if(this.inputform.overtime == '') {
+				if(this.inputform.endTime == '') {
 					vm.$Message.warning('请选择完结时间！');
 					return false;
 				}
@@ -427,7 +427,7 @@
 						tmpobj.checkvalue = 1;
 						choosedptarray.push(tmpobj);
 					}
-					console.log(choosedptarray);
+					// console.log(choosedptarray);
 
 
 				if(this.unitid <= 0 || this.unitid=="") {
