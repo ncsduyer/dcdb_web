@@ -203,7 +203,6 @@
 			//结束日期model
 			inputform: {
 				closememo: '',
-				conferenceQuestions: '',
 				assignTime: '',
 				endTime: '',
 				currecv: '',
@@ -214,11 +213,10 @@
 				unitid:'',
 				suggestion:'',//办公室建议
 				senderId:'',//主送人id
-				pictures:'',//图片列表
 				opinion:'',//拟办意见
 				instructions:'',//领导批示
 				files: [],
-				pictures:[],
+				pictures:[],//图片列表
 				exceed:0,//是否超期
 				doPersonIds:'',//办件人id
 				copySenderId:''//分送人id		
@@ -351,7 +349,7 @@
 				return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
 			},
 			choosedata(option) {
-				console.log(option);
+				// console.log(option);
 				this.chooseDeptList = option;
 				if(this.ishidden == false) {
 					this.ishidden = true;
@@ -379,8 +377,8 @@
 
 					}
 				}
-				console.log("文件="+this.fileIds);
-				console.log("图片="+this.pictureIds);
+				// console.log("文件="+this.fileIds);
+				// console.log("图片="+this.pictureIds);
 				
 			},
 //			handleFormatError(file) {
@@ -403,15 +401,15 @@
 					vm.$Message.warning('请选择来文时间！');
 					return false;
 				}
-				if(this.inputform.endTime == '') {
-					vm.$Message.warning('请选择完结时间！');
-					return false;
-				}
+				// if(this.inputform.endTime == '') {
+				// 	vm.$Message.warning('请选择完结时间！');
+				// 	return false;
+				// }
 				if(this.inputform.title == '') {
 					vm.$Message.warning('请填写公文名称！');
 					return true;
 				}
-				if(this.inputform.receivepeople == '') {
+				if(this.inputform.currecv == '') {
 					vm.$Message.warning('请填写接收人姓名！');
 					return true;
 				}
