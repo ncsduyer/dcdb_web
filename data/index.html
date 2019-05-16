@@ -89,8 +89,8 @@
                                 <tbody style="opacity:0; visibility:hidden;" id="tbody1"></tbody>
                             </table>
                         </div>
-                        <div class="tbl-body">
-                            <table class="table3" border="0" cellspacing="0" cellpadding="0" style="position:relative;">
+                        <div class="tbl-body" id="dbsxtj">
+                            <table  class="table3" border="0" cellspacing="0" cellpadding="0" style="position:relative;">
                                 <thead>
                                     <tr>
                                         <th width="200px">责任单位</th>
@@ -158,8 +158,8 @@
                                 <tbody style="opacity:0; filter:alpha(opacity=0); visibility:hidden" id="tbody3"></tbody>
                             </table>
                         </div>
-                        <div class="tbl-body">
-                            <table class="table3" border="0" cellspacing="0" cellpadding="0">
+                        <div class="tbl-body" id="wtpj">
+                            <table class="table3"  border="0" cellspacing="0" cellpadding="0">
                                 <thead>
                                     <tr>
                                         <th>问题评级</th>
@@ -986,21 +986,32 @@
         var speedhq = 50; // 数值越大越慢
 
         function Marqueehq() {
-            var outerHeight = $('#tbody2').find("tr").outerHeight();
+            var outerHeight = $('#tbody2').outerHeight();
+            console.log(outerHeight);
+            if (tblTop <= -outerHeight * 6) {
+                tblTop = 0;
+            } else {
+                tblTop -= 1;
+            }
+            $('#dbsxtj').css('top', tblTop + 'px');
+        }
+        function Marqueehq1() {
+            var outerHeight = $('#tbody3').outerHeight();
             //console.log(tblTop); console.log(-outerHeight * 7);
             if (tblTop <= -outerHeight * 6) {
                 tblTop = 0;
             } else {
                 tblTop -= 1;
             }
-            $('.tbl-body').css('top', tblTop + 'px');
+            $('#wtpj').css('top', tblTop + 'px');
         }
 
         var MyMarhq = setInterval(Marqueehq, speedhq);
+        var MyMarhq1 = setInterval(Marqueehq1, speedhq);
 
         setInterval(function () {
             load();
-        }, 5 * 60000);
+        }, 60 * 1000);
 
         // 鼠标移上去取消事件
         $(".box1").hover(function () {
@@ -1011,10 +1022,10 @@
         })
         // 鼠标移上去取消事件
         $(".box2").hover(function () {
-            clearInterval(MyMarhq);
+            clearInterval(MyMarhq1);
         }, function () {
-            clearInterval(MyMarhq);
-            MyMarhq = setInterval(Marqueehq, speedhq);
+            clearInterval(MyMarhq1);
+            MyMarhq1 = setInterval(Marqueehq1, speedhq);
         })
 
     </script>
