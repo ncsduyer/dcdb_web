@@ -267,11 +267,9 @@
                     choicestatus: '待事项反馈',
                     closestatus: '待归档',
                     value3: '',
-                    data3: ['滨江路整治', '石油大学校外整治', '华立广场招商项目1', '华立广场招商项目2', '华立广场招商项目3', '华立广场招商项目4', '华立广场招商项目5'],
                     columns: [{
                         title: '交办事项',
                         key: 'title',
-                        sortable: true,
                         render: (h, params) => {
                             let s_title = params.row.title;
                             return h('span', {
@@ -496,6 +494,186 @@
                             return h('div', tmparr);
                         }
                     }
+                    ],
+                    task_columns: [{
+                        title: '交办事项',
+                        key: 'title',
+                        render: (h, params) => {
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {
+                                }
+                            }, params.row.title);
+                        }
+                    },
+                    {
+                        title: '交办时间',
+                        key: 'assigntime',
+                        width: 110,
+                        sortable: true
+                    },
+                    {
+                        title: '交办类型',
+                        key: 'workType',
+                        width: 120,
+                        sortable: true
+                    },
+                    {
+                        title: '责任单位',
+                        key: 'campany',
+                        width: 120,
+                        sortable: true,
+                        render: (h, params) => {
+                            let s_campany = params.row.campany;
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {
+                                }
+                            }, s_campany);
+                        }
+                    },
+                    {
+                        title: '督办责任人',
+                        key: "agent",
+                        width: 120,
+                        sortable: true
+                    },
+                    {
+                        title: '督办要求',
+                        key: 'assignmemo'
+                    },
+                    {
+                        title: '办结时间',
+                        key: 'endtime',
+                        width: 110,
+                        sortable: true
+                    },
+                    {
+                        title: '目前状态',
+                        key: 'step',
+                        width: 110,
+                        sortable: true
+                    },
+                    {
+                        title: '是否超期',
+                        key: 'is_exceed',
+                        width: 110,
+                        sortable: true,
+                        render: (h, params) => {
+                            let s_is_exceed = params.row.is_exceed;
+                            if (s_is_exceed == '已超期') {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        color: 'red'
+                                    },
+                                    on: {
+                                    }
+                                }, s_is_exceed);
+                            }
+                            else {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                    },
+                                    on: {
+                                    }
+                                }, '未超期');
+                            }
+                        }
+
+                    },
+                    {
+                        title: '总共用时',
+                        key: 'usetime'
+                    },
+                    {
+                        title: '操作',
+                        key: 'operation',
+                        // width: 140,
+                        render: (h, params) => {
+                            //console.log(params.row.status)
+                            let myself = this;//获取window
+                            var s_pubuserid = myself.myVue.pubuserid;
+                            var s_wh_sn = myself.myVue.wh_sn;
+
+                            var tmparr = [];
+                            tmparr.push(
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            CheckDetail(params.row.taskassigns.id);
+                                        }
+                                    }
+                                }, '查看'));
+
+
+                            if (params.row.taskassigns.status == '2' || params.row.taskassigns.status == '3' || params.row.taskassigns.status == '4' || params.row.taskassigns.status == '1') {
+                                if (params.row.taskassigns.createrId == s_pubuserid && s_wh_sn == 1) {
+                                    tmparr.push(
+                                        h('Button', {
+                                            props: {
+                                                type: 'info',
+                                                size: 'small'
+                                            },
+                                            style: {
+                                                marginRight: '5px'
+                                            },
+                                            on: {
+                                                click: () => {
+                                                    openHtml("task_edit.html?id="+params.row.id);
+                                                }
+                                            }
+                                        }, '编辑')
+                                    );
+                                    tmparr.push(
+                                        h('Button', {
+                                            props: {
+                                                type: 'success',
+                                                size: 'small'
+                                            },
+                                            style: {
+                                                marginRight: '5px'
+                                            },
+                                            on: {
+                                                click: () => {
+                                                    CloseTask(params.row.id,params.row.taskassigns.id);
+
+                                                }
+                                            }
+                                        }, '归档')
+                                    );
+                                }
+                            }
+
+                            return h('div', tmparr);
+                        }
+                    }
                     ]
                 },
 
@@ -570,6 +748,29 @@
                                         return;
                                     }
                                 });
+                            }
+                            else {
+                                vm.$Message.warning(ret.data.message);
+                            }
+
+                        });
+                    },
+                    getDataByTask(sn, parmdata) {
+                        var vm = this;
+                        vm.wh_parmdata = parmdata;
+                        var token = localStorage.getItem("wccToken"); //获取
+                        axios({
+                            url: apiUrl.ApiTaskListByTask,
+                            method: "POST",
+                            content: "提交数据中，请稍等...",
+                            headers: {
+                                "Authorization": "Bearer " + token
+                            },
+                            data: parmdata
+                        }).then(function (ret) {
+                            if (ret.data.success) {
+                                    vm.taskListCreate = ret.data.data.records;
+                                    vm.pageTotalCreate = ret.data.data.total;
                             }
                             else {
                                 vm.$Message.warning(ret.data.message);
@@ -738,7 +939,7 @@
                             conditCreate.status = [5,6];
                         }
 
-                        vm.getData(1, conditCreate);
+                        vm.getDataByTask(1, conditCreate);
                     },
                     queryDataUndeal: function () {
                         var vm = this;
