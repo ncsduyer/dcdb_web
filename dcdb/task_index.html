@@ -112,7 +112,7 @@
                         <i-col span="4">
                             <Radio-Group v-model="choicestatus" onchange="fn_jsquerydata(2)">
                                 <Radio label="待事项反馈"></Radio>
-                                <Radio label="待督办登记"></Radio>
+                                <Radio label="督办进度记录"></Radio>
                             </Radio-Group>
                         </i-col>
                         <i-col span="4">
@@ -489,7 +489,7 @@
                                                 UpdateTask(params.row.taid);
                                             }
                                         }
-                                    }, '登记'));
+                                    }, '进度记录'));
                                 }
                             }
 
@@ -882,7 +882,7 @@
 
                 layerindex = layer.open({
 					type: 2,
-					title: "事项登记",
+					title: "事项进度记录",
 					maxmin: true,
 					area: ['900px', '400px'], //弹出层页面比例
                     content: "supervise_register.html?id=" + id

@@ -331,7 +331,7 @@
 									}
 									if (arrPermissions.indexOf('1065176202181935112') > 0 && full.status > 1 && full.agent ==UserId) {
 										arrbtn += "<a style=\"text-decoration:none;color:blue;\" class=\"ml-5\" onclick=\"banli( '" + data +
-											"')\" href=\"javascript:;\" title=\"督办登记\"><u>督办登记</u></a>";
+											"')\" href=\"javascript:;\" title=\"督办进度记录\"><u>督办进度记录</u></a>";
 
 									}
 									if (arrPermissions.indexOf('1062589527937323016') > 0 && full.created_id == UserId) {
@@ -406,7 +406,7 @@
 				var index = layer.open({
 					id: "UpdateSpeed",
 					type: 2,
-					title: "事项督办登记",
+					title: "事项督办进度记录",
 					area: ["800px", "600px"],
 					content: "UpdateSpeed.html?type=0&id=" + obj
 				});
