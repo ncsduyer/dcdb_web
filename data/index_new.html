@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <script type="text/javascript" src="js/rem.js"></script>
+    <script type="text/javascript" src="https://echarts.baidu.com/echarts2/doc/example/timelineOption.js"></script>
+    <script type="text/javascript" src="js/iconfont.js"></script>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+
+
+    <link rel="stylesheet" href="css/style_new.css">
+    <title>顺庆区委办信息化管理系统平台</title>
+    <style>
+        .tbl-header {
+            width: 100%;
+            position: absolute;
+            top: -10px;
+            left: 0;
+            z-index: 999;
+            opacity: 1;
+        }
+
+        .tbl-body {
+            width: 100%;
+            position: absolute;
+            left: 0;
+        }
+
+        .chart-box {
+            margin-top: 0px;
+            padding-top: 0px;
+            height: 300px;
+            overflow: hidden;
+        }
+        /*.over_flow{*/
+        /*!*padding: 10px;*!*/
+        /*width: 160px;*/
+        /*!*height:30px;*!*/
+        /*text-overflow: ellipsis;*/
+        /*overflow: hidden;*/
+        /*word-break: break-all;*/
+        /*white-space: nowrap;*/
+        /*}*/
+    </style>
+</head>
+
+<body style="visibility: visible;">
+<div id="app" style=" width: 100%; height: 120%;">
+    <div class="container-flex" tabindex="0" hidefocus="true">
+        <div class="box-left">
+            <div class="left-top">
+                <div class="current-num">
+                    <div>督查督办总数据</div>
+                    <p id="dcdb">3,456,789</p>
+                </div>
+            </div>
+            <div class="left-center">
+                <div class="title-box">
+                    <h6>督办事项相关统计</h6>
+                </div>
+                <div class="chart-box pie-chart" style="">
+                    <div id="pie_fanzui" style="width:100%; height: 95%; margin-top: 15px;"></div>
+
+                </div>
+            </div>
+            <div class="left-bottom select">
+                <div class="title-box">
+                    <h6>督办事项部门统计</h6>
+
+                </div>
+
+                <div class="chart-box box1" style="height:330px; margin-top: 15px;  border-bottom: 1px solid #0e94ea;">
+                    <div class="tbl-header">
+                        <table class="table3" border="0" cellspacing="0" cellpadding="0">
+                            <thead style="background-color:#133552;">
+                            <tr>
+                                <th width="200px">责任单位</th>
+                                <th width="70px">事项总数</th>
+                                <th width="70px">完成</th>
+                                <th width="70px">正在办理</th>
+                                <th width="70px">平均时长</th>
+                            </tr>
+                            </thead>
+                            <tbody style="opacity:0; visibility:hidden;" id="tbody1"></tbody>
+                        </table>
+                    </div>
+                    <div class="tbl-body" id="dbsxtj">
+                        <table  class="table3" border="0" cellspacing="0" cellpadding="0" style="position:relative;">
+                            <thead>
+                            <tr>
+                                <th width="200px">责任单位</th>
+                                <th width="70px">事项总数</th>
+                                <th width="70px">完成</th>
+                                <th width="70px">正在办理</th>
+                                <th width="70px">平均时长</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody2" style="margin-top:50px;height:100px!important;overflow:hidden;position:relative; z-index: 999;"></tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="box-center">
+            <div class="center-top">
+                <h1><img src="images/jinghui.png" style="width:50px;margin-right:10px; margin-left: 10px; margin-top: -10px;" />顺庆区委办信息化管理系统平台</h1>
+            </div>
+            <div class="center-center">
+                <div class="weather-box">
+                    <div class="data">
+                        <p class="time" id="time">00:00:00</p>
+                        <p id="date"></p>
+                    </div>
+                    <div class="weather">
+                        <iframe width="250" scrolling="no" height="70" frameborder="0" allowtransparency="true" src="http://i.tianqi.com/index.php?c=code&id=2&color=%23FFFFFF&icon=1&num=1&site=18"></iframe>
+                        <!-- <img id="weatherImg" src="images/weather/weather_img01.png" alt="">
+                        <div id="weather">
+                            <p class="active">多云</p>
+                            <p>16-22℃</p>
+                            <p>南充市顺庆区</p>
+                        </div> -->
+                    </div>
+                </div>
+                <img src="images/line_bg.png" alt="">
+                <div class="select-box" style="height: 0.3rem;">
+
+                    <div data-type="2">
+                        <div class="select" tabindex="0" hidefocus="true">
+                            <p style="color:#FFFF00;font-weight:bold;">NO.1督办事项：<span id="span1"></span></p>
+                            <p style="color:#7FFF00;font-weight:bold;">NO.2区委会议： <span id="span2"></span></p>
+                            <p style="color:#7FFFD4;font-weight:bold;">NO.3区委公文： <span id="span3"></span></p>
+                            <p style="color:#fca40b;font-weight:bold;">NO.4区委信息：<span id="span4"></span></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="center-bottom">
+                <div class="chart-box box2" style="  border-bottom: 1px solid #0e94ea;">
+                    <div class="tbl-header">
+                        <table class="table3" border="0" cellspacing="0" cellpadding="0">
+                            <thead style="background-color:#133552;">
+                            <tr>
+                                <th>问题评级</th>
+                                <th>责任单位</th>
+                                <th width="78px">督办事项</th>
+                                <th width="78px">区委会议</th>
+                                <th width="78px">区委公文</th>
+                                <th width="78px">区委信息</th>
+                            </tr>
+                            </thead>
+                            <tbody style="opacity:0; filter:alpha(opacity=0); visibility:hidden" id="tbody3"></tbody>
+                        </table>
+                    </div>
+                    <div class="tbl-body" id="wtpj">
+                        <table class="table3"  border="0" cellspacing="0" cellpadding="0">
+                            <thead>
+                            <tr>
+                                <th>问题评级</th>
+                                <th>责任单位</th>
+                                <th width="78px">督办事项</th>
+                                <th width="78px">区委会议</th>
+                                <th width="78px">区委公文</th>
+                                <th width="78px">区委信息</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tbody4"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="china_mapa" style="width:100%;height:45%;position:absolute;bottom:20px;"></div>
+            </div>
+
+        </div>
+        <div class="box-right">
+            <div class="right-top">
+                <div class="title-box">
+                    <h6 id="barTitle">区委会议召开统计</h6>
+
+                </div>
+                <p class="unit">单位：个</p>
+                <div class="chart-box">
+                    <div id="pie_age" style="width:100%;height:80%; "></div>
+                </div>
+
+            </div>
+            <div class="right-center">
+
+                <div class="title-box">
+                    <h6>区委公文运转统计</h6>
+                </div>
+
+
+                <div class="chart-box pie-chart">
+
+                    <div id="qufenbu_data" style="width:100%;height:88%;margin-left:10px; margin-top: 15px;"></div>
+
+                </div>
+            </div>
+
+
+            <div class="right-bottom">
+                <div class="title-box">
+                    <p id="switchBtn"><span class="active" data-dataType="income">区委信息工作统计</span></p>
+
+                </div>
+                <div id="line_time" style="width:90%;height:88%;margin-left:10px;"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="js/echarts.min.js"></script>
+<script type="text/javascript" src="js/china.js"></script>
+<script type="text/javascript" src="js/infographic.js"></script>
+<script type="text/javascript" src="js/macarons.js"></script>
+<script type="text/javascript" src="js/shine.js"></script>
+<script type="text/javascript" src="js/base.js"></script>
+
+<script src="../js/vue.min.js"></script>
+<script src="../js/url.js"></script>
+<script src="../js/axios.min.js"></script>
+<script src="../js/iview.min.js"></script>
+<script src="../js/rykjpub.js"></script>
+<script src="../js/axiosConfig.js"></script>
+<script type="text/javascript" src="../lib/layer/2.4/layer.js"></script>
+<script>
+
+    var meetitem=[];
+    var docitem=[];
+    var infoitem=[];
+
+    //督察督办点击
+    pie_fanzui.on('click', function(param) {
+        if (typeof param.seriesIndex != 'undefined') {
+            console.log(param.name);
+            var url= 'http://do.scncry.com:9999/data/info.html?queryType=1&checkItemId=';
+            switch (param.name) {
+                case "未反馈":
+                    myselfinfo(param.name,url+"1");
+                    break;
+                case "已反馈办理中":
+                    myselfinfo(param.name,url+"2");
+                    break;
+                case "部分完成":
+                    myselfinfo(param.name,url+"3");
+                    break;
+                case "全部完成":
+                    myselfinfo(param.name,url+"4");
+                    break;
+                case "人为关闭":
+                    myselfinfo(param.name,url+"6");
+                    break;
+                case "事项归档":
+                    myselfinfo(param.name,url+"5");
+                    break;
+                default:
+                    break;
+            }
+        }
+    });
+    // 信息点击
+    line_time.on('click', function(param) {
+        if (typeof param.seriesIndex != 'undefined') {
+            var url= 'http://do.scncry.com:9999/data/info.html?queryType=4&checkItemId=';
+            var itemid;
+            for(var i=0,len=infoitem.length;i<len;i++){
+                if (infoitem[i].itemdesc==param.name){
+                    itemid=infoitem[i].id;
+                }
+            }
+            myselfinfo(param.name,url+itemid);
+        }
+    });
+    // 公文点击
+    qufenbu_data.on('click', function(param) {
+        if (typeof param.seriesIndex != 'undefined') {
+            var url= 'http://do.scncry.com:9999/data/info.html?queryType=3&checkItemId=';
+            var itemid;
+            for(var i=0,len=docitem.length;i<len;i++){
+                if (docitem[i].itemdesc==param.name){
+                    itemid=docitem[i].id;
+                }
+            }
+            myselfinfo(param.name,url+itemid);
+        }
+    });
+    // 会议点击
+    pie_age.on('click', function(param) {
+        if (typeof param.seriesIndex != 'undefined') {
+            // console.log(param.name);
+            var url= 'http://do.scncry.com:9999/data/info.html?queryType=2&checkItemId=';
+            var itemid;
+            for(var i=0,len=meetitem.length;i<len;i++){
+                if (meetitem[i].itemdesc==param.name){
+                    itemid=meetitem[i].id;
+                }
+            }
+            myselfinfo(param.name,url+itemid);
+        }
+    });
+    function myselfinfo(ss_title, ss_url) {
+        layerindex = layer.open({
+            type: 2,
+            title: ss_title,
+            content: ss_url,
+            area:['300px', '200px'],
+            maxmin: true
+        });
+    }
+    function extension(mychart) {
+        //判断是否创建过div框,如果创建过就不再创建了
+        var id = document.getElementById("extension");
+        if(!id) {
+            var div = "<div id = 'extension' sytle=\"display:none\"></div>"
+            $('html').append(div);
+        }
+
+        mychart.on('mouseover', function(params) {
+            if(params.componentType == "xAxis") {
+                $('#extension').css({
+                    "position": "absolute",
+                    "color": "#fff",
+                    //"border":"solid 2px white",
+                    "font-family": "Arial",
+                    "font-size": "20px",
+                    "padding": "5px",
+                    "display": "inline"
+                }).text(params.value);
+
+                $("html").mousemove(function(event) {
+                    var xx = event.pageX -50;
+                    var yy = event.pageY - 50;
+                    $('#extension').css('top', yy).css('left', xx);
+                });
+            }
+        });
+
+        mychart.on('mouseout', function(params) {
+            if(params.componentType == "xAxis") {
+                $('#extension').css('display', 'none');
+            }
+        });
+
+    };
+    function load() {
+        //获取督办事项相关统计
+        var token = localStorage.getItem("wccToken");
+        axios({
+            url: apiUrl.ApiUnitBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+            var arr = [];
+            var arrTitle = [];
+            jQuery.each(ret.data.data, function (i, val) {
+                arrTitle.push(i);
+                var obj = {};
+                obj.name = i;
+                obj.value = val;
+                arr.push(obj);
+            });
+            option = {
+                title: {
+                    x: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                    data: arrTitle,
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+
+                label: {
+                    normal: {
+                        textStyle: {
+                            color: 'red' // 改变标示文字的颜色
+                        }
+                    }
+                },
+                series: [{
+                    name: '督办事项相关统计',
+                    type: 'pie',
+                    radius: '75%',
+                    center: ['60%', '50%'],
+                    data: arr,
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        },
+                        // normal: {
+                        //     // 随机显示
+                        //     color:function(d){return "#"+Math.floor(Math.random()*(256*256*256-1)).toString(16);}
+                        //
+                        //     // 定制显示（按顺序）
+                        //     // color: function(params) {
+                        //     //     var colorList = ['#C33531','#EFE42A','#64BD3D','#EE9201','#29AAE3', '#B74AE5','#0AAF9F','#E89589','#16A085','#4A235A','#C39BD3 ','#F9E79F','#BA4A00','#ECF0F1','#616A6B','#EAF2F8','#4A235A','#3498DB' ];
+                        //     //     return colorList[params.dataIndex]
+                        //     // }
+                        // }
+                    }
+
+                }]
+            };
+            pie_fanzui.setOption(option);
+        });
+
+
+        //区委会议召开统计
+        axios({
+            url: apiUrl.ApiMeetingBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+            var arr = [];
+            var arrTitle = [];
+            for (var i = 0; i < ret.data.data.length; i++) {
+                var obj = {};
+                obj.value = ret.data.data[i].count;
+                obj.name = ret.data.data[i].itemdesc;
+                // obj.url = 'https://www.baidu.com';
+                arr.push(obj);
+                arrTitle.push(ret.data.data[i].itemdesc);
+            }
+            option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    x: 'left',
+                    data: arrTitle,
+                    textStyle: {
+                        color: '#fff'
+                    }
+                },
+                series: [{
+                    name: '区委会议召开统计',
+                    type: 'pie',
+                    radius: ['50%', '75%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        normal: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            show: true,
+                            textStyle: {
+                                fontSize: '18',
+                                fontWeight: 'bold'
+                            }
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            show: false
+                        }
+                    },
+                    data: arr
+                }]
+            };
+            pie_age.setOption(option);
+        });
+
+        //区委公文运转统计
+        axios({
+            url: apiUrl.ApiDocsBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+
+            var arr = [];
+            var arrTitle = [];
+            for (var i = 0; i < ret.data.data.length; i++) {
+                arr.push(ret.data.data[i].count);
+                arrTitle.push(ret.data.data[i].itemdesc);
+            }
+
+
+//              console.log(arr); console.log(arrTitle);
+            option = {
+                color: ['#FADB71'],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                        type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+                    }
+                },
+                grid: {
+                    x: 30,
+                    y: 10,
+                    x2: 15,
+                    y2: 30
+                },
+                xAxis: [{
+                    triggerEvent: true,
+                    type: 'category',
+                    data: arrTitle,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisLabel: {
+                        color: "#FADB71", //刻度线标签颜色
+                        interval:0,
+                        formatter:function(value,index)
+                        {
+                            var res = value;
+                            if(res.length > 5) {
+                                res = res.substring(0, 4) + "..";
+                            }
+                            return res;
+                        }
+                    }
+                }],
+                yAxis: [{
+                    type: 'value',
+                    axisLabel: {
+                        color: "#FADB71" //刻度线标签颜色
+                    }
+                }],
+                series: [{
+                    name: '区委公文运转统计',
+                    type: 'bar',
+                    barWidth: '60%',
+                    itemStyle: {
+                        normal: {
+                            // 随机显示
+                            color:function(d){return "#"+Math.floor(Math.random()*(256*256*256-1)).toString(16);}
+                        },
+                    },
+                    data: arr
+                }]
+            };
+            qufenbu_data.setOption(option);
+            extension(qufenbu_data);
+        });
+
+        //区委信息统计
+        axios({
+            url: apiUrl.ApiInfosBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+
+            var arr = [];
+            var arrTitle = [];
+            for (var i = 0; i < ret.data.data.length; i++) {
+                //if (ret.data.data[i].itemdesc == "逾期上报数(次)") {
+                //    ret.data.data[i].itemdesc = "逾期数"
+                //}
+                //if (ret.data.data[i].itemdesc == "未上报数(次)") {
+                //    ret.data.data[i].itemdesc = "未上报数"
+                //}
+                //if (ret.data.data[i].itemdesc == "上报数(篇)" || ret.data.data[i].itemdesc == "逾期数" || ret.data.data[i].itemdesc == "未上报数" || ret.data.data[i].itemdesc == "得分数(分)") {
+                //    arr.push(ret.data.data[i].count);
+                //    arrTitle.push(ret.data.data[i].itemdesc);
+                //}
+
+                arr.push(ret.data.data[i].count);
+                // arrTitle.push(ret.data.data[i].itemdesc);
+                arrTitle.push(ret.data.data[i].itemdesc);
+            }
+            var option = {
+                // 给echarts图设置背景色
+                //backgroundColor: '#FBFBFB',  // -----------> // 给echarts图设置背景色
+                color: ['#7FFF00'],
+                tooltip: {
+                    trigger: 'axis'
+                },
+
+                grid: {
+                    x: 40,
+                    y: 30,
+                    x2: 5,
+                    y2: 20
+
+                },
+                calculable: true,
+
+
+                xAxis: [{
+                    triggerEvent: true,
+                    type: 'category',
+                    data: arrTitle,
+                    axisLabel: {
+                        color: "#7FFF00", //刻度线标签颜色
+                        interval:0,
+                        formatter:function(value,index)
+                        {
+                            var res = value;
+                            if(res.length > 5) {
+                                res = res.substring(0, 4) + "..";
+                            }
+                            return res;
+                        }
+                        // rotate:5
+                    }
+                }],
+                yAxis: [{
+
+                    type: 'value',
+                    axisLabel: {
+                        color: "#7FFF00" //刻度线标签颜色
+                    }
+                }],
+                series: [{
+                    name: '区委信息工作统计',
+                    type: 'line',
+                    itemStyle: {
+                        normal: {
+                            // 随机显示
+                            color:function(d){return "#"+Math.floor(Math.random()*(256*256*256-1)).toString(16);}
+
+                            // 定制显示（按顺序）
+                            // color: function(params) {
+                            //     var colorList = ['#C33531','#EFE42A','#64BD3D','#EE9201','#29AAE3', '#B74AE5','#0AAF9F','#E89589','#16A085','#4A235A','#C39BD3 ','#F9E79F','#BA4A00','#ECF0F1','#616A6B','#EAF2F8','#4A235A','#3498DB' ];
+                            //     return colorList[params.dataIndex]
+                            // }
+                        },
+                    },
+                    data: arr,
+                }]
+            };
+            line_time.setOption(option);
+            extension(line_time);
+
+
+        });
+
+        //督办事项部门统计
+        axios({
+            url: apiUrl.ApiAssignBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+
+            document.getElementById("tbody1").innerHTML = "";
+            document.getElementById("tbody2").innerHTML = "";
+            for (var i = 0; i < ret.data.data.length; i++) {
+                var str = '<tr>' +
+                    '<td class="over_flow" alt="+' +ret.data.data[i].title +'">' + ret.data.data[i].title + '</td>' +
+                    '<td>' + ret.data.data[i].total + '</td>' +
+                    '<td>' + ret.data.data[i].wc + '</td>' +
+                    '<td>' + ret.data.data[i].zzbl + '</td>' +
+                    '<td>' + ret.data.data[i].pjsj + '</td></tr >';
+                document.getElementById("tbody1").innerHTML += str;
+                document.getElementById("tbody2").innerHTML += str;
+            }
+            $('#tbody2').html($('#tbody2').html() + $('#tbody2').html());
+        });
+
+        //获取督办事项相关统计
+        axios({
+            url: apiUrl.ApiCountBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+            document.getElementById("dcdb").innerHTML = ret.data.data.total;
+            document.getElementById("span1").innerHTML = ret.data.data.dcdb;
+            document.getElementById("span2").innerHTML = ret.data.data.meet;
+            document.getElementById("span3").innerHTML = ret.data.data.doc;
+            document.getElementById("span4").innerHTML = ret.data.data.info;
+        });
+
+
+
+        //获取督办事项部门问题统计
+        axios({
+            url: apiUrl.ApiUnitStarBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            async: false,
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+            // console.log(ret);
+            document.getElementById("tbody3").innerHTML = "";
+            document.getElementById("tbody4").innerHTML = "";
+            for (var i = 0; i < ret.data.data.length; i++) {
+                var num = parseInt(ret.data.data[i].dcdb) + parseInt(ret.data.data[i].qwhy) + parseInt(ret.data.data[i].qwgw) + parseInt(ret.data.data[i].qwxx);;
+                var color = "green";
+                if (num > 20) {
+                    color = "red";
+                } else if (num > 10) {
+                    color = "yellow";
+                }
+                var str = '<tr>' +
+                    '<td>' +
+                    '<span class="iconfont" style="color: ' + color + ';">&#xe624;</span>' +
+                    '<span class="iconfont" style="color:  ' + color + ';">&#xe624;</span>' +
+                    '<span class="iconfont" style="color:  ' + color + ';">&#xe624;</span>' +
+                    '<span class="iconfont" style="color:  ' + color + ';">&#xe624;</span>' +
+                    '<span class="iconfont" style="color:  ' + color + ';">&#xe624;</span>' +
+                    '</td >' +
+                    '<td class="over_flow" alt="'+  +ret.data.data[i].title + '">' + ret.data.data[i].ctitle + '</td>' +
+                    '<td>' + ret.data.data[i].dcdb + '</td>' +
+                    '<td> ' + ret.data.data[i].qwhy + '</td> ' +
+                    '<td> ' + ret.data.data[i].qwgw + '</td> ' +
+                    '<td> ' + ret.data.data[i].qwxx + '</td> </tr>';
+                document.getElementById("tbody3").innerHTML += str;
+                document.getElementById("tbody4").innerHTML += str;
+            }
+            $('#tbody4').html($('#tbody4').html() + $('#tbody4').html());
+
+        });
+
+
+
+        //获取区委办管理事务统计
+        axios({
+            url: apiUrl.ApiManagementBigData,
+            method: "GET",
+            content: "获取数据中，请稍等...",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            data: ''
+        }).then(function (ret) {
+
+            var arr1 = [];
+            var arr2 = [];
+            var arr3 = [];
+            var arr4 = [];
+            arr1.push(ret.data.data.一月.督办事项);
+            arr1.push(ret.data.data.二月.督办事项);
+            arr1.push(ret.data.data.三月.督办事项);
+            arr1.push(ret.data.data.四月.督办事项);
+            arr1.push(ret.data.data.五月.督办事项);
+            arr1.push(ret.data.data.六月.督办事项);
+            arr1.push(ret.data.data.七月.督办事项);
+            arr1.push(ret.data.data.八月.督办事项);
+            arr1.push(ret.data.data.九月.督办事项);
+            arr1.push(ret.data.data.十月.督办事项);
+            arr1.push(ret.data.data.十一月.督办事项);
+
+            arr2.push(ret.data.data.一月.区委会议);
+            arr2.push(ret.data.data.二月.区委会议);
+            arr2.push(ret.data.data.三月.区委会议);
+            arr2.push(ret.data.data.四月.区委会议);
+            arr2.push(ret.data.data.五月.区委会议);
+            arr2.push(ret.data.data.六月.区委会议);
+            arr2.push(ret.data.data.七月.区委会议);
+            arr2.push(ret.data.data.八月.区委会议);
+            arr2.push(ret.data.data.九月.区委会议);
+            arr2.push(ret.data.data.十月.区委会议);
+            arr2.push(ret.data.data.十一月.区委会议);
+
+            arr3.push(ret.data.data.一月.区委公文);
+            arr3.push(ret.data.data.二月.区委公文);
+            arr3.push(ret.data.data.三月.区委公文);
+            arr3.push(ret.data.data.四月.区委公文);
+            arr3.push(ret.data.data.五月.区委公文);
+            arr3.push(ret.data.data.六月.区委公文);
+            arr3.push(ret.data.data.七月.区委公文);
+            arr3.push(ret.data.data.八月.区委公文);
+            arr3.push(ret.data.data.九月.区委公文);
+            arr3.push(ret.data.data.十月.区委公文);
+            arr3.push(ret.data.data.十一月.区委公文);
+
+            arr4.push(ret.data.data.一月.区委信息);
+            arr4.push(ret.data.data.二月.区委信息);
+            arr4.push(ret.data.data.三月.区委信息);
+            arr4.push(ret.data.data.四月.区委信息);
+            arr4.push(ret.data.data.五月.区委信息);
+            arr4.push(ret.data.data.六月.区委信息);
+            arr4.push(ret.data.data.七月.区委信息);
+            arr4.push(ret.data.data.八月.区委信息);
+            arr4.push(ret.data.data.九月.区委信息);
+            arr4.push(ret.data.data.十月.区委信息);
+            arr4.push(ret.data.data.十一月.区委信息);
+
+            option = {
+
+                timeline: {
+                    data: [
+                        '2019'
+                    ],
+
+                    autoPlay: true,
+
+                },
+                options: [
+                    {
+                        title: {
+                            'text': '区委办管理事务统计',
+                            'subtext': '数据来自顺庆区委办',
+                            textStyle: {
+                                color: "#fff"
+                            },
+                        },
+                        tooltip: {
+                            'trigger': 'axis'
+                        },
+                        legend: {
+                            x: 'right',
+                            'data': ['督办事项', '区委会议', '区委公文', '区委信息',],
+                            'selected': {
+                                '督办事项': true,
+                                '区委会议': true,
+                                '区委公文': true,
+                                '区委公文': true,
+
+                            },
+                            textStyle: {
+                                color: "#fff"
+                            },
+                        },
+                        toolbox: {
+                            'show': true,
+                            orient: 'vertical',
+                            x: 'right',
+                            y: 'center',
+                        },
+                        calculable: true,
+                        grid: {
+                            'y': 80,
+                            'y2': 100
+                        },
+                        xAxis: [{
+                            'type': 'category',
+                            'axisLabel': {
+                                'interval': 0
+                            },
+                            'data': [
+                                '一月', '\n二月', '三月', '\n四月', '五月', '\n六月', '七月', '\n八月',
+                                '九月', '\n十月', '十一月', '\n十二月'
+                            ]
+                        }],
+                        textStyle: {
+                            color: "#fff"
+                        },
+                        yAxis: [{
+                            'type': 'value',
+                            'name': '总数据',
+                            'max': 53500
+                        },
+                            {
+                                'type': 'value',
+                                'name': '单位：个'
+                            }
+                        ],
+                        series: [
+                            {
+                                'name': '督办事项',
+                                'type': 'bar',
+                                'markLine': {
+                                    symbol: ['arrow', 'none'],
+                                    symbolSize: [4, 2],
+                                    itemStyle: {
+                                        normal: {
+                                            lineStyle: {
+                                                color: 'orange'
+                                            },
+                                            barBorderColor: 'orange',
+                                            label: {
+                                                position: 'left',
+                                                formatter: function (params) {
+                                                    return Math.round(params.value);
+                                                },
+                                                textStyle: {
+                                                    color: 'orange'
+                                                }
+                                            }
+                                        }
+                                    },
+                                    'data': [{
+                                        'type': 'average',
+                                        'name': '平均值'
+                                    }]
+                                },
+                                'data': arr1
+                            },
+                            {
+                                'name': '区委会议',
+                                'yAxisIndex': 1,
+                                'type': 'bar',
+                                'data': arr2
+                            },
+                            {
+                                'name': '区委公文',
+                                'yAxisIndex': 1,
+                                'type': 'bar',
+                                'data': arr3
+                            },
+                            {
+                                'name': '区委信息',
+                                'yAxisIndex': 1,
+                                'type': 'bar',
+                                'data': arr3
+                            },
+
+                        ]
+                    },
+
+
+
+                ]
+            };
+
+            china_mapa.setOption(option);
+        });
+    }
+
+    function checkitem() {
+        // var vm = this;
+        // var token = localStorage.getItem("wccToken"); //获取
+        axios({
+            url: apiUrl.ApiCheckItemList + '?itemclass=2',
+            method: "GET",
+            // headers: {
+            //     "Authorization": "Bearer " + token
+            // },
+            data: '',
+        }).then(function(ret) {
+            meetitem= ret.data.data;
+        });
+        axios({
+            url: apiUrl.ApiCheckItemList + '?itemclass=3',
+            method: "GET",
+            // headers: {
+            //     "Authorization": "Bearer " + token
+            // },
+            data: '',
+        }).then(function(ret) {
+            docitem= ret.data.data;
+        });
+        axios({
+            url: apiUrl.ApiCheckItemList + '?itemclass=4',
+            method: "GET",
+            // headers: {
+            //     "Authorization": "Bearer " + token
+            // },
+            data: '',
+        }).then(function(ret) {
+            infoitem= ret.data.data;
+        })
+    }
+
+
+    load();
+    checkitem();
+    var tblTop = 0;
+    var speedhq = 50; // 数值越大越慢
+
+    function Marqueehq() {
+        var outerHeight = $('#tbody2').outerHeight();
+        console.log(outerHeight);
+        if (tblTop <= -outerHeight * 6) {
+            tblTop = 0;
+        } else {
+            tblTop -= 1;
+        }
+        $('#dbsxtj').css('top', tblTop + 'px');
+    }
+    function Marqueehq1() {
+        var outerHeight = $('#tbody3').outerHeight();
+        //console.log(tblTop); console.log(-outerHeight * 7);
+        if (tblTop <= -outerHeight * 6) {
+            tblTop = 0;
+        } else {
+            tblTop -= 1;
+        }
+        $('#wtpj').css('top', tblTop + 'px');
+    }
+
+    var MyMarhq = setInterval(Marqueehq, speedhq);
+    var MyMarhq1 = setInterval(Marqueehq1, speedhq);
+
+    setInterval(function () {
+        load();
+    }, 60 * 1000);
+
+    // 鼠标移上去取消事件
+    $(".box1").hover(function () {
+        clearInterval(MyMarhq);
+    }, function () {
+        clearInterval(MyMarhq);
+        MyMarhq = setInterval(Marqueehq, speedhq);
+    })
+    // 鼠标移上去取消事件
+    $(".box2").hover(function () {
+        clearInterval(MyMarhq1);
+    }, function () {
+        clearInterval(MyMarhq1);
+        MyMarhq1 = setInterval(Marqueehq1, speedhq);
+    })
+
+</script>
+</body>
+</html>
+

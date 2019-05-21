@@ -103,7 +103,7 @@ var apiUrl = {
 
 	//交办事项
 	//POST 交办事项列表
-	ApiTaskList: apiPrefix + "/task/getTaskList",
+	ApiTaskListByTask: apiPrefix + "/task/getTaskListByTask",
 
 	ApiTaskList: apiPrefix + "/task/list",
 
@@ -126,6 +126,7 @@ var apiUrl = {
 
 	//POST 事项名称列表
 	ApiTaskNameList: apiPrefix + "/task/getTaskList",
+
 
 	//POST 督办事项责任单位列表
 	ApiTaskAssignUnitList: apiPrefix + "/taskassignUnit/list",

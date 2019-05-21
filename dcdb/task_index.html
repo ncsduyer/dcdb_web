@@ -383,7 +383,7 @@
                     {
                         title: '操作',
                         key: 'operation',
-                        width: 140,
+                        // width: 140,
                         render: (h, params) => {
                             //console.log(params.row.status)
                             let myself = this;//获取window
@@ -410,6 +410,22 @@
 
                             if (params.row.status == '2' || params.row.status == '3' || params.row.status == '4' || params.row.status == '1') {
                                 if (params.row.createrId == s_pubuserid && s_wh_sn == 1) {
+                                    tmparr.push(
+                                        h('Button', {
+                                            props: {
+                                                type: 'info',
+                                                size: 'small'
+                                            },
+                                            style: {
+                                                marginRight: '5px'
+                                            },
+                                            on: {
+                                                click: () => {
+                                                    openHtml("task_edit.html?id="+params.row.id);
+                                                }
+                                            }
+                                        }, '编辑')
+                                    );
                                     tmparr.push(
                                         h('Button', {
                                             props: {
@@ -449,6 +465,20 @@
                                     tmparr.push(h('Button', {
                                         props: {
                                             type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                openHtml("taskunit_edit.html?id="+params.row.tuid);
+                                            }
+                                        }
+                                    }, '编辑'));
+                                    tmparr.push(h('Button', {
+                                        props: {
+                                            type: 'info',
                                             size: 'small'
                                         },
                                         style: {
@@ -839,7 +869,15 @@
 					content: "supervise_File.html?keyvalue=" + id+"&taid="+taid
 				});
 			}
-
+            function openHtml(url) {
+                layerindex = layer.open({
+                    type: 2,
+                    title: "编辑",
+                    maxmin: true,
+                    area: ['900px', '400px'], //弹出层页面比例
+                    content:url
+                });
+            }
 			function UpdateTask(id) {
 
                 layerindex = layer.open({
