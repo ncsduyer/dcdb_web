@@ -1,7 +1,7 @@
-// var apiPrefix = "http://192.168.10.115:8080/api";
-var apiPrefix = "http://do.scncry.com:8081/admin/api";
- // var apiPrefix1 = "http://192.168.10.115:8080/file";
-var apiPrefix1 = "http://do.scncry.com:8081/admin/file";
+var apiPrefix = "http://127.0.0.1:8080/api";
+var apiPrefix1 = "http://127.0.0.1:8080/file";
+// var apiPrefix = "http://do.scncry.com:8081/admin/api";
+// var apiPrefix1 = "http://do.scncry.com:8081/admin/file";
 var apiUrl = {
 	Login: apiPrefix + "/login",
 	User: apiPrefix + "/user",

@@ -102,7 +102,7 @@
                     </Row>
 
                     <br />
-                    <i-table border :columns="columns" :data="taskListCreate"></i-table>
+                    <i-table border :columns="task_columns" :data="taskListCreate"></i-table>
 					<br />
                     <Page :total="pageTotalCreate" :current="pageNumCreate" :page-size="pageSizeCreate" show-elevator show-sizer show-total placement="top"
                           @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
@@ -509,7 +509,7 @@
                                 },
                                 on: {
                                 }
-                            }, params.row.title);
+                            }, params.row.task.title);
                         }
                     },
                     {
@@ -522,15 +522,8 @@
                         title: '交办类型',
                         key: 'workType',
                         width: 120,
-                        sortable: true
-                    },
-                    {
-                        title: '责任单位',
-                        key: 'campany',
-                        width: 120,
                         sortable: true,
                         render: (h, params) => {
-                            let s_campany = params.row.campany;
                             return h('span', {
                                 props: {
                                     type: 'primary',
@@ -541,31 +534,107 @@
                                 },
                                 on: {
                                 }
-                            }, s_campany);
+                            }, params.row.workType.title);
                         }
                     },
-                    {
-                        title: '督办责任人',
-                        key: "agent",
-                        width: 120,
-                        sortable: true
-                    },
-                    {
-                        title: '督办要求',
-                        key: 'assignmemo'
-                    },
-                    {
-                        title: '办结时间',
-                        key: 'endtime',
-                        width: 110,
-                        sortable: true
-                    },
-                    {
-                        title: '目前状态',
-                        key: 'step',
-                        width: 110,
-                        sortable: true
-                    },
+                        {
+                            title: '责任单位',
+                            key: 'campany',
+                            width: 120,
+                            sortable: true,
+                            render: (h, params) => {
+                                let spans=[];
+                                let lengt=params.row.taskassignUnits.length;
+                                for (let i = 0; i < lengt; i++) {
+                                    let item=params.row.taskassignUnits[i];
+                                    spans.push(h('span', {
+                                        props: {
+                                            type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            color: '#2d8cf0'
+                                        },
+                                        on: {
+                                        }
+                                    }, item.company.title));
+                                    spans.push(h('br'));
+                                }
+                                return h('div', spans);
+                            }
+                        },
+                        {
+                            title: '督办责任人',
+                            key: "agent",
+                            width: 120,
+                            sortable: true,
+                            render: (h, params) => {
+                                let spans=[];
+                                let lengt=params.row.taskassignUnits.length;
+                                for (let i = 0; i < lengt; i++) {
+                                    let item=params.row.taskassignUnits[i];
+                                    spans.push(h('span', {
+                                        props: {
+                                            type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            color: '#2d8cf0'
+                                        },
+                                        on: {
+                                        }
+                                    }, item.person.name));
+                                    spans.push(h('br'));
+                                }
+                                return h('div', spans);
+                            }
+                        },
+                        {
+                            title: '督办要求',
+                            key: 'assignmemo'
+                        },
+                        {
+                            title: '办结时间',
+                            key: 'endtime',
+                            width: 110,
+                            sortable: true,
+                            render: (h, params) => {
+                                let spans=[];
+                                let lengt=params.row.taskassignUnits.length;
+                                for (let i = 0; i < lengt; i++) {
+                                    let item=params.row.taskassignUnits[i];
+                                    spans.push(h('span', {
+                                        props: {
+                                            type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            color: '#2d8cf0'
+                                        },
+                                        on: {
+                                        }
+                                    }, item.endtime));
+                                    spans.push(h('br'));
+                                }
+                                return h('div', spans);
+                            }
+                        },
+                        {
+                            title: '目前状态',
+                            key: 'step',
+                            width: 110,
+                            sortable: true,
+                            render: (h, params) => {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                    }
+                                }, params.row.eventStep.step);
+                            }
+                        },
                     {
                         title: '是否超期',
                         key: 'is_exceed',
@@ -603,7 +672,8 @@
                     },
                     {
                         title: '总共用时',
-                        key: 'usetime'
+                        key: 'useTime',
+                        sortable: true
                     },
                     {
                         title: '操作',
@@ -627,14 +697,14 @@
                                     },
                                     on: {
                                         click: () => {
-                                            CheckDetail(params.row.taskassigns.id);
+                                            CheckDetail(params.row.id);
                                         }
                                     }
                                 }, '查看'));
 
 
-                            if (params.row.taskassigns.status == '2' || params.row.taskassigns.status == '3' || params.row.taskassigns.status == '4' || params.row.taskassigns.status == '1') {
-                                if (params.row.taskassigns.createrId == s_pubuserid && s_wh_sn == 1) {
+                            if (params.row.status == '2' || params.row.status == '3' || params.row.status == '4' || params.row.status == '1') {
+                                if (params.row.creatorid == s_pubuserid && s_wh_sn == 1) {
                                     tmparr.push(
                                         h('Button', {
                                             props: {
@@ -662,8 +732,7 @@
                                             },
                                             on: {
                                                 click: () => {
-                                                    CloseTask(params.row.id,params.row.taskassigns.id);
-
+                                                    CloseTask(params.row.taskid,params.row.id);
                                                 }
                                             }
                                         }, '归档')
