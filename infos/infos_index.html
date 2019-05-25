@@ -299,7 +299,7 @@
 						var vm = this;
 						vm.columns6 = [
 							{
-								title: 'id',
+								title: '编号',
 								key: 'id',
 								sortable: true
 							},
@@ -318,7 +318,11 @@
 								key: 'user',
 								sortable: true
 							},
-						]
+						];
+						var btntxt="查看";
+						if (vm.qqq =='1') {
+							btntxt="编辑";
+						}
 						var optitem = {
 							title: '操作',
 							key: 'action',
@@ -339,7 +343,7 @@
 												CheckDetail(params.row.id, vm.qqq);
 											}
 										}
-									}, '查看')
+									}, btntxt)
 								]);
 							}
 						}
@@ -667,7 +671,7 @@
 					type: 2,
 					title: "编辑",
 					maxmin: true,
-					area: ['900px', '800px'], //弹出层页面比例
+					area: ['1100px', '600px'], //弹出层页面比例
                     content: "infos_view.html?id=" + id +"&type="+type
 				});
 			}

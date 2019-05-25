@@ -180,7 +180,7 @@
 								<Row>
 									<i-col span="11">
 										<i-select v-model="inputform.taunitid" style="width:80%; margin-right: 30px;">
-											<i-option v-for="item in dataTaskAssignUnitList" :value="item.id" :key="item.id">{{ item.unitname }}</i-option>
+											<i-option v-for="item in dataTaskAssignUnitList" :value="item.id" :key="item.id" v-if="item.id==tuid">{{ item.unitname }}</i-option>
 										</i-select>
 									</i-col>
 
@@ -287,12 +287,14 @@
 
 		<script>
 			var paramid = request("id");
+			var tuid = request("tuid");
 			var header = {
 				'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
 			};
 			var myVue = new Vue({
 				el: '#app',
 				data: {
+					tuid : request("tuid"),
 					pubuserid: '',
 					detail: {},
 					ishidden: false,
@@ -307,7 +309,7 @@
 					dataTask: [],
 					//结束日期model
 					inputform: {
-						taunitid: '',
+						taunitid: request("tuid"),
 						status: '',
 						isdelay: false,
 						dealdesc: '',

@@ -144,7 +144,11 @@
                             </i-select>
                         </i-col>
                         <i-col span="4">
-                            <Date-Picker v-model="modelsearchdaterange" type="daterange" format="yyyy-MM-dd" placement="bottom-end" placeholder="按交办时间范围查询" @on-change="endTimeChange" style="width: 200px"></Date-Picker>
+                            <Date-Picker v-model="modelsearchdaterange" split-panels type="daterange" format="yyyy-MM-dd" placement="bottom-end" placeholder="按交办时间范围查询" @on-change="endTimeChange" style="width: 200px"></Date-Picker>
+                        </i-col>
+                        <i-col span="4">
+                            </Col>
+                            <Date-Picker v-model="tuendtime" split-panels type="daterange" format="yyyy-MM-dd" placement="bottom-end" placeholder="按到期时间范围查询" style="width: 200px"></Date-Picker>
                         </i-col>
                         <i-col span="4">
                             <i-input v-model="conditionparm.inputkeyquery" size="mini" placeholder="关键字搜索"></i-input>
@@ -220,7 +224,7 @@
                     cityList:[],
 
                     modala: false,
-
+                    tuendtime:[],
                     startTimeOptions: {},
                     //结束日期设置
                     endTimeOptions: {},
@@ -407,42 +411,42 @@
 
 
                             if (params.row.status == '2' || params.row.status == '3' || params.row.status == '4' || params.row.status == '1') {
-                                if (params.row.createrId == s_pubuserid && s_wh_sn == 1) {
-                                    tmparr.push(
-                                        h('Button', {
-                                            props: {
-                                                type: 'info',
-                                                size: 'small'
-                                            },
-                                            style: {
-                                                marginRight: '5px'
-                                            },
-                                            on: {
-                                                click: () => {
-                                                    openHtml("task_edit.html?id="+params.row.id);
-                                                }
-                                            }
-                                        }, '编辑')
-                                    );
-                                    tmparr.push(
-                                        h('Button', {
-                                            props: {
-                                                type: 'success',
-                                                size: 'small'
-                                            },
-                                            style: {
-                                                marginRight: '5px'
-                                            },
-                                            on: {
-                                                click: () => {
-                                                    CloseTask(params.row.id,params.row.taid);
-
-
-                                                }
-                                            }
-                                        }, '归档')
-                                    );
-                                }
+                            //     if (params.row.createrId == s_pubuserid && s_wh_sn == 1) {
+                            //         tmparr.push(
+                            //             h('Button', {
+                            //                 props: {
+                            //                     type: 'info',
+                            //                     size: 'small'
+                            //                 },
+                            //                 style: {
+                            //                     marginRight: '5px'
+                            //                 },
+                            //                 on: {
+                            //                     click: () => {
+                            //                         openHtml("task_edit.html?id="+params.row.id);
+                            //                     }
+                            //                 }
+                            //             }, '编辑')
+                            //         );
+                            //         tmparr.push(
+                            //             h('Button', {
+                            //                 props: {
+                            //                     type: 'success',
+                            //                     size: 'small'
+                            //                 },
+                            //                 style: {
+                            //                     marginRight: '5px'
+                            //                 },
+                            //                 on: {
+                            //                     click: () => {
+                            //                         CloseTask(params.row.id,params.row.taid);
+                            //
+                            //
+                            //                     }
+                            //                 }
+                            //             }, '归档')
+                            //         );
+                            //     }
                                 if (params.row.agentId == s_pubuserid && params.row.status == '1' && s_wh_sn == 2) {
                                     tmparr.push(h('Button', {
                                         props: {
@@ -484,7 +488,7 @@
                                         },
                                         on: {
                                             click: () => {
-                                                UpdateTask(params.row.taid);
+                                                UpdateTask(params.row.taid,params.row.tuid);
                                             }
                                         }
                                     }, '进度记录'));
@@ -976,14 +980,17 @@
 						if(value == 'name1') {
                             vm.condition1 = true;
                             vm.wh_sn = 1;
+                            fn_jsquerydata(vm.wh_sn);
 						}
 						if(value == 'name2') {
                             vm.condition2 = true;
                             vm.wh_sn = 2;
+                            fn_jsquerydata(vm.wh_sn);
 						}
 						if(value == 'name3') {
                             vm.condition3 = true;
                             vm.wh_sn = 3;
+                            fn_jsquerydata(vm.wh_sn);
 						}
 					},
 					fdbsx(ss, title) {
@@ -1032,6 +1039,12 @@
                         vm.getData(2, conditUndeal);
                     },
                     queryDataQuery: function () {
+
+                        let conditQuery=this.getQueryCondition()
+                        //console.log(conditQuery);
+                        this.getData(3, conditQuery);
+                    },
+                    getQueryCondition(){
                         var vm = this;
                         var conditQuery = {};
 
@@ -1046,6 +1059,17 @@
                             }
                             if (afterTime != '') {
                                 conditQuery.afterTime = afterTime.Format("yyyy-MM-dd");
+                            }
+                        }
+                        if (vm.tuendtime != '') {
+                            var beforeTuEndTime = vm.tuendtime[0];
+                            var afterTuEndTime = vm.tuendtime[1];
+
+                            if (beforeTuEndTime != '') {
+                                conditQuery.beforeTuEndTime = beforeTuEndTime.Format("yyyy-MM-dd");
+                            }
+                            if (afterTuEndTime != '') {
+                                conditQuery.afterTuEndTime = afterTuEndTime.Format("yyyy-MM-dd");
                             }
                         }
 
@@ -1067,9 +1091,7 @@
                         }
                         conditQuery.limit = vm.pageSizeQuery;
                         conditQuery.page = vm.pageNumQuery;
-
-                        //console.log(conditQuery);
-                        vm.getData(3, conditQuery);
+                        return conditQuery;
                     },
                     handlePage(value) {
                         var vm = this;
@@ -1148,14 +1170,14 @@
                     content:url
                 });
             }
-			function UpdateTask(id) {
+			function UpdateTask(id,tuid) {
 
                 layerindex = layer.open({
 					type: 2,
 					title: "事项进度记录",
 					maxmin: true,
 					area: ['900px', '400px'], //弹出层页面比例
-                    content: "supervise_register.html?id=" + id
+                    content: "supervise_register.html?id="+id+"&tuid="+tuid
 				});
 			}
 		</script>
@@ -1174,7 +1196,7 @@
 			type: 2,
 			title: ss_title,
 			maxmin: true,
-			area: ['900px', '400px'], //弹出层页面比例
+			area: ['900px', '600px'], //弹出层页面比例
 			content: ss_url
 		});
         //layer.full(layerindex);

@@ -270,6 +270,7 @@
 					getAssetList(){
 						var	vm=this;
 						var token = localStorage.getItem("wccToken");
+						if (vm.unitAttr.pictures!==""){
 						axios({
 							url: apiUrl.getFilesByIds+vm.unitAttr.pictures,
 							method: "GET",
@@ -282,18 +283,21 @@
 								vm.pictureList = ret.data.data;
 							}
 						});
-						axios({
-							url: apiUrl.getFilesByIds+vm.unitAttr.files,
-							method: "GET",
-							headers: {
-								"Authorization": "Bearer " + token
-							},
+						}
+						if (vm.unitAttr.files!=="") {
+							axios({
+								url: apiUrl.getFilesByIds + vm.unitAttr.files,
+								method: "GET",
+								headers: {
+									"Authorization": "Bearer " + token
+								},
 
-						}).then(function(ret) {
-							if (ret.data.success){
-								vm.fileList = ret.data.data;
-							}
-						});
+							}).then(function (ret) {
+								if (ret.data.success) {
+									vm.fileList = ret.data.data;
+								}
+							});
+						}
 					},
 					getUnitAttr(){
 						var vm=this;

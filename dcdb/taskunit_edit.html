@@ -26,130 +26,557 @@
     <script src="../js/axios.min.js"></script>
     <script src="../js/axiosConfig.js"></script>
     <script src="../js/url.js"></script>
+    <style>
+        .demo-upload-list {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            line-height: 60px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #fff;
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+            margin-right: 4px;
+        }
+
+        .demo-upload-list img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .demo-upload-list-cover {
+            display: none;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, .6);
+        }
+
+        .demo-upload-list:hover .demo-upload-list-cover {
+            display: block;
+        }
+
+        .demo-upload-list-cover i {
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 0 2px;
+        }
+    </style>
 </head>
 <body>
+    <div id="app">
+        <i-row>
+            <i-col span="12" offset="6">
+            <i-form :label-width="80">
+                <Form-Item label="责任单位">
+                    <h3 v-text="taskassignUnit.company.title"></h3>
+                </Form-Item>
 
+                <Form-Item label="办理时限">
+                    <Row>
+                        <Col span="11">
+                        <Date-Picker v-model="taskassignUnit.endtime" format="yyyy-MM-dd" type="date" placeholder="请选择办理时限" style="width:120px;" @on-change="ischange"></Date-Picker>
+                        </Col>
+
+                    </Row>
+                </Form-Item>
+                <Form-Item label="Text">
+                    <i-input v-model="taskassignUnit.requirements" type="textarea" :autosize="{minRows: 2,maxRows: 7}" placeholder="请填写反馈信息"  @on-change="ischange"></i-input>
+                </Form-Item>
+                <Form-Item>
+                    <i-button type="primary" icon="icon-plus" @click="fnsaveUnit" v-if="isupdated">保存提交</i-button>
+                    <i-button type="primary" icon="icon-plus" @click="fnsaveUnit" disabled v-else>保存提交</i-button>
+                </Form-Item>
+            </i-form>
+            </i-col>
+            <i-col span="20" offset="2"><i-table border :columns="dealcolumns" :data="taskassignUnit.taskassignUnitdeals"></i-table></i-col>
+        </i-row>
+        <Modal
+                v-model="modal"
+                title="修改进度记录"
+        >
+            <Row>
+            <i-col span="12">
+                    <i-form >
+                        <Form-Item label="督办时间">
+                                    <Date-Picker v-model="deal.createtime" type="date" format="yyyy-MM-dd" clearable="false" placeholder="请选择督办时间"></Date-Picker>
+
+
+                        </Form-Item>
+                        <Form-Item label="完成状态">
+                            <i-select v-model="deal.status" style="width:80px" @on-change="FnIsfinishChange">
+                                <i-option value="0">未完成</i-option>
+                                <i-option value="1">已完成</i-option>
+                            </i-select>
+                        </Form-Item>
+
+                        <template v-if="isfinishChange">
+                            <Form-Item label="完成时间">
+                                <Date-Picker v-model="deal.finishtime" type="date" format="yyyy-MM-dd" clearable="false" placeholder="请选择时间" ></Date-Picker>
+
+                            </Form-Item>
+                        </template>
+                        <Form-Item v-if="!isfinishChange" label="是否延期">
+                            <Row>
+                                <i-col span="6">
+                                    <Checkbox v-model="deal.isdelay" @on-change="FnIsdelayChange1"></Checkbox>
+                                </i-col>
+                                <i-col span="16">
+                                    <Form-Item v-if="isdelayChange" label="延期时间">
+                                        <Date-Picker v-model="deal.delaytime" type="date" format="yyyy-MM-dd" clearable="false" placeholder="请选择延期时间"  style="width:120px"></Date-Picker>
+                                    </Form-Item>
+                                </i-col>
+                            </Row>
+                        </Form-Item>
+
+                        <Form-Item label="督办情况">
+                            <i-input v-model="deal.dealdesc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="填写内容"></i-input>
+                        </Form-Item>
+                        <Form-Item label="文件上传">
+                            <Upload ref="uploadFile" :action="apiUrl.Upload" :show-upload-list="true" :on-success="handleSuccess" :max-size="81920" :on-format-error="handleFormatError" :on-exceeded-size="handleMaxSize" multiple name="files" :headers="header" :on-remove="handleRemove" type="drag" style="display: inline-block;width:auto;">
+                                <div style="padding: 0px 0;width:58px;">
+                                    <!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+                                    <p>上传附件</p>
+                                </div>
+                            </Upload>
+                        </Form-Item>
+                        <Form-Item label="图片上传">
+                            <div class="demo-upload-list" v-for="item in uploadphotoList">
+                                <template v-if="item.status === 'finished'">
+                                    <img :src="item.url">
+                                    <div class="demo-upload-list-cover">
+                                        <Icon type="ios-eye-outline" @click.native="handleView(item.id)"></Icon>
+                                        <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
+                                </template>
+                            </div>
+                            <Upload ref="upload" :show-upload-list="false" :on-success="handleSuccess" :format="['jpg','jpeg','png','gif','ico','bmp']" :max-size="8192" :on-format-error="handleFormatError" :on-exceeded-size="handleMaxSize" multiple name="files" :headers="header" type="drag" :action="apiUrl.Upload" style="display: inline-block;width:58px;">
+                                <div style="width: 58px;height:58px;line-height: 58px;">
+                                    <Icon type="ios-camera" size="20"></Icon>
+                                </div>
+                            </Upload>
+                            <Modal title="View Image" v-model="visible">
+                                <img :src="imgName" v-if="visible" style="width: 100%">
+                            </Modal>
+                        </Form-Item>
+                        <Form-Item label="">
+                            <i-button type="primary" icon="icon-plus" @click="fnsaveUnitDeal">保存提交</i-button>
+                        </Form-Item>
+                    </i-form>
+            </i-col>
+            </Row>
+        </Modal>
+    </div>
 </body>
 <script>
-var keyvalue = request("keyvalue");
-var taid = request("taid");
-var vueapp = new Vue({
-el: '#app',
-data: {
-startTimeOptions: {},
-endtime: '',
-cityList: [{
-value: '5',
-label: '办结归档'
-},
-{
-value: '6',
-label: '关闭归档'
-},
-],
-formInline: {
-endtime: '',
-status: '',
-closememo: ''
-},
-ruleInline: {
-endtime: [{
-required: true,
-type: 'date',
-message: '请选择归档时间',
-trigger: 'change'
-}],
-status: [{
-required: true,
-message: '请选择状态',
-trigger: 'blur'
-}]
-},
-isSpinShow: false,
-// 交办事项详情
-TaskAssignDetailModel: {
-},
-TaskAssignDetailViewModel: {
-title: "",
-assigntime: "",
-assignmemo: "",
-dealdesc: "",
-pretime: "",
-isdelay: true,
-status: 0,
-taskassignUnit: {},
-},
-TaskAssignUnitList: [
-]
-},
-mounted: function () {
-var parmDate = new Date();
-this.endTimeChange(parmDate);
-this.getApiTaskAssignDetailModel();
-},
-methods: {
-//设置结束时间
-endTimeChange: function (e) {
-//debugger
-this.endtime = e;
-let endTime = this.endtime ? new Date(this.endtime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
-this.startTimeOptions = {
-disabledDate(date) {
-return date && date.valueOf() > Date.now() && endTime != '';
-}
-}
-},
-// 取得交办事项基本信息
-getApiTaskAssignDetailModel() {
-var vm = this;
-var token = localStorage.getItem("wccToken"); //获取
-axios({
-method: "GET",
-async: false,
-url: apiUrl.ApiTaskDetailList + '/' + keyvalue,
-headers: { "Authorization": "Bearer " + token }
-//                      data: '',
-}).then(function (ret) {
-console.log("交办事项基本信息：" + JSON.stringify(ret.data));
-vm.TaskAssignDetailModel = ret.data.data.data;
-if (vm.TaskAssignDetailModel.taskassigns.length > 0) {
-vm.TaskAssignDetailViewModel.title = vm.TaskAssignDetailModel.title;
-vm.TaskAssignDetailViewModel.assigntime = vm.TaskAssignDetailModel.taskassigns[0].assigntime;
-vm.TaskAssignDetailViewModel.assignmemo = vm.TaskAssignDetailModel.taskassigns[0].assignmemo;
-vm.TaskAssignUnitList = vm.TaskAssignDetailModel.taskassigns[0].taskassignUnits;
-}
-});
-},
-fnsave() {
-var $this = this;
-this.$refs["formInline"].validate((valid) => {
-if (valid) {
-$this.formInline.id = taid;
-$.Apiaxios({
-method: "POST",
-url: apiUrl.ApiUpdateAssignTask,
-data: JSON.stringify($this.formInline),
-IsLoading: true,
-content: "提交数据中，请稍后...",
-success: function (ret) {
-parent.myVue.getData(parent.myVue.wh_sn, parent.myVue.wh_parmdata);
-html_cancel();
-}
-});
-}
-})
+    var id = request("id");
+    var tu = request("tuid");
+    var header = {
+        'Authorization': 'Bearer ' + localStorage.getItem("wccToken")
+    };
+    var taskuniteditvue = new Vue({
+        el: '#app',
+        data: {
+            deal:{},
+            modal:false,
+            taskassignUnit: {},
+            dealcolumns:[
+            ],
+            isupdated:false,
+            isfinishChange:false,
+            isdelayChange:false,
+            FnIsdelayChange:false,
+            // 文件上传相关
+            imgName: '',
+            visible: false,
+            uploadphotoList: [],
+            uploadfileList: [],
+            pictureIds: [],
+            fileIds: [],
+        },
+        mounted: function () {
+            this.$nextTick(function(){
+                let myself = this;
+                this.getApiTaskAssignUnit();
+                this.dealcolumns=[{
+                    title: '督办时间',
+                    key: 'createtime',
+                    sortable: true,
+                    render: (h, params) => {
+                        return h('span', {
+                            props: {
+                                type: 'primary',
+                                size: 'small'
+                            },
+                            style: {
+                                color: '#2d8cf0'
+                            }
+                        }, params.row.createtime);
+                    }
+                },
+                    {
+                        title: '督办描述',
+                        key: 'dealdesc'
+                    },
+                    {
+                        title: '完成状态',
+                        key: 'status',
+                        sortable: true,
+                        render: (h, params) => {
+                            let s_is_exceed = params.row.status;
+                            if (s_is_exceed == 1) {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        color: 'red'
+                                    },
+                                    on: {
+                                    }
+                                }, "已完成");
+                            }
+                            else {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                    },
+                                    on: {
+                                    }
+                                }, "未完成");
+                            }
+                        }
+                    },
+                    {
+                        title: '完成时间',
+                        key: 'finishtime',
+                        sortable: true,
+                        render: (h, params) => {
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {
+                                }
+                            }, params.row.finishtime);
+                        }
+                    },
+                    {
+                        title: '是否延期',
+                        key: "isdelay",
+                        sortable: true,
+                        render: (h, params) => {
+                            if (params.row.isdelay == 1) {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        color: 'red'
+                                    },
+                                    on: {
+                                    }
+                                }, '延期');
+                            }
+                            else {
+                                return h('span', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                    },
+                                    on: {
+                                    }
+                                }, '不延期');
+                            }
+                        }
+                    },
+                    {
+                        title: '延期时间',
+                        key: 'delaytime',
+                        sortable: true,
+                        render: (h, params) => {
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {
+                                }
+                            }, params.row.delaytime);
+                        }
+                    },
+                    {
+                        title: '操作',
+                        key: 'operation',
+                        // width: 140,
+                        render: (h, params) => {
+                            //console.log(params.row.status)
 
-}
-//					handleSubmit(name) {
-//
-//					},
-//					handleChange(daterange) {
-//						this.formInline.endtime = daterange;
-//					}
-}
-});
-function html_cancel() {
-parent.LoadTable();
-}
+                            var tmparr = [];
+                            // tmparr.push(
+                            //     h('Button', {
+                            //         props: {
+                            //             type: 'primary',
+                            //             size: 'small'
+                            //         },
+                            //         style: {
+                            //             marginRight: '5px'
+                            //         },
+                            //         on: {
+                            //             click: () => {
+                            //                 CheckDetail(params.row.id);
+                            //             }
+                            //         }
+                            //     }, '查看'));
+                            tmparr.push(
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click:() => {
+                                            myself.modal=true;
+                                            myself.deal=params.row;
+                                            // myself.pictureIds =  myself.deal.pictures.split(",");
+                                            // myself.fileIds =  myself.deal.files.split(",");
+                                            // myself.deal.pictureIds = myself.deal.pictureIds.split(",");
+                                            // myself.deal.fileIds = myself.deal.fileIds.split(",");
+                                        }
+                                    }
+                                }, '编辑')
+                            );
+                            return h('div', tmparr);
+                        }
+                    }];
+            })
+        },
+        methods: {
+            ischange(){
+                if (!this.isupdated) {
+                    this.isupdated=true;
+                    // alert(this.isupdated);
+                }
+            },
+            FnIsdelayChange1: function() {
+                var vm = this;
+                if(vm.deal.isdelay == true) {
+                    vm.isdelayChange = true;
+                    vm.deal.delaytime = new Date().Format("yyyy-MM-dd");
+                } else {
+                    vm.isdelayChange = false;
+                    vm.deal.delaytime = '';
+                }
+            },
+            FnIsfinishChange: function() {
+                let _self = this;
+                if(_self.deal.status == 1) {
+                    _self.isfinishChange = true;
+                    // _self.deal.finishtime = new Date().Format("yyyy-MM-dd");
+                } else {
+                    _self.isfinishChange = false;
+                    // _self.deal.finishtime = '';
+                }
+            },
+            // 取得交办事项基本信息
+            getApiTaskAssignUnit()
+            {
+                var vm = this;
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    method: "GET",
+                    async: false,
+                    url: apiUrl.ApiTaskAssignUnitDetail + id,
+                    headers: {"Authorization": "Bearer " + token}
+                }).then(function (ret) {
+                    if (ret.data.success){
+                        vm.taskassignUnit = ret.data.data;
+                    }
+                });
+            },
+            fnsaveUnit()
+            {
+                var _self = this;
+                var sendobjarr = [];
+                var sendobj = {};
+                sendobj.id = _self.taskassignUnit.id;
+                sendobj.endtime = _self.taskassignUnit.endtime.Format("yyyy-MM-dd");
+                sendobj.requirements = _self.taskassignUnit.requirements;
+                // sendobj.status = 2;//状态（1-新建未反馈；2-已反馈限期办理中；3-已反馈超期办理中；4-办理完成；）
+                sendobjarr.push(sendobj);
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    url: apiUrl.ApiTaskassignUnitUpdate,
+                    method: "post",
+                    headers: { "Authorization": "Bearer " + token },
+                    data: sendobjarr,
+                }).then(function (ret) {
+                    // console.log(ret);
+                    if (ret.data.success) {
+                        _self.getApiTaskAssignUnit();
+                        alert('保存提交成功！');
+                        html_cancel();
+                    }
+                    else {
+                        _self.$Message.warning(ret.data.message);
+                    }
+                });
+            },
+            fnsaveUnitDeal()
+            {
+                var _self = this;
+                if(_self.deal.taunitid == '') {
+                    _self.$Message.warning('请选择责任单位！');
+                    return true;
+                }
+                if(_self.deal.createtime == '') {
+                    _self.$Message.warning('请选择督办时间！');
+                    return false;
+                }
+                if(_self.deal.status == '') {
+                    _self.$Message.warning('请选择完成状态！');
+                    return false;
+                }
+
+
+
+                if(_self.deal.status == 1) {
+                    _self.deal.delaytime = '';
+                    _self.deal.isdelay = false;
+                    if(_self.deal.finishtime == '') {
+                        _self.$Message.warning('请选择完成时间！');
+                        return false;
+                    } else {
+                        _self.deal.finishtime = _self.deal.finishtime.Format("yyyy-MM-dd");
+                    }
+                } else {
+                    _self.deal.finishtime = '';
+
+                    if(_self.deal.isdelay) {
+                        if( _self.deal.delaytime == '') {
+                            _self.$Message.warning('请选择延期时间！');
+                            return false;
+                        } else {
+                            _self.deal.delaytime = _self.deal.delaytime.Format("yyyy-MM-dd");
+                        }
+
+                    }
+                }
+
+                if(_self.deal.isdelay) {
+
+                    _self.deal.isdelay = 1;
+                    //获取以前时限日期，判断当前选择延期时间小于以前时限日期
+                        if(_self.deal.taunitid== _self.taskassignUnit.id) {
+                            if(new Date(_self.taskassignUnit.endtime) > new Date(delaytime)) {
+                                _self.deal.isdelay = 0;
+                                _self.deal.delaytime = '';
+                            }
+                        }
+                } else {
+                    _self.deal.isdelay = 0;
+                }
+                if (_self.pictureIds.length>0){
+                _self.deal.pictures = _self.pictureIds.join(",");
+                }
+                if (_self.fileIds.length>0){
+                _self.deal.files = _self.fileIds.join(",");
+                }
+                var token = localStorage.getItem("wccToken"); //获取
+                axios({
+                    url: apiUrl.ApiTaskassignUnitdealAdd,
+                    method: "post",
+                    headers: { "Authorization": "Bearer " + token },
+                    data: _self.deal,
+                }).then(function (ret) {
+                    // console.log(ret);
+                    if (ret.data.success) {
+                        _self.getApiTaskAssignUnit();
+                        alert('保存提交成功！');
+                        _self.modal=false;
+                    }
+                    else {
+                        _self.$Message.warning(ret.data.message);
+                    }
+                });
+            },
+            // 文件上传相关函数
+            handleView(id) {
+                this.imgName = apiUrl.RenderPicture + '/' + id;
+                this.visible = true;
+            },
+            handleRemove(file) {
+                // const fileList = this.$refs.upload.fileList;
+                // this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
+                this.uploadphotoList.splice(this.uploadphotoList.indexOf(file), 1);
+                if(file.type == 'photo') {
+                    this.pictureIds.splice(this.pictureIds.indexOf(file.id), 1);
+                }
+                if(file.type == 'file') {
+                    this.fileIds.splice(this.fileIds.indexOf(file.id), 1);
+                }
+                this.uploadfileList.splice(this.uploadfileList.indexOf(file), 1);
+            },
+            handleSuccess(res, file, fileList) {
+                var fl = fileList[fileList.indexOf(file)];
+                if (fl.response.data.files.length > 0) {
+                    if (this.fileIds.indexOf(fl.response.data.files[0]) == -1) {
+                        fl.id = fl.response.data.files[0];
+                        fl.type = 'file';
+                        this.uploadfileList.push(fl);
+                        this.fileIds.push(fl.id);
+                    }
+                }
+                if (fl.response.data.photos.length > 0) {
+                    if (this.pictureIds.indexOf(fl.response.data.photos[0]) == -1) {
+                        fl.id = fl.response.data.photos[0];
+                        fl.url = apiUrl.RenderPicture + '/' + fl.response.data.photos[0];
+                        fl.type = 'photo';
+                        this.uploadphotoList.push(fl);
+                        this.pictureIds.push(fl.id);
+                    }
+                }
+            },
+            handleFormatError(file) {
+                this.$Notice.warning({
+                    title: '文件上传出错',
+                    desc: '请选择正确的文件格式或正确的文件大小！'
+                });
+            },
+            handleMaxSize(file) {
+                this.$Notice.warning({
+                    title: '文件过大',
+                    desc: +file.name + ' 文件大小超过8M'
+                });
+            }
+
+        }
+    });
 </script>
 </html>

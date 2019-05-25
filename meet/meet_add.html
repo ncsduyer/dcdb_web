@@ -87,6 +87,9 @@
 			.ivu-upload {
 				width: 62px;
 			}
+			.ivu-form-item-label{
+				width: 84px !important;
+			}
 		</style>
 	</head>
 
@@ -131,7 +134,7 @@
 							</i-col>
 						</Row>
 					</Form-Item>
-					<Form-Item label="问题部门">
+					<Form-Item label="部门单位">
 						<Row>
 							<i-col span="24" style="padding-right:10px; width: 100%;">
 								<i-select label-in-value="true" filterable multiple @on-change="choosedata">
@@ -160,29 +163,27 @@
 													<i-button type="dashed" long @click="handleAdd(key)" icon="md-add">添加短信提示人员</i-button>
 													<!--<ion-icon name="add-circle-outline" @click="handleAdd"></ion-icon>-->
 												</td>
-
 											</tr>
 											<tr>
 												<td>
-													<Form-Item v-for="(item, index) in item.items" v-if="item.status" :key="index" :label="'短信提示人员'" :prop="'items.' + index + '.value'" :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}" style="padding-bottom: 15px;">
-														<Row span="24">
-															<i-col span="4">
-																<i-input data-type="name" type="text" v-model="item.sender" placeholder="填写短信提示人员姓名" style="width:190px"></i-input>
-															</i-col>
-																<i-col span="6">
-																	<i-input type="text" v-model="item.tel" placeholder="填写短信提示人员电话" style="width:190px; margin-left: 10px;"></i-input></i-col>
+													<Form-Item v-for="(item, index) in item.items" v-if="item.status" :key="index" :label="'短信提示人员'" :prop="'items.' + index + '.value'" :rules="{ message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}">
+														<Row span="16" >
 															<i-col span="6">
-																<i-select style="width:190px; margin-left: 10px;" v-model="item.content">
-																	<i-option v-for='opt in modelCheckItem' :value="opt" :key="">{{ opt.label }}</i-option>
-																</i-select>
-
+																<i-input data-type="name" type="text" v-model="item.sender" placeholder="填写短信提示人员姓名" ></i-input>
+															</i-col>
+															<i-col span="6">
+																<i-input type="text" v-model="item.tel" placeholder="填写短信提示人员电话" ></i-input></i-col>
+															<i-col span="6">
+															<i-select v-model="item.content">
+																<i-option v-for='opt in modelCheckItem' :value="opt" :key="">{{ opt.label }}</i-option>
+															</i-select>
 															</i-col>
 
 															<i-button @click="handleRemove(key,index)" class="deleteBtn">删除</i-button>
 
 														</Row>
-															<Row span="24">
-															<i-col span="20" offset="4">
+															<Row span="16">
+															<i-col span="4">
 																<Form-Item>
 																	<Upload
 																			ref="uploadFile+'-'+item.value"
@@ -198,8 +199,7 @@
 																			:headers="header"
 																			type="drag"
 																			style="display: inline-block;width:auto;">
-																		<div style="padding: 0px 0;width:58px;">
-																			<!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
+																		<div>
 																			<p @click="setInfoUnitAttr(item)">上传附件</p>
 																		</div>
 																	</Upload>

@@ -110,15 +110,17 @@
                         </thead>
                         <tbody id="mytbodychoosedept">
                             <tr v-for='(item,index) in dataTaskAssignUnitList'>
+                                <template v-if="item.status==1 && item.personid==pubuserid">
                                 <td>
-                                    {{ item.unitname }}
+                                    {{ item.company.title }}
                                 </td>
                                 <td>
-                                    <Date-Picker v-model="modelEndTimes[index]" format="yyyy-MM-dd" type="date" placeholder="请选择办理时限" :options="startTimeOptions" style="width:120px;"></Date-Picker>
+                                    <Date-Picker v-model="item.endtime" format="yyyy-MM-dd" type="date" placeholder="请选择办理时限" :options="startTimeOptions" style="width:120px;"></Date-Picker>
                                 </td>
                                 <td>
-                                    <i-input v-model="modelRequirements[index]" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写反馈信息"></i-input>
+                                    <i-input v-model="item.requirements" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="请填写反馈信息"></i-input>
                                 </td>
+                                </template>
                             </tr>
                         </tbody>
                     </table>
@@ -154,8 +156,8 @@
                 starttime: '',
                 dataTask: [],
                 //结束日期model
-                modelEndTimes: ['', '', '', ''],
-                modelRequirements: ['', '', '', ''],
+                modelEndTimes: [],
+                modelRequirements: [],
                 dataTaskAssignUnitList: []
             },
             mounted: function () {
@@ -191,13 +193,9 @@
                         },
                         data: ''
                     }).then(function (ret) {
-                        //console.log(ret.data);
                         if (ret.data.success) {
-                            $(ret.data.data).each(function (index, item) {
-                                vm.pubuserid = item.id;
-                            });
+                            vm.pubuserid = ret.data.data.id;
                         }
-
                     });
                 },
 
@@ -223,38 +221,8 @@
                             vm.detail.assignmemo = ret.data.data.assignmemo;
                             
                             //console.log(ret.data);
-                            var curuserid = vm.pubuserid;
-                            var unitobj = ret.data.data.taskassignUnits;
 
-                            console.log(unitobj);
-                            vm.modelEndTimes = [];//数组 - 存储限期时间 清空
-                            vm.modelRequirements = [];//数组 - 存储反馈信息  清空
-
-                            //var aa = [];
-
-                            $(unitobj).each(function (index, item) {
-                                var tmp_id = item.id;
-                                var tassignid = item.tassignid;
-                                var unitid = item.unitid;
-                                var personid = item.personid;
-                                var unitname = item.company.title;
-
-                                if (personid == curuserid) {
-                                    var tmpobj = {};
-                                    tmpobj.id = tmp_id;
-                                    tmpobj.tassignid = tassignid;
-                                    tmpobj.unitid = unitid;
-                                    tmpobj.personid = personid;
-                                    tmpobj.unitname = unitname;
-
-                                    vm.dataTaskAssignUnitList.push(tmpobj);
-
-                                    vm.modelEndTimes.push('');//压空值里面备用
-                                    vm.modelRequirements.push('');//压空值里面备用
-                                }
-                            });
-
-                            //console.log(vm.dataTaskAssignUnitList);
+                                vm.dataTaskAssignUnitList = ret.data.data.taskassignUnits;
                         }
                         else {
                             vm.$Message.warning(ret.data.message);
@@ -266,56 +234,32 @@
 
                 fnsave() {
                     var vm = this;
-                    console.log(vm.dataTaskAssignUnitList);
-
-
-
-                    $(vm.modelEndTimes).each(function (index, item) {
-                        if (item == '') {
-                            vm.$Message.warning('请选择办理时限！');
-                            return false;
-                        }
-                        var modelRequirements = vm.modelRequirements[index];
-                        if (modelRequirements == '') {
-                            vm.$Message.warning('请填写反馈信息！');
-                            return false;
-                        }
-                    });
-
-                    var n_ok = 0;
-
                     var sendobjarr = [];
+                    vm.dataTaskAssignUnitList.forEach(function (item, index) {
+                        if (item.status ==1 && item.personid==vm.pubuserid){
+                            if (item.endtime == '') {
+                                vm.$Message.warning('请选择办理时限！');
+                                return false;
+                            }
+                            if (item.requirements == '') {
+                                vm.$Message.warning('请填写反馈信息！');
+                                return false;
+                            }
 
-                    $(vm.dataTaskAssignUnitList).each(function (index, item) {
-                        var tmp_id = item.id;
-                        var tassignid = item.tassignid;
-                        var unitid = item.unitid;
-                        var personid = item.personid;
-                        var endtime = vm.modelEndTimes[index];
-                        var requirements = vm.modelRequirements[index];
-
-                        var endtime = endtime.Format("yyyy-MM-dd");
-
-                        var sendobj = {};
-                        sendobj.id = tmp_id;
-                        sendobj.tassignid = tassignid;
-                        sendobj.unitid = unitid;
-                        sendobj.personid = personid;
-                        sendobj.endtime = endtime;
-                        sendobj.requirements = requirements;
-                        sendobj.status = 2;//状态（1-新建未反馈；2-已反馈限期办理中；3-已反馈超期办理中；4-办理完成；）
-
-                        sendobjarr.push(sendobj);
-                        //console.log(JSON.stringify(sendobj));
-
-                        
-
+                            var sendobj = {};
+                            sendobj.id = item.id;
+                            sendobj.tassignid = item.tassignid;
+                            sendobj.unitid = item.unitid;
+                            // sendobj.personid = personid;
+                            sendobj.endtime = item.endtime.Format("yyyy-MM-dd");
+                            sendobj.requirements = item.requirements;
+                            sendobj.status = 2;//状态（1-新建未反馈；2-已反馈限期办理中；3-已反馈超期办理中；4-办理完成；）
+                            sendobjarr.push(sendobj);
+                        }
                     });
-
-                    //console.log(sendobjarr);
-                    //return;
-
-
+                    if(sendobjarr.length<1){
+                        return false;
+                    }
                     var token = localStorage.getItem("wccToken"); //获取
                     axios({
                         url: apiUrl.ApiTaskassignUnitUpdate,
@@ -323,7 +267,7 @@
                         headers: { "Authorization": "Bearer " + token },
                         data: sendobjarr,
                     }).then(function (ret) {
-                        console.log(ret);
+                        // console.log(ret);
                         if (ret.data.success) {
                             alert('保存提交成功！');
                             html_cancel();

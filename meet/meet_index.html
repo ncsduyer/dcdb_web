@@ -125,8 +125,8 @@
 					</Row>
 
 					<br />
-					<i-table border :columns="columns6" :data="dataQuery" id="mainlist"></i-table>
-					<Page :total="pageTotal" :current="pageNum" :page-size="pageSize" show-elevator show-sizer show-total placement="top" @on-change="handlePage" @on-page-size-change='handlePageSize'></Page>
+					<i-table border :columns="columns6" :data="dataQuery"></i-table>
+					<Page :total="pageTotalQuery" :current="pageNumQuery" :page-size="pageSizeQuery" show-elevator show-sizer show-total placement="top" @on-change="handlePageQuery" @on-page-size-change='handlePageSizeQuery'></Page>
 				</Tab-Pane>
 				<Tab-Pane label="区委会议查询" name="name2">
 					<Row v-show="condition2">
@@ -283,7 +283,7 @@
 					unit() {
 						var vm = this;
 
-						vm.columns6 = vm.columns6.concat();
+						// vm.columns6 = vm.columns6.concat();
 
 						var token = localStorage.getItem("wccToken"); //获取
 						axios({
@@ -349,7 +349,7 @@
 
 										}
 									}
-								}, '查看'), h('Button', {
+								}, '编辑'), h('Button', {
 									props: {
 										type: 'error',
 										size: 'small',
@@ -379,7 +379,8 @@
 															//																	console.log(ret)
 															if(ret.success == true) {
 																layer.msg(ret.message);
-																$('#mainlist .ivu-table-row').eq(params.index).remove();
+																vm.getinfosQueryList(vm.paramData);
+																// $('#mainlist .ivu-table-row').eq(params.index).remove();
 															} else {
 																vm.$Message.warning(ret.message);
 															}
@@ -403,6 +404,7 @@
 							width: 200,
 							align: 'center',
 							render: (h, params) => {
+								var buntxt='查看';
 								return h('div', [h('Button', {
 									props: {
 										type: 'primary',
@@ -419,7 +421,7 @@
 
 										}
 									}
-								}, '查看')]);
+								}, buntxt)]);
 							}
 						};
 						if(vm.qqq == "1") {
@@ -610,7 +612,6 @@
 						var ss_url = 'meet_add.html';
 						var ss_title = "区委会议-新建";
 						myselfinfo(ss_url, ss_title);
-
 					},
 					fnquery(sn) {
 						var vm = this;
@@ -809,7 +810,7 @@
 			type: 2,
 			title: ss_title,
 			maxmin: true,
-			area: ['800px', '400px'], //弹出层页面比例
+			area: ['900px', '500px'], //弹出层页面比例
 			content: ss_url,
 
 		});
@@ -840,7 +841,7 @@
 
 		layerindex = layer.open({
 			type: 2,
-			title: "会议查看",
+			title: "会议编辑",
 			maxmin: true,
 			area: ['800px', '400px'], //弹出层页面比例
 			content: "meet_details.html?id=" + id + "&unitid=" + unitid + "&mtile=" + mtile + "&type=" + type

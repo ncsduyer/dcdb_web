@@ -50,9 +50,7 @@
                 <Row>
                     <i-col span="12" style="padding-right:10px; width: 100%;">
                         <i-select label-in-value="true" filterable multiple @on-change="choosedata">
-                            <i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label
-                                }}
-                            </i-option>
+                            <i-option v-for="item in departmentList" :value="item.value" :key="item.value">{{ item.label}}</i-option>
                         </i-select>
                     </i-col>
                 </Row>
@@ -66,16 +64,13 @@
                                 <thead>
                                 <tr>
                                     <td>已选部门</td>
-                                    <td v-for='(item,index) in modelCheckItem' style="line-height:18px;width: 110px;">{{
-                                        item.label }}
-                                    </td>
+                                    <td v-for='(item,index) in modelCheckItem' style="line-height:18px;width: 110px;">{{item.label }}</td>
                                 </tr>
                                 </thead>
                                 <tbody id="mytbodychoosedept">
                                 <tr v-for='(item,index) in chooseDeptList'>
                                     <td>{{ item.label }}</td>
                                     <td v-for='(itemmx,index) in modelCheckItem'>
-                                        <!--<i-input v-if = "itemmx.value == '13'" readonly="true" v-bind:id="'myinput_' + item.value +'_'+itemmx.value" value="0" style="width:90%;height:25px;text-align:center;" onchange="fn_setvalue(this)" ></i-input>-->
                                         <input v-if="itemmx.value == '21'" readonly="true"
                                                :id="'myinput_' + item.value +'_'+itemmx.value" value="0"
                                                style="width:90%;height:25px;text-align:center;"
@@ -83,8 +78,6 @@
                                         <input v-else :id="'myinput_' + item.value +'_'+itemmx.value" value="0"
                                                style="width:90%;height:25px;text-align:center;"
                                                onchange="fn_setvalue(this)"  type="text"/>
-
-                                        <!--<i-input v-else v-bind:id="'myinput_' + item.value +'_'+itemmx.value" value="0" style="width:90%;height:25px;text-align:center;" onchange="fn_setvalue(this)" ></i-input>-->
                                     </td>
                                     <td>
                                         <Form-Item>
@@ -103,13 +96,11 @@
                                                     type="drag"
                                                     style="display: inline-block;width:auto;">
                                                 <div style="padding: 0px 0;width:58px;">
-                                                    <!--<Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>-->
                                                     <p @click="setInfoUnitAttr(item.value)">上传附件</p>
                                                 </div>
                                             </Upload>
                                         </Form-Item>
                                     </td>
-                                    <!--<td>人员详情</td>-->
                                 </tr>
 
 
@@ -271,7 +262,7 @@
                     },
                     data: '',
                 }).then(function (ret) {
-                    //console.log("责任单位获取成功：" + JSON.stringify(ret.data));
+                      // console.log("责任单位获取成功：" + JSON.stringify(ret.data));
                     $(ret.data.data).each(function (index, item) {
                         var tempitem = {};
                         tempitem.label = item.title;
