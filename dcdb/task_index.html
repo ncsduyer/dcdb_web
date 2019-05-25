@@ -410,44 +410,8 @@
                                 }, '查看'));
 
 
-                            if (params.row.status == '2' || params.row.status == '3' || params.row.status == '4' || params.row.status == '1') {
-                            //     if (params.row.createrId == s_pubuserid && s_wh_sn == 1) {
-                            //         tmparr.push(
-                            //             h('Button', {
-                            //                 props: {
-                            //                     type: 'info',
-                            //                     size: 'small'
-                            //                 },
-                            //                 style: {
-                            //                     marginRight: '5px'
-                            //                 },
-                            //                 on: {
-                            //                     click: () => {
-                            //                         openHtml("task_edit.html?id="+params.row.id);
-                            //                     }
-                            //                 }
-                            //             }, '编辑')
-                            //         );
-                            //         tmparr.push(
-                            //             h('Button', {
-                            //                 props: {
-                            //                     type: 'success',
-                            //                     size: 'small'
-                            //                 },
-                            //                 style: {
-                            //                     marginRight: '5px'
-                            //                 },
-                            //                 on: {
-                            //                     click: () => {
-                            //                         CloseTask(params.row.id,params.row.taid);
-                            //
-                            //
-                            //                     }
-                            //                 }
-                            //             }, '归档')
-                            //         );
-                            //     }
-                                if (params.row.agentId == s_pubuserid && params.row.status == '1' && s_wh_sn == 2) {
+                            if (params.row.tustatus == '2' || params.row.tustatus == '3' || params.row.tustatus == '4' || params.row.tustatus == '1') {
+                                if (params.row.agentId == s_pubuserid && params.row.tustatus == '1' && s_wh_sn == 2) {
                                     tmparr.push(h('Button', {
                                         props: {
                                             type: 'error',
@@ -463,7 +427,7 @@
                                         }
                                     }, '反馈'));
                                 }
-                                if (params.row.agentId == s_pubuserid && (params.row.status == '2' || params.row.status == '3' || params.row.status == '4') && s_wh_sn == 2) {
+                                if (params.row.agentId == s_pubuserid && (params.row.tustatus == '2' || params.row.tustatus == '3' || params.row.tustatus == '4') && s_wh_sn == 2) {
                                     tmparr.push(h('Button', {
                                         props: {
                                             type: 'primary',
@@ -1028,10 +992,10 @@
                         var choicestatus = vm.choicestatus;                       
 
                         if (choicestatus == "待事项反馈") {
-                            conditUndeal.status = [1];
+                            conditUndeal.tustatus = [1];
                         }
                         else {
-                            conditUndeal.status = [2,3];
+                            conditUndeal.tustatus = [2,3];
                         }
 
                         //console.log(conditUndeal);
