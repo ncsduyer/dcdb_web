@@ -700,10 +700,49 @@
                                             },
                                             on: {
                                                 click: () => {
-                                                    CloseTask(params.row.taskid,params.row.id);
+                                                    CloseTask(params.row.task.id,params.row.id);
                                                 }
                                             }
                                         }, '归档')
+                                    );
+                                    tmparr.push(
+                                        h('Button', {
+                                            props: {
+                                                type: 'danger',
+                                                size: 'small'
+                                            },
+                                            style: {
+                                                marginRight: '5px'
+                                            },
+                                            on: {
+                                                click: () => {
+                                                    layer.confirm(
+                                                        '确认删除吗', {
+                                                            icon: 3,
+                                                            title: '提示'
+                                                        },
+                                                        function(index) {
+                                                            layer.close(index);
+                                                            $.Apiaxios({
+                                                                url: apiUrl.ApiTaskDel + params.row.task.id,
+                                                                method: "GET",
+                                                                content: "获取数据中，请稍等...",
+                                                                success: function(ret) {
+                                                                    if (ret.success == true) {
+                                                                        layer.msg(ret.message);
+                                                                    } else {
+                                                                        vm.$Message.warning(ret.message);
+                                                                    }
+                                                                }
+                                                            })
+                                                        },
+    //										function(index) {
+    //											layer.close(index);
+    //										}
+                                                    );
+                                                }
+                                            }
+                                        }, '删除')
                                     );
                                 }
                             }
@@ -1159,6 +1198,7 @@
         layerindex = layer.open({
 			type: 2,
 			title: ss_title,
+            shadeClose: true,
 			maxmin: true,
 			area: ['900px', '600px'], //弹出层页面比例
 			content: ss_url

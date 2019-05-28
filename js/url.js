@@ -106,6 +106,7 @@ var apiUrl = {
 	ApiTaskListByTask: apiPrefix + "/task/getTaskListByTask",
 
 	ApiTaskList: apiPrefix + "/task/list",
+	ApiTaskDel: apiPrefix + "/task/delete/",
 
 	// 责任单位列表
 	ApiNuitList: apiPrefix + "/apiworkType/companylist",
