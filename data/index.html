@@ -184,7 +184,8 @@
                         <h6 id="barTitle">区委会议召开统计</h6>
 
                     </div>
-                    <p class="unit">单位：个</p>
+
+<!--                    <p class="unit">单位：个</p>-->
                     <div class="chart-box">
                         <div id="pie_age" style="width:100%;height:80%; "></div>
                     </div>
@@ -239,7 +240,7 @@
         //督察督办点击
         pie_fanzui.on('click', function(param) {
             if (typeof param.seriesIndex != 'undefined') {
-                console.log(param.name);
+                // console.log(param.name);
                 var url= 'http://do.scncry.com:9999/data/info.html?queryType=1&checkItemId=';
                 switch (param.name) {
                     case "未反馈":
@@ -309,8 +310,9 @@
             layerindex = layer.open({
                 type: 2,
                 title: ss_title,
+                shadeClose: true,
                 content: ss_url,
-                area:['300px', '200px'],
+                area:['800px', '600px'],
                 maxmin: true
             });
         }
@@ -348,7 +350,7 @@
                 }
             });
 
-        };
+            };
         function load() {
             //获取督办事项相关统计
             var token = localStorage.getItem("wccToken");
@@ -939,7 +941,6 @@
 
                     ]
                 };
-
                 china_mapa.setOption(option);
             });
         }
@@ -982,6 +983,13 @@
 
         load();
         checkitem();
+        window.addEventListener("resize", function() {
+            pie_fanzui.resize();
+            pie_age.resize();
+            qufenbu_data.resize();
+            line_time.resize();
+            china_mapa.resize();
+        });
         var tblTop = 0;
         var speedhq = 50; // 数值越大越慢
 

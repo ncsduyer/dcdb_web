@@ -723,22 +723,23 @@
                                                         },
                                                         function(index) {
                                                             layer.close(index);
-                                                            $.Apiaxios({
-                                                                url: apiUrl.ApiTaskDel + params.row.task.id,
+                                                            var token = localStorage.getItem("wccToken");
+                                                            axios({
+                                                                url:apiUrl.ApiTaskDel + params.row.task.id,
                                                                 method: "GET",
                                                                 content: "获取数据中，请稍等...",
-                                                                success: function(ret) {
-                                                                    if (ret.success == true) {
-                                                                        layer.msg(ret.message);
-                                                                    } else {
-                                                                        vm.$Message.warning(ret.message);
-                                                                    }
+                                                                headers: {
+                                                                    "Authorization": "Bearer " + token
+                                                                },
+                                                                data: ''
+                                                            }).then(function (ret) {
+                                                                if (ret.data.success) {
+                                                                    layer.msg(ret.message);
+                                                                    this.fn_jsquerydata(1);
                                                                 }
-                                                            })
-                                                        },
-    //										function(index) {
-    //											layer.close(index);
-    //										}
+
+                                                            });
+                                                        }
                                                     );
                                                 }
                                             }
@@ -1138,6 +1139,7 @@
                 layerindex = layer.open({
 					type: 2,
 					title: "事项查看",
+                    shadeClose: true,
 					maxmin: true,
 					area: ['600px', '400px'], //弹出层页面比例
                     content: "supervision_details.html?id=" + id
@@ -1149,6 +1151,7 @@
                 layerindex = layer.open({
 					type: 2,
 					title: "事项反馈",
+                    shadeClose: true,
 					maxmin: true,
 					area: ['900px', '400px'], //弹出层页面比例
                     content: "supervise_feedback.html?id=" + id
@@ -1159,6 +1162,7 @@
                 layerindex = layer.open({
 					type: 2,
 					title: "事项归档",
+                    shadeClose: true,
 					maxmin: true,
 					area: ['900px', '400px'], //弹出层页面比例
 					content: "supervise_File.html?keyvalue=" + id+"&taid="+taid
@@ -1168,6 +1172,7 @@
                 layerindex = layer.open({
                     type: 2,
                     title: "编辑",
+                    shadeClose: true,
                     maxmin: true,
                     area: ['900px', '400px'], //弹出层页面比例
                     content:url
@@ -1178,6 +1183,7 @@
                 layerindex = layer.open({
 					type: 2,
 					title: "事项进度记录",
+                    shadeClose: true,
 					maxmin: true,
 					area: ['900px', '400px'], //弹出层页面比例
                     content: "supervise_register.html?id="+id+"&tuid="+tuid

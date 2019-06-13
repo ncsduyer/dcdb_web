@@ -50,7 +50,7 @@
 </head>
 
 <body style="visibility: visible;">
-<div id="app" style=" width: 100%; height: 120%;">
+<div id="app" style=" width: 100%; height: 100%;">
     <div class="container-flex" tabindex="0" hidefocus="true">
         <div class="box-left">
             <div class="left-top">
@@ -65,7 +65,6 @@
                 </div>
                 <div class="chart-box pie-chart" style="">
                     <div id="pie_fanzui" style="width:100%; height: 95%; margin-top: 15px;"></div>
-
                 </div>
             </div>
             <div class="left-bottom select">
@@ -181,10 +180,10 @@
         <div class="box-right">
             <div class="right-top">
                 <div class="title-box">
-                    <h6 id="barTitle">区委会议召开统计</h6>
+                    <h6 id="barTitle">会风会纪督查统计</h6>
 
                 </div>
-                <p class="unit">单位：个</p>
+<!--                <p class="unit">单位：个</p>-->
                 <div class="chart-box">
                     <div id="pie_age" style="width:100%;height:80%; "></div>
                 </div>
@@ -193,7 +192,7 @@
             <div class="right-center">
 
                 <div class="title-box">
-                    <h6>区委公文运转统计</h6>
+                    <h6>区委公文问题统计</h6>
                 </div>
 
 
@@ -239,27 +238,19 @@
     //督察督办点击
     pie_fanzui.on('click', function(param) {
         if (typeof param.seriesIndex != 'undefined') {
-            console.log(param.name);
-            var url= 'http://do.scncry.com:9999/data/info.html?queryType=1&checkItemId=';
+            var url= 'http://do.scncry.com:9999/data/info.html?queryType=1';
             switch (param.name) {
-                case "未反馈":
-                    myselfinfo(param.name,url+"1");
+                case "超期办理中":
+                    myselfinfo(param.name, url + "&isExceed=1&status=1,2,3");
                     break;
-                case "已反馈办理中":
-                    myselfinfo(param.name,url+"2");
+                case "超期完成":
+                    myselfinfo(param.name, url + "&isExceed=1&status=4,5,6");
                     break;
-                case "部分完成":
-                    myselfinfo(param.name,url+"3");
+                case "正常办理中":
+                    myselfinfo(param.name, url + "&status=1,2,3");
                     break;
-                case "全部完成":
-                    myselfinfo(param.name,url+"4");
-                    break;
-                case "人为关闭":
-                    myselfinfo(param.name,url+"6");
-                    break;
-                case "事项归档":
-                    myselfinfo(param.name,url+"5");
-                    break;
+                case "正常已完成":
+                    myselfinfo(param.name, url + "&status=4,5,6");
                 default:
                     break;
             }
@@ -269,13 +260,13 @@
     line_time.on('click', function(param) {
         if (typeof param.seriesIndex != 'undefined') {
             var url= 'http://do.scncry.com:9999/data/info.html?queryType=4&checkItemId=';
-            var itemid;
-            for(var i=0,len=infoitem.length;i<len;i++){
-                if (infoitem[i].itemdesc==param.name){
-                    itemid=infoitem[i].id;
-                }
-            }
-            myselfinfo(param.name,url+itemid);
+            // var itemid;
+            // for(var i=0,len=infoitem.length;i<len;i++){
+            //     if (infoitem[i].itemdesc==param.name){
+            //         itemid=infoitem[i].id;
+            //     }
+            // }
+            myselfinfo(param.name,url+param.data.id);
         }
     });
     // 公文点击
@@ -310,7 +301,8 @@
             type: 2,
             title: ss_title,
             content: ss_url,
-            area:['300px', '200px'],
+            shadeClose: true,
+            area:['800px', '600px'],
             maxmin: true
         });
     }
@@ -353,7 +345,7 @@
         //获取督办事项相关统计
         var token = localStorage.getItem("wccToken");
         axios({
-            url: apiUrl.ApiUnitBigData,
+            url: apiUrl.ApiAssignBigData1,
             method: "GET",
             content: "获取数据中，请稍等...",
             headers: {
@@ -589,71 +581,47 @@
                 //    arrTitle.push(ret.data.data[i].itemdesc);
                 //}
 
-                arr.push(ret.data.data[i].count);
+                arr.push({
+                    value: ret.data.data[i].count,
+                    name:ret.data.data[i].itemdesc,
+                    id:ret.data.data[i].id
+                });
                 // arrTitle.push(ret.data.data[i].itemdesc);
                 arrTitle.push(ret.data.data[i].itemdesc);
             }
             var option = {
-                // 给echarts图设置背景色
-                //backgroundColor: '#FBFBFB',  // -----------> // 给echarts图设置背景色
-                color: ['#7FFF00'],
-                tooltip: {
-                    trigger: 'axis'
+                tooltip : {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {c} ({d}%)"
                 },
-
-                grid: {
-                    x: 40,
-                    y: 30,
-                    x2: 5,
-                    y2: 20
-
-                },
-                calculable: true,
-
-
-                xAxis: [{
-                    triggerEvent: true,
-                    type: 'category',
-                    data: arrTitle,
-                    axisLabel: {
-                        color: "#7FFF00", //刻度线标签颜色
-                        interval:0,
-                        formatter:function(value,index)
-                        {
-                            var res = value;
-                            if(res.length > 5) {
-                                res = res.substring(0, 4) + "..";
+                series : [
+                    {
+                        type: 'pie',
+                        radius : '55%',
+                        center: ['50%', '60%'],
+                        data:arr,
+                        itemStyle: {
+                            emphasis: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
                             }
-                            return res;
                         }
-                        // rotate:5
                     }
-                }],
-                yAxis: [{
-
-                    type: 'value',
-                    axisLabel: {
-                        color: "#7FFF00" //刻度线标签颜色
-                    }
-                }],
-                series: [{
-                    name: '区委信息工作统计',
-                    type: 'line',
-                    itemStyle: {
-                        normal: {
-                            // 随机显示
-                            color:function(d){return "#"+Math.floor(Math.random()*(256*256*256-1)).toString(16);}
-
-                            // 定制显示（按顺序）
-                            // color: function(params) {
-                            //     var colorList = ['#C33531','#EFE42A','#64BD3D','#EE9201','#29AAE3', '#B74AE5','#0AAF9F','#E89589','#16A085','#4A235A','#C39BD3 ','#F9E79F','#BA4A00','#ECF0F1','#616A6B','#EAF2F8','#4A235A','#3498DB' ];
-                            //     return colorList[params.dataIndex]
-                            // }
-                        },
-                    },
-                    data: arr,
-                }]
+                ]
             };
+
+            // var option={
+            //     series : [
+            //         {
+            //             name: '信息统计',
+            //             type: 'pie',
+            //             radius: '55%',
+            //             roseType: 'angle',
+            //             data:arr
+            //         }
+            //     ]
+            // };
             line_time.setOption(option);
             extension(line_time);
 
@@ -662,7 +630,7 @@
 
         //督办事项部门统计
         axios({
-            url: apiUrl.ApiAssignBigData,
+            url: apiUrl.ApiUnitBigData,
             method: "GET",
             content: "获取数据中，请稍等...",
             headers: {
@@ -988,7 +956,7 @@
     function Marqueehq() {
         var outerHeight = $('#tbody2').outerHeight();
         console.log(outerHeight);
-        if (tblTop <= -outerHeight * 6) {
+        if (tblTop <= -outerHeight ) {
             tblTop = 0;
         } else {
             tblTop -= 1;
@@ -998,7 +966,7 @@
     function Marqueehq1() {
         var outerHeight = $('#tbody3').outerHeight();
         //console.log(tblTop); console.log(-outerHeight * 7);
-        if (tblTop <= -outerHeight * 6) {
+        if (tblTop <= -outerHeight ) {
             tblTop = 0;
         } else {
             tblTop -= 1;

@@ -230,9 +230,11 @@ var apiUrl = {
     ApiInfosBigData: apiPrefix + "/BigData/countInfos",
     ApiCountBigData: apiPrefix + "/BigData/count",
     ApiAssignBigData: apiPrefix + "/BigData/countAssignStatus",
+    ApiAssignBigData1: apiPrefix + "/BigData/countAssignStatus1",
     ApiUnitStarBigData: apiPrefix + "/BigData/countUnitStar",
     ApiManagementBigData: apiPrefix + "/BigData/countManagementServicesStatistics",
-   
+
+
     
     
     
@@ -508,6 +510,7 @@ dialogOpen = function(options) {
 	var index = layer.open({
 		id: options.id,
 		type: 2,
+		shadeClose: true,
 		shade: options.shade,
 		title: options.title,
 		fix: false,

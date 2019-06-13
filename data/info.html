@@ -44,6 +44,22 @@
             getInfos(){
                 var token = localStorage.getItem("wccToken"); //获取
                 var _self=this;
+                var sreachDto={
+                    "queryType":  request("queryType"),
+                    "page":_self.current
+                };
+                if (request("checkItemId")!=undefined&&request("checkItemId")!=""){
+                    sreachDto.checkItemId=request("checkItemId");
+                }
+                if (request("tustatus")!=undefined&&request("tustatus")!=""){
+                    sreachDto.tustatus=request("tustatus").split(",");
+                }
+                if (request("status")!=undefined&&request("status")!=""){
+                    sreachDto.status=request("status").split(",");
+                }
+                if (request("isExceed")!=undefined&&request("isExceed")!=""){
+                    sreachDto.isExceed=request("isExceed");
+                }
                 axios({
                     // url: apiUrl.ApiBigInfo,
                     url:"http://do.scncry.com:8081/admin/api/BigData/infos",
@@ -51,11 +67,7 @@
                     headers: {
                         "Authorization": "Bearer " + token
                     },
-                    data: {
-                        "checkItemId": request("checkItemId"),
-                        "queryType":  request("queryType"),
-                        "page":_self.current
-                    },
+                    data: sreachDto,
                 }).then(function(ret) {
                     if (ret.data.success){
                         _self.columns=ret.data.data.titles;
