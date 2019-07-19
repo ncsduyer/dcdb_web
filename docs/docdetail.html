@@ -67,7 +67,7 @@
 									</tr>
 									<tr>
 										<td>办件人</td>
-										<td>{{item.bjr.join(' , ')}}</td>
+										<td>{{item.bjr.join(',')}}</td>
 									</tr>
 									<tr>
 										<td>是否超期</td>
@@ -79,11 +79,11 @@
 									</tr>
 									<tr>
 										<td >分送人</td>
-										<td>{{item.fsr.join(' , ')}}</td>
+										<td>{{item.fsr.join(',')}}</td>
 									</tr>
 									<tr>
 										<td>公文问题</td>
-										<td v-text="item.proUnit.join(' , ')"></td>
+										<td v-text="item.proUnit.join(',')"></td>
 									</tr>
 									<tr>
 										<td>来文时间</td>
@@ -97,10 +97,7 @@
 										<td>完成状态</td>
 										<td style="color: red;" v-text="statusFormat(item.status)"></td>
 									</tr>
-									<tr>
-										<td>部门单位</td>
-										<td>区总共会</td>
-									</tr>
+
 									<tr>
 										<td>领导批示</td>
 										<td>{{item.instructions}}</td>
@@ -125,44 +122,6 @@
 						</li>
 					</ul>
 				</li>
-				<!--<li class="one"><a href="">公文列表2</a>
-					<ul class="listdetail">
-						<li>
-							<table width="100%" border="1" cellspacing="0" cellpadding="0" class="tables" >
-								<tbody>
-									<tr>
-										<td>公文名称</td>
-										<td>哈哈哈会刚看到了打开了fghdsfghdfg点燃烽火东方红东方红给和反对共和的风头过后发给太后发给风格和地方规划福建会馆客房价格肯德基吧</td>
-									</tr>
-									<tr>
-										<td>接收人</td>
-										<td>张三</td>
-									</tr>
-									<tr>
-										<td>公文问题</td>
-										<td>错别字、未上报</td>
-									</tr>
-									<tr>
-										<td>来文时间</td>
-										<td>2019.01.22</td>
-									</tr>
-									<tr>
-										<td>完结时间</td>
-										<td>2019.03.23</td>
-									</tr>
-									<tr>
-										<td>完成状态</td>
-										<td style="color: red;">已完成</td>
-									</tr>
-									<tr>
-										<td>说明</td>
-										<td>郭德纲和克林顿访华给</td>
-									</tr>
-								</tbody>
-							</table>
-						</li>
-					</ul>
-				</li>-->
 			</ul>	
 		</div>			
 	</body>
@@ -213,11 +172,11 @@
 							// console.log(item.proUnit);
 						});
 						item.doPersonuser.forEach(function(items,index){
-							item.fsr.push(items.name);
+							item.bjr.push(items.name);
 							// console.log(item.fsr);
 						});
 						item.copySender.forEach(function(items,index){
-							item.bjr.push(items.name);
+							item.fsr.push(items.name);
 							// console.log(item.bjr);
 						});
 					})
@@ -226,9 +185,9 @@
 			//判断是否超期显示
 			exceedFormat(status){
 				if(status==1){
-					return "是";
+					return "超期";
 				}else{
-					return "否";
+					return "未超期";
 				}
 			},
 			statusFormat(status){

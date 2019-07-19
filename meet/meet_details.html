@@ -489,6 +489,11 @@
 //						console.log(JSON.stringify(res));
                         vm.showData5 = res.data.companys;
                         vm.meet = res.data;
+                        let len = vm.meet.resc.length;
+                        for(let i = 0; i < len; i++) { // 这里的i是代表数组的下标
+                            vm.meet.resc[i].files=vm.meet.resc[i].files.split(',');
+                            vm.meet.resc[i].pictures=vm.meet.resc[i].pictures.split(',');
+                        };
                     }
                 })
             },
@@ -547,6 +552,7 @@
                     item.pictures = item.pictures.join(",");
                     item.files = item.files.join(",")
                 });
+
                 // return;
                 axios({
                     url: apiUrl.ApimeetingEdit,

@@ -111,7 +111,7 @@
 					data: '',
 				}).then(function(ret) {
 					vm.modelCheckItem = [];
-					console.log(JSON.stringify(ret.data.data))
+					// console.log(JSON.stringify(ret.data.data))
 					$(ret.data.data).each(function(index, item) {
 						var tempitem = {};
 						tempitem.label = item.itemdesc;

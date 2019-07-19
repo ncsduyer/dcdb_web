@@ -20,7 +20,7 @@
 <body>
     <div id="app">
         <i-table border :columns="columns" :data="data"></i-table>
-        <Page :total="total" :current="current"  show-elevator
+        <Page :total="total" :current="current" :page-size="size"  show-elevator
                 @on-change="handlePageQuery"></Page>
     </div>
 </body>
@@ -32,7 +32,7 @@
             data:[],
             current: 1,
             pages: "",
-            size: '',
+            size: 12,
             total: ""
         },
         mounted: function() {
@@ -79,7 +79,8 @@
                     }
                 })
             },
-            handlePageQuery(){
+            handlePageQuery(current){
+                this.current=current;
                 this.getInfos();
             }
         }

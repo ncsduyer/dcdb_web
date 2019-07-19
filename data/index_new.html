@@ -688,11 +688,11 @@
             document.getElementById("tbody3").innerHTML = "";
             document.getElementById("tbody4").innerHTML = "";
             for (var i = 0; i < ret.data.data.length; i++) {
-                var num = parseInt(ret.data.data[i].dcdb) + parseInt(ret.data.data[i].qwhy) + parseInt(ret.data.data[i].qwgw) + parseInt(ret.data.data[i].qwxx);;
+                var num = parseInt(ret.data.data[i].qwhy) + parseInt(ret.data.data[i].qwgw) + parseInt(ret.data.data[i].qwxx);;
                 var color = "green";
-                if (num > 20) {
+                if (num > 6) {
                     color = "red";
-                } else if (num > 10) {
+                } else if (5 >= num > 3) {
                     color = "yellow";
                 }
                 var str = '<tr>' +

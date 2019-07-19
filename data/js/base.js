@@ -130,93 +130,93 @@ var pie_age = echarts.init(document.getElementById("pie_age"), 'infographic');
 //var line_time =echarts.init(document.getElementById("line_time"),'shine'); 
 var line_time = echarts.init(document.getElementById("line_time"), 'macarons');
 //var line_time =echarts.init(document.getElementById("line_time"),'infographic'); 
-var option = {
-	// 给echarts图设置背景色
-	//backgroundColor: '#FBFBFB',  // -----------> // 给echarts图设置背景色
-	color: ['#7FFF00'],
-	tooltip: {
-		trigger: 'axis'
-	},
-
-	grid: {
-		x: 40,
-		y: 30,
-		x2: 5,
-		y2: 20
-
-	},
-	calculable: true,
-
-
-	xAxis: [{
-		type: 'category',
-		data: ['上报数', '采用数', '采纳率', '逾期上报', '未上报', '得分'],
-		axisLabel: {
-			color: "#7FFF00" //刻度线标签颜色
-		}
-	}],
-	yAxis: [{
-
-		type: 'value',
-		axisLabel: {
-			color: "#7FFF00" //刻度线标签颜色
-		}
-	}],
-	series: [{
-		name: '区委信息工作统计',
-		type: 'line',
-		data: [800, 3000, 500, 800, 300, 600, 600],
-
-	}]
-};
-
-
-line_time.setOption(option);
+// var option = {
+// 	// 给echarts图设置背景色
+// 	//backgroundColor: '#FBFBFB',  // -----------> // 给echarts图设置背景色
+// 	color: ['#7FFF00'],
+// 	tooltip: {
+// 		trigger: 'axis'
+// 	},
+//
+// 	grid: {
+// 		x: 40,
+// 		y: 30,
+// 		x2: 5,
+// 		y2: 20
+//
+// 	},
+// 	calculable: true,
+//
+//
+// 	xAxis: [{
+// 		type: 'category',
+// 		data: ['上报数', '采用数', '采纳率', '逾期上报', '未上报', '得分'],
+// 		axisLabel: {
+// 			color: "#7FFF00" //刻度线标签颜色
+// 		}
+// 	}],
+// 	yAxis: [{
+//
+// 		type: 'value',
+// 		axisLabel: {
+// 			color: "#7FFF00" //刻度线标签颜色
+// 		}
+// 	}],
+// 	series: [{
+// 		name: '区委信息工作统计',
+// 		type: 'line',
+// 		data: [800, 3000, 500, 800, 300, 600, 600],
+//
+// 	}]
+// };
+//
+//
+// line_time.setOption(option);
 
 
 //=========违法犯罪人员地区分布开始=======================
 //var qufenbu_data =echarts.init(document.getElementById("qufenbu_data"),'shine'); 
 //var qufenbu_data =echarts.init(document.getElementById("qufenbu_data"),'macarons'); 
 var qufenbu_data = echarts.init(document.getElementById("qufenbu_data"), 'infographic');
-option = {
-	color: ['#FADB71'],
-	tooltip: {
-		trigger: 'axis',
-		axisPointer: { // 坐标轴指示器，坐标轴触发有效
-			type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
-		}
-	},
-	grid: {
-		x: 30,
-		y: 10,
-		x2: 15,
-		y2: 20
-	},
-	xAxis: [{
-		type: 'category',
-		data: ['错别字', '格式有误', '体外循环', '一文多送', '平均时长', '逾期上报', '未上报'],
-		axisTick: {
-			alignWithLabel: true
-		},
-		axisLabel: {
-			color: "#FADB71" //刻度线标签颜色
-		}
-	}],
-	yAxis: [{
-		type: 'value',
-		axisLabel: {
-			color: "#FADB71" //刻度线标签颜色
-		}
-	}],
-	series: [{
-		name: '区委公文运转统计',
-		type: 'bar',
-		barWidth: '60%',
-		data: [10, 52, 200, 334, 390, 330, 220]
-	}]
-};
-
-qufenbu_data.setOption(option);
+// option = {
+// 	color: ['#FADB71'],
+// 	tooltip: {
+// 		trigger: 'axis',
+// 		axisPointer: { // 坐标轴指示器，坐标轴触发有效
+// 			type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+// 		}
+// 	},
+// 	grid: {
+// 		x: 30,
+// 		y: 10,
+// 		x2: 15,
+// 		y2: 20
+// 	},
+// 	xAxis: [{
+// 		type: 'category',
+// 		data: ['错别字', '格式有误', '体外循环', '一文多送', '平均时长', '逾期上报', '未上报'],
+// 		axisTick: {
+// 			alignWithLabel: true
+// 		},
+// 		axisLabel: {
+// 			color: "#FADB71" //刻度线标签颜色
+// 		}
+// 	}],
+// 	yAxis: [{
+// 		type: 'value',
+// 		axisLabel: {
+// 			color: "#FADB71" //刻度线标签颜色
+// 		}
+// 	}],
+// 	series: [{
+// 		name: '区委公文运转统计',
+// 		type: 'bar',
+// 		barWidth: '60%',
+// 		data: [10, 52, 200, 334, 390, 330, 220]
+// 	}]
+// };
+//
+// qufenbu_data.setOption(option);
 //=========违法犯罪人员地区分布结束=======================
 
 /*
@@ -513,4 +513,4 @@ option = {
 	]
 };
 
-china_mapa.setOption(option);
+// china_mapa.setOption(option);

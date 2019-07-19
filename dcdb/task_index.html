@@ -331,12 +331,28 @@
                         title: '督办要求',
                         key: 'assignmemo'
                     },
-                    {
-                        title: '办结时间',
-                        key: 'endtime',
-                        width: 110,
-                        sortable: true
-                    },
+                        {
+                            title: '办结时间',
+                            key: 'endtime',
+                            width: 110,
+                            sortable: true,
+                            render: (h, params) => {
+                                let endtime = params.row.endtime;
+                                if (endtime === "") {
+                                    endtime = "还未办结";
+                                }
+
+                            return h('span', {
+                                props: {
+                                    type: 'primary',
+                                    size: 'small'
+                                },
+                                style: {
+                                    color: '#2d8cf0'
+                                },
+                                on: {}
+                            }, endtime);
+                    }},
                     {
                         title: '目前状态',
                         key: 'step',
@@ -568,9 +584,10 @@
                             sortable: true,
                             render: (h, params) => {
                                 let spans=[];
+                                let endtime=params.row.endtime;
                                 let lengt=params.row.taskassignUnits.length;
-                                for (let i = 0; i < lengt; i++) {
-                                    let item=params.row.taskassignUnits[i];
+                                if (params.row.endtime!="") {
+                                    endtime=params.row.endtime;
                                     spans.push(h('span', {
                                         props: {
                                             type: 'primary',
@@ -581,8 +598,32 @@
                                         },
                                         on: {
                                         }
-                                    }, item.endtime));
+                                    }, endtime));
                                     spans.push(h('br'));
+                                }else{
+                                    for (let i = 0; i < lengt; i++) {
+                                        let item=params.row.taskassignUnits[i];
+                                        endtime=item.endtime
+                                        if(endtime===""){
+                                            if (params.row.endtime!="") {
+                                                endtime=params.row.endtime
+                                            }else{
+                                                endtime='还未办结';
+                                            }
+                                        }
+                                        spans.push(h('span', {
+                                            props: {
+                                                type: 'primary',
+                                                size: 'small'
+                                            },
+                                            style: {
+                                                color: '#2d8cf0'
+                                            },
+                                            on: {
+                                            }
+                                        }, endtime));
+                                        spans.push(h('br'));
+                                    }
                                 }
                                 return h('div', spans);
                             }
@@ -669,26 +710,41 @@
                                         }
                                     }
                                 }, '查看'));
-
+                            tmparr.push(
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            openHtml("task_edit.html?id="+params.row.id);
+                                        }
+                                    }
+                                }, '编辑')
+                            );
 
                             if (params.row.status == '2' || params.row.status == '3' || params.row.status == '4' || params.row.status == '1') {
                                 if (params.row.creatorid == s_pubuserid && s_wh_sn == 1) {
-                                    tmparr.push(
-                                        h('Button', {
-                                            props: {
-                                                type: 'info',
-                                                size: 'small'
-                                            },
-                                            style: {
-                                                marginRight: '5px'
-                                            },
-                                            on: {
-                                                click: () => {
-                                                    openHtml("task_edit.html?id="+params.row.id);
-                                                }
-                                            }
-                                        }, '编辑')
-                                    );
+                                    // tmparr.push(
+                                    //     h('Button', {
+                                    //         props: {
+                                    //             type: 'info',
+                                    //             size: 'small'
+                                    //         },
+                                    //         style: {
+                                    //             marginRight: '5px'
+                                    //         },
+                                    //         on: {
+                                    //             click: () => {
+                                    //                 openHtml("task_edit.html?id="+params.row.id);
+                                    //             }
+                                    //         }
+                                    //     }, '编辑')
+                                    // );
                                     tmparr.push(
                                         h('Button', {
                                             props: {

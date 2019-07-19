@@ -114,6 +114,10 @@
             <Form-Item label="督办要求">
                 <i-input v-model="inputform.assignmemo" type="textarea" :autosize="{minRows: 2,maxRows: 5}"  id="dbyq" placeholder="请填写督办要求"></i-input>
             </Form-Item>
+            <Form-Item label="归档时间">
+                    <Date-Picker v-model="inputform.endtime" format="yyyy-MM-dd" type="date" placeholder="请选择归档时间" :options="startTimeOptions"  style="width:120px;"></Date-Picker>
+            </Form-Item>
+
             <Form-Item label="归档说明">
                 <i-input v-model="inputform.closememo" type="textarea" :autosize="{minRows: 2,maxRows: 5}"  id="gdsm" ></i-input>
             </Form-Item>
@@ -162,6 +166,8 @@
                 assignmemo: '',
                 charge:'',
                 phone:'',
+                endtime: '',
+                closememo: ''
             },
             modelOverseePeopleList:[],
             modelCheckItem: [
@@ -382,6 +388,7 @@
                 sendobj.charge = charge;
                 sendobj.phone = phone;
                 sendobj.closememo = this.inputform.closememo;
+                sendobj.endtime = this.inputform.endtime;
                 // console.log(this.chooseDeptList);
                 // this.inputform.taskassignUnits.forEach(function (obj, index) {
                 //     var tmpobj = {};
