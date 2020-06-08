@@ -489,7 +489,7 @@
             },
             data: ''
         }).then(function (ret) {
-
+            console.log(ret);
             var arr = [];
             var arrTitle = [];
             for (var i = 0; i < ret.data.data.length; i++) {
@@ -527,7 +527,7 @@
                         {
                             var res = value;
                             if(res.length > 5) {
-                                res = res.substring(0, 4) + "..";
+                                res = res.substring(0, 3) + "..";
                             }
                             return res;
                         }
@@ -688,13 +688,15 @@
             document.getElementById("tbody3").innerHTML = "";
             document.getElementById("tbody4").innerHTML = "";
             for (var i = 0; i < ret.data.data.length; i++) {
-                var num = parseInt(ret.data.data[i].qwhy) + parseInt(ret.data.data[i].qwgw) + parseInt(ret.data.data[i].qwxx);;
+                var num = parseInt(ret.data.data[i].dcdb) + parseInt(ret.data.data[i].qwhy) + parseInt(ret.data.data[i].qwgw) + parseInt(ret.data.data[i].qwxx);;
                 var color = "green";
-                if (num > 6) {
-                    color = "red";
-                } else if (5 >= num > 3) {
+                if (6 > num && num > 3) {
                     color = "yellow";
+                } else if (num > 6) {
+                    color = "red";
                 }
+                console.log(num)
+                console.log(color)
                 var str = '<tr>' +
                     '<td>' +
                     '<span class="iconfont" style="color: ' + color + ';">&#xe624;</span>' +

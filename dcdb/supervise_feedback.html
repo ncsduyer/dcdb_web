@@ -174,11 +174,11 @@
                 endTimeChange: function (e) {
                     //debugger
                     let endTime = this.starttime ? new Date(this.starttime).valueOf() - 1 * 24 * 60 * 60 * 1000 : '';
-                    this.startTimeOptions = {
-                        disabledDate(date) {
-                            return date && date.valueOf() < Date.now() && endTime != '';
-                        }
-                    }
+                    // this.startTimeOptions = {
+                    //     disabledDate(date) {
+                    //         return date && date.valueOf() < Date.now() && endTime != '';
+                    //     }
+                    // }
                 },
 
                 //得到用户基础信息

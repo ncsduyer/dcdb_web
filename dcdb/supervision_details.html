@@ -240,7 +240,7 @@
 
                         var rtobj = ret.data.data;
 
-                        $('#createdTime').text(rtobj.createtime.substring(0, 11))//交办时间
+                        $('#createdTime').text(rtobj.assigntime.substring(0, 11))//交办时间
                         $('#tasktitle').text(rtobj.task.title)//交办事项
                         $('#assignmemo').text(rtobj.assignmemo);//交办要求
                         $('#endtime').text(rtobj.endtime);//办结时限
@@ -303,7 +303,7 @@
 
                             if (row.taskassignUnitdeals.length > 0) {
                                 $(row.taskassignUnitdeals).each(function (indexmx, itemmx) {
-                                    console.log(itemmx)
+                                    // console.log(itemmx)
                                     var createtime = itemmx.createtime;
                                     var dealdesc = itemmx.dealdesc;
                                     var status = itemmx.status;
